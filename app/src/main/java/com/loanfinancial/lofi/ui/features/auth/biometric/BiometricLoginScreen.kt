@@ -7,19 +7,39 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
+import com.loanfinancial.lofi.core.di.BiometricAuthenticatorEntryPoint
+import dagger.hilt.android.EntryPointAccessors
 
 @Composable
 fun BiometricLoginScreen(
     onBiometricSuccess: () -> Unit,
     onBiometricFailed: (String) -> Unit,
     onUsePasswordClick: () -> Unit,
-    viewModel: BiometricLoginViewModel = hiltViewModel(),
 ) {
+    val context = LocalContext.current
+    val activity = context as android.app.Activity
+
+    // Get BiometricAuthenticator from Activity component
+    val biometricAuthenticator = remember(activity) {
+        EntryPointAccessors.fromActivity(
+            activity,
+            BiometricAuthenticatorEntryPoint::class.java,
+        ).biometricAuthenticator()
+    }
+
+    // Create ViewModel using the factory
+    val viewModel: BiometricLoginViewModel = viewModel(
+        factory = BiometricLoginViewModel.provideFactory(biometricAuthenticator)
+    )
+
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 

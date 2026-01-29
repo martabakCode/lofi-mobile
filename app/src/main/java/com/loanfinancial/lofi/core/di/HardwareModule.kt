@@ -1,6 +1,8 @@
 package com.loanfinancial.lofi.core.di
 
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticatorImpl
 import com.loanfinancial.lofi.core.location.LocationManager
@@ -9,6 +11,7 @@ import com.loanfinancial.lofi.core.media.CameraManager
 import com.loanfinancial.lofi.core.media.CameraManagerImpl
 import com.loanfinancial.lofi.core.media.UploadManager
 import com.loanfinancial.lofi.core.media.UploadManagerImpl
+import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginViewModel
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -48,4 +51,19 @@ object BiometricModule {
     fun provideBiometricAuthenticator(
         activity: FragmentActivity,
     ): BiometricAuthenticator = BiometricAuthenticatorImpl(activity)
+
+    @Provides
+    fun provideBiometricLoginViewModelFactory(
+        biometricAuthenticator: BiometricAuthenticator,
+    ): ViewModelProvider.Factory {
+        return object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                if (modelClass.isAssignableFrom(BiometricLoginViewModel::class.java)) {
+                    return BiometricLoginViewModel(biometricAuthenticator) as T
+                }
+                throw IllegalArgumentException("Unknown ViewModel class")
+            }
+        }
+    }
 }
