@@ -1,0 +1,16 @@
+package com.loanfinancial.lofi.data.remote.api
+
+import com.loanfinancial.lofi.core.network.BaseResponse
+import com.loanfinancial.lofi.core.network.PagingResponse
+import com.loanfinancial.lofi.data.model.dto.ProductDto
+import retrofit2.Response
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+interface LoanProductApi {
+    @GET("products")
+    suspend fun getProducts(
+        @Query("isActive") isActive: Boolean,
+        @Query("size") size: Int,
+    ): Response<BaseResponse<PagingResponse<ProductDto>>>
+}

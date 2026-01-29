@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">LoFi</string>
+    <string name="home_title">Home</string>
+    <string name="simulation_title">Simulation</string>
+    <string name="history_title">History</string>
+    <string name="profile_title">Profile</string>
+    <string name="apply_loan">Apply Loan</string>
+    <string name="my_loans">My Loans</string>
+    <string name="active_loan">Active Loan</string>
+    <string name="loan_limit">Loan Limit</string>
+    <string name="used">Used: %1$s</string>
+    <string name="type">Type</string>
+    <string name="next_due">Next Due</string>
+    <string name="hi_user">Hi, %1$s 👋</string>
+    <string name="error_fetch_loans">Failed to fetch loans</string>
+    <string name="no_active_loans">No active loans</string>
+    <string name="lofi_welcome">Welcome to LoFi</string>
+    <string name="loan_history">Loan History</string>
+    <string name="amount_label">Amount: %1$s</string>
+    <string name="date_label">Date: %1$s</string>
+    <string name="status_label">Status: %1$s</string>
+    <string name="back">Back</string>
+    <string name="notifications">Notifications</string>
+    <string name="personal_information">Personal Information</string>
+    <string name="login_to_view_history">Please login to view your loan history.</string>
+    <string name="login_to_view_profile">Please login to view your profile.</string>
+    <string name="login_button">Log In</string>
+    <string name="skip_login">Skip Login</string>
+
+    <string name="complete_profile_title">Complete Profile</string>
+    <string name="complete_profile_desc">Complete your profile to unlock your loan limit.</string>
+    <string name="complete_profile_cta">Complete Now</string>
+</resources>

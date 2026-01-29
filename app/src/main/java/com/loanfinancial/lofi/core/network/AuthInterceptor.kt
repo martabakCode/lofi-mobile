@@ -1,0 +1,47 @@
+package com.loanfinancial.lofi.core.network
+
+import com.loanfinancial.lofi.data.local.datastore.PreferencesManager
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.runBlocking
+import okhttp3.Interceptor
+import okhttp3.Response
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class AuthInterceptor
+    @Inject
+    constructor(
+        private val preferencesManager: PreferencesManager,
+    ) : Interceptor {
+        override fun intercept(chain: Interceptor.Chain): Response {
+            val originalRequest = chain.request()
+            val requestUrl = originalRequest.url
+            val path = requestUrl.encodedPath
+            val baseUrl = com.loanfinancial.lofi.BuildConfig.BASE_URL
+
+            // ONLY add auth header if the request is to our own backend
+            val isOurBackend = requestUrl.toString().startsWith(baseUrl)
+
+            // Skip auth header for login/register or IF IT'S NOT our backend (e.g. Cloudflare R2 presigned URL)
+            if (!isOurBackend || path.contains("auth/login") || path.contains("auth/register")) {
+                return chain.proceed(originalRequest)
+            }
+
+            val token =
+                runBlocking {
+                    preferencesManager.tokenFlow.firstOrNull()
+                }
+
+            val request =
+                originalRequest
+                    .newBuilder()
+                    .apply {
+                        if (!token.isNullOrEmpty()) {
+                            addHeader("Authorization", "Bearer $token")
+                        }
+                    }.build()
+
+            return chain.proceed(request)
+        }
+    }

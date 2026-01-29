@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "353182557200",
+    "project_id": "lofi-41bc7",
+    "storage_bucket": "lofi-41bc7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353182557200:android:2d6c22d2b7e4fdf0939695",
+        "android_client_info": {
+          "package_name": "com.loanfinancial.lofi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "353182557200-ia9q2jjo35ptahkbv1tsnd7ro8rqlbdf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.loanfinancial.lofi",
+            "certificate_hash": "e794c882d5fbc1fcb6be0c01d0cc317ad4b78b4d"
+          }
+        },
+        {
+          "client_id": "353182557200-mcud2bfla27e0vf0bogosvpdqa89gmnv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_K9_KgAc0y7EjDxCFDNfCK8WF8_QXpoc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "353182557200-mcud2bfla27e0vf0bogosvpdqa89gmnv.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
