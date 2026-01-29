@@ -48,20 +48,22 @@ fun BiometricLoginScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .padding(padding)
-                .padding(24.dp)
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .padding(padding)
+                    .padding(24.dp)
+                    .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Header
             Text(
                 text = "Welcome Back",
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 32.sp,
-                ),
+                style =
+                    MaterialTheme.typography.displaySmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 32.sp,
+                    ),
                 color = MaterialTheme.colorScheme.onBackground,
             )
 
@@ -81,9 +83,10 @@ fun BiometricLoginScreen(
                 // Show error state
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                    ),
+                    colors =
+                        CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                        ),
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),

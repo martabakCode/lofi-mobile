@@ -11,7 +11,6 @@ import com.loanfinancial.lofi.core.media.DocumentType
 import com.loanfinancial.lofi.core.media.UploadManager
 import com.loanfinancial.lofi.core.media.UploadResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -158,8 +157,6 @@ class ApplyLoanViewModel
             currentDocuments.remove(documentType)
             _formState.update { it.copy(documents = currentDocuments) }
         }
-
-
 
         fun onBiometricResult(result: BiometricResult) {
             when (result) {

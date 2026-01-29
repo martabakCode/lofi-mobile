@@ -6,9 +6,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.loanfinancial.lofi.data.model.dto.NotificationType
+import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginScreen
 import com.loanfinancial.lofi.ui.features.auth.login.LoginScreen
 import com.loanfinancial.lofi.ui.features.auth.register.RegisterScreen
-import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginScreen
 import com.loanfinancial.lofi.ui.features.dashboard.DashboardScreen
 import com.loanfinancial.lofi.ui.features.loan.ApplyLoanScreen
 import com.loanfinancial.lofi.ui.features.loan.LoanDetailScreen

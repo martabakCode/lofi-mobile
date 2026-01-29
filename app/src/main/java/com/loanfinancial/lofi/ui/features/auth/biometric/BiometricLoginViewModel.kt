@@ -20,85 +20,89 @@ data class BiometricLoginUiState(
 )
 
 @HiltViewModel
-class BiometricLoginViewModel @Inject constructor(
-    private val biometricAuthenticator: BiometricAuthenticator,
-) : ViewModel() {
-    private val _uiState = MutableStateFlow(BiometricLoginUiState())
-    val uiState: StateFlow<BiometricLoginUiState> = _uiState.asStateFlow()
+class BiometricLoginViewModel
+    @Inject
+    constructor(
+        private val biometricAuthenticator: BiometricAuthenticator,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(BiometricLoginUiState())
+        val uiState: StateFlow<BiometricLoginUiState> = _uiState.asStateFlow()
 
-    init {
-        checkBiometricAvailability()
-    }
-
-    private fun checkBiometricAvailability() {
-        val isAvailable = biometricAuthenticator.isBiometricAvailable() &&
-                         biometricAuthenticator.isBiometricEnrolled()
-        _uiState.update { it.copy(isBiometricAvailable = isAvailable) }
-    }
-
-    fun authenticate() {
-        if (!_uiState.value.isBiometricAvailable) {
-            _uiState.update {
-                it.copy(error = "Biometric authentication is not available")
-            }
-            return
+        init {
+            checkBiometricAvailability()
         }
 
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+        private fun checkBiometricAvailability() {
+            val isAvailable =
+                biometricAuthenticator.isBiometricAvailable() &&
+                    biometricAuthenticator.isBiometricEnrolled()
+            _uiState.update { it.copy(isBiometricAvailable = isAvailable) }
+        }
 
-            biometricAuthenticator.authenticate(
-                title = "Login to LOFI",
-                subtitle = "Authenticate to continue",
-                description = "Use your fingerprint or face to login",
-                negativeButtonText = "Use Password",
-            ).collect { result ->
-                when (result) {
-                    is BiometricResult.Success -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                biometricSuccess = true,
-                            )
-                        }
-                    }
-                    is BiometricResult.Error -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                error = result.errorMessage,
-                            )
-                        }
-                    }
-                    is BiometricResult.Cancelled -> {
-                        _uiState.update { it.copy(isLoading = false) }
-                    }
-                    is BiometricResult.NotAvailable -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                error = "Biometric authentication is not available on this device",
-                            )
-                        }
-                    }
-                    is BiometricResult.NotEnrolled -> {
-                        _uiState.update {
-                            it.copy(
-                                isLoading = false,
-                                error = "No biometric credentials enrolled. Please set up fingerprint or face recognition in device settings.",
-                            )
-                        }
-                    }
+        fun authenticate() {
+            if (!_uiState.value.isBiometricAvailable) {
+                _uiState.update {
+                    it.copy(error = "Biometric authentication is not available")
                 }
+                return
+            }
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+
+                biometricAuthenticator
+                    .authenticate(
+                        title = "Login to LOFI",
+                        subtitle = "Authenticate to continue",
+                        description = "Use your fingerprint or face to login",
+                        negativeButtonText = "Use Password",
+                    ).collect { result ->
+                        when (result) {
+                            is BiometricResult.Success -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        biometricSuccess = true,
+                                    )
+                                }
+                            }
+                            is BiometricResult.Error -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        error = result.errorMessage,
+                                    )
+                                }
+                            }
+                            is BiometricResult.Cancelled -> {
+                                _uiState.update { it.copy(isLoading = false) }
+                            }
+                            is BiometricResult.NotAvailable -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        error = "Biometric authentication is not available on this device",
+                                    )
+                                }
+                            }
+                            is BiometricResult.NotEnrolled -> {
+                                _uiState.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        error = "No biometric credentials enrolled. Please set up fingerprint or face recognition in device settings.",
+                                    )
+                                }
+                            }
+                        }
+                    }
             }
         }
-    }
 
-    fun onBiometricSuccessHandled() {
-        _uiState.update { it.copy(biometricSuccess = false) }
-    }
+        fun onBiometricSuccessHandled() {
+            _uiState.update { it.copy(biometricSuccess = false) }
+        }
 
-    fun onErrorShown() {
-        _uiState.update { it.copy(error = null) }
+        fun onErrorShown() {
+            _uiState.update { it.copy(error = null) }
+        }
     }
-}

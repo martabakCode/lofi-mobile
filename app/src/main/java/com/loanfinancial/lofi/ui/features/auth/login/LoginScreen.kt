@@ -25,7 +25,6 @@ import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.ui.components.LofiButton
 import com.loanfinancial.lofi.ui.components.LofiTextField
 import com.loanfinancial.lofi.ui.components.SocialAuthButton
-import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginScreen
 import com.loanfinancial.lofi.ui.theme.LofiTheme
 import kotlinx.coroutines.launch
 
