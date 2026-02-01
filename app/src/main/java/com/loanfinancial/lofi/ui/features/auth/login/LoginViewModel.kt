@@ -1,10 +1,15 @@
 package com.loanfinancial.lofi.ui.features.auth.login
 
+import android.content.Context
+import com.loanfinancial.lofi.R
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
-import com.loanfinancial.lofi.data.local.datastore.PreferencesManager
+import com.loanfinancial.lofi.core.network.toUserFriendlyMessage
+import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
 import com.loanfinancial.lofi.data.model.dto.GoogleAuthRequest
 import com.loanfinancial.lofi.data.model.dto.LoginRequest
 import com.loanfinancial.lofi.data.remote.firebase.IFcmTokenManager
@@ -43,7 +48,8 @@ class LoginViewModel
         private val getFirebaseIdTokenUseCase: GetFirebaseIdTokenUseCase,
         private val authRepository: IAuthRepository,
         private val fcmTokenManager: IFcmTokenManager,
-        private val preferencesManager: PreferencesManager,
+        private val dataStoreManager: DataStoreManager,
+        @ApplicationContext private val context: Context,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(LoginUiState())
         val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
@@ -54,7 +60,7 @@ class LoginViewModel
 
         private fun checkBiometricStatus() {
             viewModelScope.launch {
-                val isEnabled = preferencesManager.isBiometricEnabled()
+                val isEnabled = dataStoreManager.isBiometricEnabled()
                 _uiState.update { it.copy(isBiometricEnabled = isEnabled) }
             }
         }
@@ -80,21 +86,21 @@ class LoginViewModel
             var passwordError: String? = null
 
             if (currentState.email.isBlank()) {
-                emailError = "Email cannot be empty"
+                emailError = context.getString(R.string.validation_email_empty)
                 isValid = false
             } else if (!android.util.Patterns.EMAIL_ADDRESS
                     .matcher(currentState.email)
                     .matches()
             ) {
-                emailError = "Invalid email format"
+                emailError = context.getString(R.string.validation_email_invalid)
                 isValid = false
             }
 
             if (currentState.password.isBlank()) {
-                passwordError = "Password cannot be empty"
+                passwordError = context.getString(R.string.validation_password_empty)
                 isValid = false
             } else if (currentState.password.length < 6) {
-                passwordError = "Password must be at least 6 characters"
+                passwordError = context.getString(R.string.validation_password_length, 6)
                 isValid = false
             }
 
@@ -135,7 +141,7 @@ class LoginViewModel
                             _uiState.update {
                                 it.copy(
                                     isLoading = false,
-                                    loginError = "Unauthorized: Access restricted to Customers only.",
+                                    loginError = context.getString(R.string.error_unauthorized_customer),
                                 )
                             }
                         }
@@ -145,12 +151,13 @@ class LoginViewModel
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                loginError = "Failed to verify user role.",
+                                loginError = context.getString(R.string.error_verify_role_failed),
                             )
                         }
                     }
                 } else {
-                    val errorMessage = loginResult.exceptionOrNull()?.message ?: "Login failed"
+                    val exception = loginResult.exceptionOrNull()
+                    val errorMessage = exception?.toUserFriendlyMessage() ?: context.getString(R.string.error_login_failed)
                     _uiState.update { it.copy(isLoading = false, loginError = errorMessage) }
                 }
             }
@@ -162,7 +169,7 @@ class LoginViewModel
 
         fun onEnableBiometric() {
             viewModelScope.launch {
-                preferencesManager.setBiometricEnabled(true)
+                dataStoreManager.setBiometricEnabled(true)
                 _uiState.update {
                     it.copy(
                         showEnableBiometricDialog = false,
@@ -230,7 +237,7 @@ class LoginViewModel
                                     _uiState.update {
                                         it.copy(
                                             isLoading = false,
-                                            loginError = "Unauthorized: Access restricted to Customers only.",
+                                            loginError = context.getString(R.string.error_unauthorized_customer),
                                         )
                                     }
                                 }
@@ -239,31 +246,37 @@ class LoginViewModel
                                 _uiState.update {
                                     it.copy(
                                         isLoading = false,
-                                        loginError = "Failed to verify user role.",
+                                        loginError = context.getString(R.string.error_verify_role_failed),
                                     )
                                 }
                             }
                         } else {
+                            val exception = googleAuthResult.exceptionOrNull()
+                            val errorMessage = exception?.toUserFriendlyMessage() ?: context.getString(R.string.error_backend_verification_failed)
                             _uiState.update {
                                 it.copy(
                                     isLoading = false,
-                                    loginError = googleAuthResult.exceptionOrNull()?.message ?: "Backend Verification Failed",
+                                    loginError = errorMessage,
                                 )
                             }
                         }
                     } else {
+                        val exception = tokenResult.exceptionOrNull()
+                        val errorMessage = exception?.toUserFriendlyMessage() ?: context.getString(R.string.error_firebase_token_failed)
                         _uiState.update {
                             it.copy(
                                 isLoading = false,
-                                loginError = "Failed to get Firebase token: ${tokenResult.exceptionOrNull()?.message}",
+                                loginError = errorMessage,
                             )
                         }
                     }
                 } else {
+                    val exception = firebaseResult.exceptionOrNull()
+                    val errorMessage = exception?.toUserFriendlyMessage() ?: context.getString(R.string.error_firebase_signin_failed)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            loginError = "Firebase Sign In Failed: ${firebaseResult.exceptionOrNull()?.message}",
+                            loginError = errorMessage,
                         )
                     }
                 }
@@ -278,10 +291,12 @@ class LoginViewModel
                 if (result.isSuccess) {
                     _uiState.update { it.copy(isLoading = false, isLoginSuccessful = true) }
                 } else {
+                    val exception = result.exceptionOrNull()
+                    val errorMessage = exception?.toUserFriendlyMessage() ?: context.getString(R.string.error_facebook_login_failed)
                     _uiState.update {
                         it.copy(
                             isLoading = false,
-                            loginError = result.exceptionOrNull()?.message ?: "Facebook Login Failed",
+                            loginError = errorMessage,
                         )
                     }
                 }

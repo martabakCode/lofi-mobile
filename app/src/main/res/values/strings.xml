@@ -30,4 +30,75 @@
     <string name="complete_profile_title">Complete Profile</string>
     <string name="complete_profile_desc">Complete your profile to unlock your loan limit.</string>
     <string name="complete_profile_cta">Complete Now</string>
+
+    <!-- Validation Messages -->
+    <string name="validation_email_empty">Email cannot be empty</string>
+    <string name="validation_email_invalid">Invalid email format</string>
+    <string name="validation_password_empty">Password cannot be empty</string>
+    <string name="validation_password_length">Password must be at least %1$d characters</string>
+    <string name="validation_fullname_required">Full name is required</string>
+    <string name="validation_phone_required">Phone number is required</string>
+    <string name="validation_username_required">Username is required</string>
+    <string name="validation_password_mismatch">Passwords do not match</string>
+
+    <!-- Error Messages -->
+    <string name="error_login_failed">Login failed</string>
+    <string name="error_registration_failed">Registration failed</string>
+    <string name="error_load_profile_failed">Failed to load profile</string>
+    <string name="error_user_not_found">User data not found</string>
+    <string name="error_network">Network error occurred</string>
+    <string name="error_connection_timeout">Connection timed out</string>
+    <string name="error_server">Server error occurred</string>
+    <string name="error_unexpected">An unexpected error occurred</string>
+
+    <!-- UI Labels -->
+    <string name="label_welcome_back">Welcome Back</string>
+    <string name="label_create_account">Create Account</string>
+    <string name="label_sign_in">Sign In</string>
+    <string name="label_register">Register</string>
+    <string name="label_forgot_password">Forgot Password?</string>
+    <string name="label_change_password">Change Password</string>
+    <string name="label_profile_info">Profile Information</string>
+    <string name="label_personal_info">Personal Information</string>
+
+    <!-- Button Texts -->
+    <string name="btn_submit">Submit</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_retry">Retry</string>
+    <string name="btn_continue">Continue</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_ok">OK</string>
+    <string name="error_unauthorized_customer">Unauthorized: Access restricted to Customers only.</string>
+    <string name="error_verify_role_failed">Failed to verify user role.</string>
+    <string name="error_backend_verification_failed">Backend Verification Failed</string>
+    <string name="error_firebase_token_failed">Failed to get Firebase token</string>
+    <string name="error_firebase_signin_failed">Firebase Sign In Failed</string>
+    <string name="error_facebook_login_failed">Facebook Login Failed</string>
+    <string name="biometric_prompt_title">Login to LOFI</string>
+    <string name="biometric_prompt_subtitle">Authenticate to continue</string>
+    <string name="biometric_prompt_description">Use your fingerprint or face to login</string>
+    <string name="biometric_prompt_negative">Use Password</string>
+    <string name="error_biometric_not_available">Biometric authentication is not available on this device</string>
+    <string name="error_biometric_not_enrolled">No biometric credentials enrolled. Please set up fingerprint or face recognition in device settings.</string>
+    <string name="biometric_login_title">Login with Biometric</string>
+    <string name="desc_biometric_login">Biometric Login</string>
+    <string name="biometric_tap_to_auth">Tap to authenticate</string>
+    <string name="biometric_use_password">Use Password Instead</string>
+    <string name="error_google_signin_no_token">Google Sign In Failed: No ID token received. Please ensure your app is properly configured in Firebase Console with SHA-1 fingerprint.</string>
+    <string name="error_google_signin_sha1">Google Sign In failed: Please check SHA-1 configuration in Firebase Console</string>
+    <string name="error_google_signin_cancelled">Google Sign In cancelled</string>
+    <string name="error_google_signin_network">Google Sign In failed: Network error</string>
+    <string name="error_google_signin_generic">Google Sign In Failed: %1$d - %2$s</string>
+    <string name="action_dismiss">Dismiss</string>
+    <string name="login_subtitle">Sign in to continue using LoFi.</string>
+    <string name="label_email">Email Address</string>
+    <string name="label_password">Password</string>
+    <string name="or_sign_in_with">"  Or sign in with  "</string>
+    <string name="label_sign_in_google">Sign in with Google</string>
+    <string name="no_account">Don\'t have an account? </string>
+    <string name="enable_biometric_title">Enable Biometric Login</string>
+    <string name="enable_biometric_desc">Use your fingerprint or face recognition to log in faster on your device.</string>
+    <string name="btn_enable">Enable</string>
+    <string name="btn_maybe_later">Maybe Later</string>
 </resources>

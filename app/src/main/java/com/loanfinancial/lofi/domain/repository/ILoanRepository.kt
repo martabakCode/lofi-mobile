@@ -10,4 +10,8 @@ interface ILoanRepository {
         size: Int,
         sort: String,
     ): Flow<Resource<List<Loan>>>
+
+    fun getLoanDetail(id: String): Flow<Resource<Loan>>
+
+    fun submitLoan(id: String): Flow<Resource<Loan>>
 }

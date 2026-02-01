@@ -1,6 +1,8 @@
 package com.loanfinancial.lofi.ui.features.auth.biometric
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.res.stringResource
+import com.loanfinancial.lofi.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material3.*
@@ -12,10 +14,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
 import com.loanfinancial.lofi.core.di.BiometricAuthenticatorEntryPoint
+import com.loanfinancial.lofi.ui.components.LofiLogoLarge
 import dagger.hilt.android.EntryPointAccessors
 
 @Composable
@@ -28,17 +29,20 @@ fun BiometricLoginScreen(
     val activity = context as android.app.Activity
 
     // Get BiometricAuthenticator from Activity component
-    val biometricAuthenticator = remember(activity) {
-        EntryPointAccessors.fromActivity(
-            activity,
-            BiometricAuthenticatorEntryPoint::class.java,
-        ).biometricAuthenticator()
-    }
+    val biometricAuthenticator =
+        remember(activity) {
+            EntryPointAccessors
+                .fromActivity(
+                    activity,
+                    BiometricAuthenticatorEntryPoint::class.java,
+                ).biometricAuthenticator()
+        }
 
     // Create ViewModel using the factory
-    val viewModel: BiometricLoginViewModel = viewModel(
-        factory = BiometricLoginViewModel.provideFactory(biometricAuthenticator)
-    )
+    val viewModel: BiometricLoginViewModel =
+        viewModel(
+            factory = BiometricLoginViewModel.provideFactory(biometricAuthenticator, context),
+        )
 
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -76,9 +80,14 @@ fun BiometricLoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            // 🎨 Logo
+            LofiLogoLarge()
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // Header
             Text(
-                text = "Welcome Back",
+                text = stringResource(R.string.label_welcome_back),
                 style =
                     MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.Bold,
@@ -90,7 +99,7 @@ fun BiometricLoginScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Login with Biometric",
+                text = stringResource(R.string.biometric_login_title),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -120,7 +129,7 @@ fun BiometricLoginScreen(
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = uiState.error ?: "Biometric not available",
+                            text = uiState.error ?: stringResource(R.string.error_biometric_not_available),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             textAlign = TextAlign.Center,
@@ -128,7 +137,7 @@ fun BiometricLoginScreen(
                     }
                 }
             } else {
-                // Biometric button
+                // Biometric button with Logo
                 FilledIconButton(
                     onClick = { viewModel.authenticate() },
                     modifier = Modifier.size(100.dp),
@@ -142,7 +151,7 @@ fun BiometricLoginScreen(
                     } else {
                         Icon(
                             imageVector = Icons.Default.Fingerprint,
-                            contentDescription = "Biometric Login",
+                            contentDescription = stringResource(R.string.desc_biometric_login),
                             modifier = Modifier.size(64.dp),
                         )
                     }
@@ -151,7 +160,7 @@ fun BiometricLoginScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "Tap to authenticate",
+                    text = stringResource(R.string.biometric_tap_to_auth),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -165,11 +174,11 @@ fun BiometricLoginScreen(
                     onClick = onUsePasswordClick,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Text("Use Password Instead")
+                    Text(stringResource(R.string.biometric_use_password))
                 }
             } else {
                 TextButton(onClick = onUsePasswordClick) {
-                    Text("Use Password Instead")
+                    Text(stringResource(R.string.biometric_use_password))
                 }
             }
         }

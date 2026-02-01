@@ -19,6 +19,7 @@ data class LoanEntity(
     val currentStage: String,
     val submittedAt: String?,
     val loanStatusDisplay: String,
+    val slaDurationHours: Int?,
 )
 
 fun LoanEntity.toDomain(): Loan =
@@ -37,6 +38,7 @@ fun LoanEntity.toDomain(): Loan =
         currentStage = currentStage,
         submittedAt = submittedAt,
         loanStatusDisplay = loanStatusDisplay,
+        slaDurationHours = slaDurationHours,
     )
 
 fun Loan.toEntity(): LoanEntity =
@@ -52,4 +54,5 @@ fun Loan.toEntity(): LoanEntity =
         currentStage = currentStage,
         submittedAt = submittedAt,
         loanStatusDisplay = loanStatusDisplay,
+        slaDurationHours = slaDurationHours,
     )

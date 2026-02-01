@@ -64,4 +64,56 @@ class LoanRepositoryImpl
                     },
                 )
             }
+
+        override fun getLoanDetail(id: String): Flow<Resource<Loan>> =
+            flow {
+                emit(Resource.Loading)
+
+                try {
+                    val response = remoteDataSource.getLoanDetail(id)
+                    if (response.isSuccessful) {
+                        val baseResponse = response.body()
+                        if (baseResponse?.success == true) {
+                            val loan = baseResponse.data?.toDomain()
+                            if (loan != null) {
+                                emit(Resource.Success(loan))
+                            } else {
+                                emit(Resource.Error("Loan data is null"))
+                            }
+                        } else {
+                            emit(Resource.Error(baseResponse?.message ?: "Unknown Error"))
+                        }
+                    } else {
+                        emit(Resource.Error("Network Error: ${response.code()}"))
+                    }
+                } catch (e: Exception) {
+                    emit(Resource.Error(e.localizedMessage ?: "Connection Error"))
+                }
+            }
+
+        override fun submitLoan(id: String): Flow<Resource<Loan>> =
+            flow {
+                emit(Resource.Loading)
+
+                try {
+                    val response = remoteDataSource.submitLoan(id)
+                    if (response.isSuccessful) {
+                        val baseResponse = response.body()
+                        if (baseResponse?.success == true) {
+                            val loan = baseResponse.data?.toDomain()
+                            if (loan != null) {
+                                emit(Resource.Success(loan))
+                            } else {
+                                emit(Resource.Error("Loan data is null"))
+                            }
+                        } else {
+                            emit(Resource.Error(baseResponse?.message ?: "Unknown Error"))
+                        }
+                    } else {
+                        emit(Resource.Error("Network Error: ${response.code()}"))
+                    }
+                } catch (e: Exception) {
+                    emit(Resource.Error(e.localizedMessage ?: "Connection Error"))
+                }
+            }
     }

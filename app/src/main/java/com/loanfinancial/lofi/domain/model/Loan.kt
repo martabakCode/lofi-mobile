@@ -10,6 +10,7 @@ data class Loan(
     val currentStage: String,
     val submittedAt: String?,
     val loanStatusDisplay: String,
+    val slaDurationHours: Int?,
 )
 
 data class Product(
@@ -41,4 +42,5 @@ fun com.loanfinancial.lofi.data.model.dto.LoanDto.toDomain(): Loan =
                 "DISBURSED" -> "Disbursed"
                 else -> loanStatus
             },
+        slaDurationHours = slaDurationHours,
     )

@@ -3,7 +3,7 @@ package com.loanfinancial.lofi.ui.theme
 import androidx.compose.ui.graphics.Color
 
 /* =======================
-   Primary (Brand)
+   Primary (Brand) - Orange 60%
    ======================= */
 val Primary50 = Color(0xFFFFFAEC)
 val Primary100 = Color(0xFFFFF5D3)
@@ -16,6 +16,20 @@ val Primary700 = Color(0xFFCC6102)
 val Primary800 = Color(0xFFA14B0B)
 val Primary900 = Color(0xFF823F0C)
 val Primary950 = Color(0xFF461E04)
+
+/* =======================
+   Accent (Secondary) - Cyan 40%
+   ======================= */
+val Accent100 = Color(0xFFCAFFF9)
+val Accent200 = Color(0xFF9CFFF8)
+val Accent300 = Color(0xFF57FFF5)
+val Accent400 = Color(0xFF0CFFFD)
+val Accent500 = Color(0xFF00E3EA) // accent-main
+val Accent600 = Color(0xFF00B5C4) // accent-hover
+val Accent700 = Color(0xFF008D9B)
+val Accent800 = Color(0xFF0B727F)
+val Accent900 = Color(0xFF0E5E6B)
+val Accent950 = Color(0xFF023F4A)
 
 /* =======================
    Surface / Neutral (Light)
@@ -50,6 +64,10 @@ val BorderMuted = Surface100
 val BrandMain = Primary500
 val BrandHover = Primary600
 val BrandSoft = Primary100
+
+val AccentMain = Accent500
+val AccentHover = Accent600
+val AccentSoft = Accent100
 
 /* =======================
    Status Colors

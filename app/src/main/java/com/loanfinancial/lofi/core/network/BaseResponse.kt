@@ -30,3 +30,17 @@ data class PagingResponse<T>(
     @SerializedName("meta")
     val meta: Meta,
 )
+
+fun <T> BaseResponse<T>.toOperationResult(): com.loanfinancial.lofi.core.common.result.OperationResult<T> {
+    return if (success && data != null) {
+        com.loanfinancial.lofi.core.common.result.OperationResult.Success(data, com.loanfinancial.lofi.core.common.result.OperationResult.DataSource.REMOTE)
+    } else {
+        com.loanfinancial.lofi.core.common.result.OperationResult.Error(
+            com.loanfinancial.lofi.core.common.result.ErrorType.BusinessError(
+                code = "API_ERROR",
+                message = message
+            ),
+            com.loanfinancial.lofi.core.common.result.OperationResult.DataSource.REMOTE
+        )
+    }
+}

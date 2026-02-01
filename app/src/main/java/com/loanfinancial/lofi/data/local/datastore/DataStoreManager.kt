@@ -17,7 +17,7 @@ import javax.inject.Singleton
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "lofi_prefs")
 
 @Singleton
-class PreferencesManager
+class DataStoreManager
     @Inject
     constructor(
         @ApplicationContext private val context: Context,

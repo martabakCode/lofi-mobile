@@ -13,6 +13,10 @@ interface LoanRemoteDataSource {
         size: Int,
         sort: String,
     ): Response<BaseResponse<PagingResponse<LoanDto>>>
+
+    suspend fun getLoanDetail(id: String): Response<BaseResponse<LoanDto>>
+
+    suspend fun submitLoan(id: String): Response<BaseResponse<LoanDto>>
 }
 
 class LoanRemoteDataSourceImpl
@@ -25,4 +29,8 @@ class LoanRemoteDataSourceImpl
             size: Int,
             sort: String,
         ): Response<BaseResponse<PagingResponse<LoanDto>>> = loanApi.getMyLoans(page, size, sort)
+
+        override suspend fun getLoanDetail(id: String): Response<BaseResponse<LoanDto>> = loanApi.getLoanDetail(id)
+
+        override suspend fun submitLoan(id: String): Response<BaseResponse<LoanDto>> = loanApi.submitLoan(id)
     }

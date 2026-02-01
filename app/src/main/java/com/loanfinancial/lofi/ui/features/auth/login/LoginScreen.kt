@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -23,6 +24,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.ui.components.LofiButton
+import com.loanfinancial.lofi.ui.components.LofiLogoMedium
 import com.loanfinancial.lofi.ui.components.LofiTextField
 import com.loanfinancial.lofi.ui.components.SocialAuthButton
 import com.loanfinancial.lofi.ui.theme.LofiTheme
@@ -55,17 +57,17 @@ fun LoginScreen(
                     viewModel.onGoogleLogin(idToken)
                 } else {
                     coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Google Sign In Failed: No ID token received. Please ensure your app is properly configured in Firebase Console with SHA-1 fingerprint.")
+                        snackbarHostState.showSnackbar(context.getString(R.string.error_google_signin_no_token))
                     }
                 }
             } catch (e: ApiException) {
                 coroutineScope.launch {
                     val errorMessage =
                         when (e.statusCode) {
-                            12500 -> "Google Sign In failed: Please check SHA-1 configuration in Firebase Console"
-                            12501 -> "Google Sign In cancelled"
-                            12502 -> "Google Sign In failed: Network error"
-                            else -> "Google Sign In Failed: ${e.statusCode} - ${e.message}"
+                            12500 -> context.getString(R.string.error_google_signin_sha1)
+                            12501 -> context.getString(R.string.error_google_signin_cancelled)
+                            12502 -> context.getString(R.string.error_google_signin_network)
+                            else -> context.getString(R.string.error_google_signin_generic, e.statusCode, e.message)
                         }
                     snackbarHostState.showSnackbar(errorMessage)
                 }
@@ -124,9 +126,10 @@ fun LoginScreen(
 
     LaunchedEffect(uiState.loginError) {
         uiState.loginError?.let { error ->
+            val actionDismiss = context.getString(R.string.action_dismiss)
             snackbarHostState.showSnackbar(
                 message = error,
-                actionLabel = "Dismiss",
+                actionLabel = actionDismiss,
                 duration = SnackbarDuration.Short,
             )
             viewModel.onErrorShown()
@@ -161,9 +164,16 @@ fun LoginScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start,
         ) {
+            // 🎨 Logo
+            LofiLogoMedium(
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // 🏷️ Header
             Text(
-                text = "Welcome Back",
+                text = stringResource(R.string.label_welcome_back),
                 style =
                     MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.Bold,
@@ -173,7 +183,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Sign in to continue using LoFi.",
+                text = stringResource(R.string.login_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -184,7 +194,7 @@ fun LoginScreen(
             LofiTextField(
                 value = uiState.email,
                 onValueChange = { viewModel.onEmailChange(it) },
-                label = "Email Address",
+                label = stringResource(R.string.label_email),
                 keyboardOptions =
                     androidx.compose.foundation.text.KeyboardOptions(
                         keyboardType = KeyboardType.Email,
@@ -199,7 +209,7 @@ fun LoginScreen(
             LofiTextField(
                 value = uiState.password,
                 onValueChange = { viewModel.onPasswordChange(it) },
-                label = "Password",
+                label = stringResource(R.string.label_password),
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions =
                     androidx.compose.foundation.text.KeyboardOptions(
@@ -218,7 +228,7 @@ fun LoginScreen(
                 contentAlignment = Alignment.CenterEnd,
             ) {
                 Text(
-                    text = "Forgot Password?",
+                    text = stringResource(R.string.label_forgot_password),
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.SemiBold,
@@ -232,7 +242,7 @@ fun LoginScreen(
 
             // 🚀 Login Button
             LofiButton(
-                text = "Sign In",
+                text = stringResource(R.string.label_sign_in),
                 onClick = { viewModel.onLoginClick() },
                 isLoading = uiState.isLoading,
             )
@@ -246,7 +256,7 @@ fun LoginScreen(
             ) {
                 HorizontalDivider(modifier = Modifier.weight(1f))
                 Text(
-                    text = "  Or sign in with  ",
+                    text = stringResource(R.string.or_sign_in_with),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -255,7 +265,7 @@ fun LoginScreen(
 
             // Only Google Sign-In for now (Facebook requires Play Store verification)
             SocialAuthButton(
-                text = "Sign in with Google",
+                text = stringResource(R.string.label_sign_in_google),
                 onClick = {
                     val client = GoogleSignIn.getClient(context, googleSignInOptions)
                     // Sign out first to ensure fresh sign-in flow and show account picker
@@ -270,7 +280,7 @@ fun LoginScreen(
             if (uiState.isBiometricEnabled) {
                 Spacer(modifier = Modifier.height(12.dp))
                 SocialAuthButton(
-                    text = "Login with Biometric",
+                    text = stringResource(R.string.biometric_login_title),
                     onClick = onBiometricLoginClick,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -291,12 +301,12 @@ fun LoginScreen(
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Text(
-                    text = "Don't have an account? ",
+                    text = stringResource(R.string.no_account),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = "Register",
+                    text = stringResource(R.string.label_register),
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Bold,
@@ -316,7 +326,7 @@ fun LoginScreen(
         ) {
             TextButton(onClick = onSkipLoginClick) {
                 Text(
-                    text = "Skip Login", // Or use stringResource(R.string.skip_login)
+                    text = stringResource(R.string.skip_login),
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.Medium,
@@ -337,19 +347,19 @@ fun EnableBiometricDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text("Enable Biometric Login")
+            Text(stringResource(R.string.enable_biometric_title))
         },
         text = {
-            Text("Use your fingerprint or face recognition to log in faster on your device.")
+            Text(stringResource(R.string.enable_biometric_desc))
         },
         confirmButton = {
             TextButton(onClick = onEnable) {
-                Text("Enable")
+                Text(stringResource(R.string.btn_enable))
             }
         },
         dismissButton = {
             TextButton(onClick = onSkip) {
-                Text("Maybe Later")
+                Text(stringResource(R.string.btn_maybe_later))
             }
         },
     )

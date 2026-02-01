@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.ui.components.LofiButton
+import com.loanfinancial.lofi.ui.components.LofiLogoMedium
 import com.loanfinancial.lofi.ui.components.LofiTextField
 import com.loanfinancial.lofi.ui.components.SocialAuthButton
 import com.loanfinancial.lofi.ui.theme.LofiTheme
@@ -207,6 +208,13 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start,
         ) {
+            // 🎨 Logo
+            LofiLogoMedium(
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
             // 🏷️ Header
             Text(
                 text = "Create Account",

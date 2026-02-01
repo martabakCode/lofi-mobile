@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticatorImpl
 import com.loanfinancial.lofi.core.location.LocationManager
-import com.loanfinancial.lofi.core.location.LocationManagerImpl
+import com.loanfinancial.lofi.core.location.NativeLocationManager
 import com.loanfinancial.lofi.core.media.CameraManager
 import com.loanfinancial.lofi.core.media.CameraManagerImpl
 import com.loanfinancial.lofi.core.media.UploadManager
@@ -27,7 +27,7 @@ abstract class HardwareModule {
     @Binds
     @Singleton
     abstract fun bindLocationManager(
-        impl: LocationManagerImpl,
+        impl: NativeLocationManager,
     ): LocationManager
 
     @Binds
@@ -55,12 +55,13 @@ object BiometricModule {
     @Provides
     fun provideBiometricLoginViewModelFactory(
         biometricAuthenticator: BiometricAuthenticator,
+        activity: FragmentActivity,
     ): ViewModelProvider.Factory {
         return object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(BiometricLoginViewModel::class.java)) {
-                    return BiometricLoginViewModel(biometricAuthenticator) as T
+                    return BiometricLoginViewModel(biometricAuthenticator, activity) as T
                 }
                 throw IllegalArgumentException("Unknown ViewModel class")
             }

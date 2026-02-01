@@ -5,6 +5,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fingerprint
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -35,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
@@ -48,10 +51,13 @@ import com.loanfinancial.lofi.ui.components.LofiTopBar
 import com.loanfinancial.lofi.ui.features.loan.components.DocumentUploadSection
 import kotlinx.coroutines.launch
 import java.io.File
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ApplyLoanScreen(
     navigateUp: () -> Unit,
+    onNavigateToPreview: (() -> Unit)? = null,
     viewModel: ApplyLoanViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -59,6 +65,7 @@ fun ApplyLoanScreen(
 
     var showErrorDialog by remember { mutableStateOf<ErrorType?>(null) }
     var showSuccessDialog by remember { mutableStateOf(false) }
+    var showDraftSavedDialog by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
@@ -88,6 +95,16 @@ fun ApplyLoanScreen(
             }
         }
 
+    // Camera Permission Launcher
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted && tempPhotoUri != null) {
+                cameraLauncher.launch(tempPhotoUri!!)
+            }
+        }
+
     val wrappedOnEvent: (ApplyLoanUiEvent) -> Unit = { event ->
         when (event) {
             is ApplyLoanUiEvent.CaptureDocument -> {
@@ -105,7 +122,16 @@ fun ApplyLoanScreen(
                         photoFile,
                     )
                 tempPhotoUri = uri
-                cameraLauncher.launch(uri)
+
+                if (androidx.core.content.ContextCompat.checkSelfPermission(
+                        context,
+                        android.Manifest.permission.CAMERA,
+                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) {
+                    cameraLauncher.launch(uri)
+                } else {
+                    cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                }
             }
             is ApplyLoanUiEvent.SelectDocumentFromGallery -> {
                 currentDocumentType = event.documentType
@@ -121,6 +147,9 @@ fun ApplyLoanScreen(
         }
         is ApplyLoanUiState.Success -> {
             showSuccessDialog = true
+        }
+        is ApplyLoanUiState.DraftSaved -> {
+            showDraftSavedDialog = true
         }
         else -> { }
     }
@@ -187,6 +216,15 @@ fun ApplyLoanScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Loan Preview Section - Show when amount or tenor is entered
+            if (formState.amount.isNotBlank() || formState.tenor.isNotBlank()) {
+                LoanPreviewSection(
+                    amount = formState.amount,
+                    tenor = formState.tenor,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             when (uiState) {
                 is ApplyLoanUiState.Loading -> {
                     LoadingState(message = "Submitting loan application...")
@@ -206,9 +244,18 @@ fun ApplyLoanScreen(
                     )
                 }
                 else -> {
-                    SubmitButton(
-                        onClick = { wrappedOnEvent(ApplyLoanUiEvent.SubmitClicked) },
-                        enabled = formState.isValid(),
+                    SubmitButtonsSection(
+                        onSubmitClick = {
+                            if (onNavigateToPreview != null && formState.isValid()) {
+                                onNavigateToPreview()
+                            } else {
+                                wrappedOnEvent(ApplyLoanUiEvent.SubmitClicked)
+                            }
+                        },
+                        onSaveDraftClick = { wrappedOnEvent(ApplyLoanUiEvent.SaveAsDraftClicked) },
+                        isSubmitEnabled = formState.isValid(),
+                        isSaveDraftEnabled = formState.amount.isNotBlank() || formState.tenor.isNotBlank() || formState.purpose.isNotBlank(),
+                        submitButtonText = if (onNavigateToPreview != null) "Lanjut ke Preview" else "Submit Application",
                     )
                 }
             }
@@ -247,6 +294,25 @@ fun ApplyLoanScreen(
                 Button(
                     onClick = {
                         showSuccessDialog = false
+                        wrappedOnEvent(ApplyLoanUiEvent.ResetClicked)
+                        navigateUp()
+                    },
+                ) {
+                    Text("OK")
+                }
+            },
+        )
+    }
+
+    if (showDraftSavedDialog) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = { Text("Draft Saved") },
+            text = { Text("Your loan application has been saved as draft. You can continue later from the loan history.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDraftSavedDialog = false
                         wrappedOnEvent(ApplyLoanUiEvent.ResetClicked)
                         navigateUp()
                     },
@@ -488,6 +554,118 @@ private fun LoadingState(message: String) {
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
             )
+        }
+    }
+}
+
+@Composable
+private fun LoanPreviewSection(
+    amount: String,
+    tenor: String,
+) {
+    val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+            ),
+    ) {
+        Column(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Preview",
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Preview Pengajuan",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Amount
+            if (amount.isNotBlank()) {
+                val amountValue = amount.toLongOrNull() ?: 0
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "Jumlah Pinjaman",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = currencyFormatter.format(amountValue),
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Tenor
+            if (tenor.isNotBlank()) {
+                val tenorValue = tenor.toIntOrNull() ?: 0
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "Tenor",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "$tenorValue bulan",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SubmitButtonsSection(
+    onSubmitClick: () -> Unit,
+    onSaveDraftClick: () -> Unit,
+    isSubmitEnabled: Boolean,
+    isSaveDraftEnabled: Boolean,
+    submitButtonText: String = "Submit Application",
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        LofiButton(
+            text = submitButtonText,
+            onClick = onSubmitClick,
+            enabled = isSubmitEnabled,
+            modifier = Modifier.fillMaxWidth(),
+        )
+
+        OutlinedButton(
+            onClick = onSaveDraftClick,
+            enabled = isSaveDraftEnabled,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text("Save as Draft")
         }
     }
 }

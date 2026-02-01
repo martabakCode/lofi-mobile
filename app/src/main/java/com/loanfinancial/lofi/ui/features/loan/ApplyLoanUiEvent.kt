@@ -46,6 +46,8 @@ sealed class ApplyLoanUiEvent {
 
     object SubmitClicked : ApplyLoanUiEvent()
 
+    object SaveAsDraftClicked : ApplyLoanUiEvent()
+
     object CancelClicked : ApplyLoanUiEvent()
 
     object RetryClicked : ApplyLoanUiEvent()

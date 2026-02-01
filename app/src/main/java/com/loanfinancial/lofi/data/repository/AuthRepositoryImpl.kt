@@ -5,7 +5,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.loanfinancial.lofi.core.network.ApiService
 import com.loanfinancial.lofi.data.local.dao.UserDao
-import com.loanfinancial.lofi.data.local.datastore.PreferencesManager
+import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
 import com.loanfinancial.lofi.data.model.dto.*
 import com.loanfinancial.lofi.data.model.entity.UserEntity
 import com.loanfinancial.lofi.domain.model.User
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class AuthRepositoryImpl
     @Inject
     constructor(
-        private val preferences: PreferencesManager,
+        private val dataStoreManager: DataStoreManager,
         private val apiService: ApiService,
         private val userDao: UserDao,
         private val firebaseAuth: FirebaseAuth,
@@ -33,7 +33,7 @@ class AuthRepositoryImpl
                     if (response.isSuccessful && response.body() != null) {
                         val body = response.body()!!
                         if (body.success && body.data != null) {
-                            preferences.saveToken(body.data.accessToken)
+                            dataStoreManager.saveAuthTokens(body.data.accessToken, body.data.refreshToken)
                             Result.success(body)
                         } else {
                             Result.failure(Exception(body.message))
@@ -86,8 +86,8 @@ class AuthRepositoryImpl
                     if (response.isSuccessful && response.body() != null) {
                         val body = response.body()!!
                         if (body.success && body.data != null) {
-                            // Save access token from registration response
-                            preferences.saveToken(body.data.accessToken)
+                            // Save access and refresh tokens from registration response
+                            dataStoreManager.saveAuthTokens(body.data.accessToken, body.data.refreshToken)
                             Result.success(body)
                         } else {
                             Result.failure(Exception(body.message))
@@ -105,7 +105,7 @@ class AuthRepositoryImpl
                 try {
                     val response = apiService.logout()
                     if (response.isSuccessful && response.body() != null) {
-                        preferences.clear()
+                        dataStoreManager.clear()
                         userDao.clearUser()
                         // Also sign out from Firebase
                         firebaseAuth.signOut()
@@ -158,8 +158,8 @@ class AuthRepositoryImpl
                     if (response.isSuccessful && response.body() != null) {
                         val body = response.body()!!
                         if (body.success && body.data != null) {
-                            // Save access token from Google auth response
-                            preferences.saveToken(body.data.accessToken)
+                            // Save access and refresh tokens from Google auth response
+                            dataStoreManager.saveAuthTokens(body.data.accessToken, body.data.refreshToken)
                             Result.success(body)
                         } else {
                             Result.failure(Exception(body.message))

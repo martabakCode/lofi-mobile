@@ -12,6 +12,15 @@ import com.loanfinancial.lofi.ui.features.auth.register.RegisterScreen
 import com.loanfinancial.lofi.ui.features.dashboard.DashboardScreen
 import com.loanfinancial.lofi.ui.features.loan.ApplyLoanScreen
 import com.loanfinancial.lofi.ui.features.loan.LoanDetailScreen
+import com.loanfinancial.lofi.ui.features.loan.LoanPreviewScreen
+import com.loanfinancial.lofi.ui.features.loan.LoanTnCScreen
+import com.loanfinancial.lofi.ui.features.loan.model.LoanPreviewData
+import com.loanfinancial.lofi.ui.features.loan.model.toPreviewData
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.loanfinancial.lofi.ui.features.notification.NotificationDetailScreen
 import com.loanfinancial.lofi.ui.features.notification.NotificationScreen
 import com.loanfinancial.lofi.ui.features.profile.ChangePasswordScreen
@@ -131,8 +140,41 @@ fun NavGraph() {
         }
 
         composable(Routes.APPLY_LOAN) {
+            val applyLoanViewModel: com.loanfinancial.lofi.ui.features.loan.ApplyLoanViewModel = hiltViewModel()
+            val formState by applyLoanViewModel.formState.collectAsState()
+
             ApplyLoanScreen(
                 navigateUp = { navController.navigateUp() },
+                onNavigateToPreview = {
+                    navController.navigate(Routes.LOAN_PREVIEW)
+                },
+                viewModel = applyLoanViewModel,
+            )
+        }
+
+        composable(Routes.LOAN_PREVIEW) { backStackEntry ->
+            val applyLoanViewModel: com.loanfinancial.lofi.ui.features.loan.ApplyLoanViewModel =
+                hiltViewModel(
+                    viewModelStoreOwner = navController.getBackStackEntry(Routes.APPLY_LOAN),
+                )
+            val formState by applyLoanViewModel.formState.collectAsState()
+            val previewData = androidx.compose.runtime.remember(formState) { formState.toPreviewData() }
+
+            LoanPreviewScreen(
+                previewData = previewData,
+                onNavigateToTnC = { navController.navigate(Routes.LOAN_TNC) },
+                onNavigateBack = { navController.navigateUp() },
+            )
+        }
+
+        composable(Routes.LOAN_TNC) {
+            LoanTnCScreen(
+                onNavigateBack = { navController.navigateUp() },
+                onSubmitSuccess = {
+                    navController.navigate(Routes.DASHBOARD) {
+                        popUpTo(Routes.APPLY_LOAN) { inclusive = true }
+                    }
+                },
             )
         }
 

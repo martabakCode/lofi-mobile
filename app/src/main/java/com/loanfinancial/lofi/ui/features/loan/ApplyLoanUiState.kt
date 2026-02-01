@@ -26,6 +26,11 @@ sealed class ApplyLoanUiState {
 
     data class Success(
         val loanId: String,
+        val isDraft: Boolean = false,
+    ) : ApplyLoanUiState()
+
+    data class DraftSaved(
+        val loanId: String,
     ) : ApplyLoanUiState()
 
     data class Error(
@@ -47,8 +52,7 @@ data class ApplyLoanFormState(
             tenor.isNotBlank() &&
             purpose.isNotBlank() &&
             documents[DocumentType.KTP]?.isUploaded == true &&
-            documents[DocumentType.SELFIE]?.isUploaded == true &&
-            isBiometricVerified
+            documents[DocumentType.SELFIE]?.isUploaded == true
 
     fun getValidationErrors(): Map<String, String> {
         val errors = mutableMapOf<String, String>()
@@ -60,9 +64,6 @@ data class ApplyLoanFormState(
         }
         if (documents[DocumentType.SELFIE]?.isUploaded != true) {
             errors["selfie"] = "Selfie document is required"
-        }
-        if (!isBiometricVerified) {
-            errors["biometric"] = "Biometric verification is required"
         }
         return errors
     }

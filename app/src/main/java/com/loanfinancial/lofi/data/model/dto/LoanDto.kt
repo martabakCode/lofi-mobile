@@ -33,6 +33,8 @@ data class LoanDto(
     val disbursementReference: String?,
     @SerializedName("aiAnalysis")
     val aiAnalysis: AiAnalysisDto?,
+    @SerializedName("slaDurationHours")
+    val slaDurationHours: Int?,
 )
 
 // ProductDto removed and moved to its own file

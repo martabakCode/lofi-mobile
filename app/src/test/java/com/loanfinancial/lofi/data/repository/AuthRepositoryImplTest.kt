@@ -1,18 +1,16 @@
 package com.loanfinancial.lofi.data.repository
 
+import com.google.firebase.auth.FirebaseAuth
 import com.loanfinancial.lofi.TestDataFactory
-import com.loanfinancial.lofi.data.local.datastore.PreferencesManager
-import com.loanfinancial.lofi.data.remote.api.UserApi
-import com.loanfinancial.lofi.domain.repository.IAuthRepository
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
+import com.loanfinancial.lofi.core.network.ApiService
+import com.loanfinancial.lofi.data.local.dao.UserDao
+import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
+import com.loanfinancial.lofi.data.model.dto.*
+import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import io.mockk.just
-import io.mockk.runs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertFalse
+import okhttp3.ResponseBody
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -21,17 +19,23 @@ import retrofit2.Response
 @ExperimentalCoroutinesApi
 class AuthRepositoryImplTest {
     @MockK
-    private lateinit var userApi: UserApi
+    private lateinit var apiService: ApiService
 
     @MockK
-    private lateinit var preferencesManager: PreferencesManager
+    private lateinit var dataStoreManager: DataStoreManager
+    
+    @MockK
+    private lateinit var userDao: UserDao
+    
+    @MockK
+    private lateinit var firebaseAuth: FirebaseAuth
 
-    private lateinit var repository: IAuthRepository
+    private lateinit var repository: AuthRepositoryImpl
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        repository = AuthRepositoryImpl(userApi, preferencesManager)
+        repository = AuthRepositoryImpl(dataStoreManager, apiService, userDao, firebaseAuth)
     }
 
     @Test
@@ -41,30 +45,30 @@ class AuthRepositoryImplTest {
             val password = "password123"
             val accessToken = TestDataFactory.TEST_ACCESS_TOKEN
             val refreshToken = TestDataFactory.TEST_REFRESH_TOKEN
+            val request = LoginRequest(email, password, "fcmToken")
 
             coEvery {
-                userApi.login(any())
+                apiService.login(any())
             } returns
                 Response.success(
-                    com.loanfinancial.lofi.data.model.dto.LoginResponse(
-                        accessToken = accessToken,
-                        refreshToken = refreshToken,
-                        user =
-                            com.loanfinancial.lofi.data.model.dto.UserDto(
-                                id = "user_123",
-                                email = email,
-                                name = "Test User",
-                            ),
+                    LoginResponse(
+                        success = true,
+                        message = "Success",
+                        data = AuthTokenData(
+                            accessToken = accessToken,
+                            refreshToken = refreshToken,
+                            expiresIn = 3600,
+                            tokenType = "Bearer"
+                        ),
                     ),
                 )
 
-            coEvery { preferencesManager.saveAuthTokens(any(), any()) } just runs
-            coEvery { preferencesManager.saveUserInfo(any(), any(), any(), any(), any()) } just runs
+            coEvery { dataStoreManager.saveAuthTokens(any(), any()) } just runs
 
-            val result = repository.login(email, password)
+            val result = repository.login(request)
 
-            assertTrue(result is com.loanfinancial.lofi.core.util.Resource.Success)
-            coVerify { preferencesManager.saveAuthTokens(accessToken, refreshToken) }
+            assertTrue(result.isSuccess)
+            coVerify { dataStoreManager.saveAuthTokens(accessToken, refreshToken) }
         }
 
     @Test
@@ -72,68 +76,53 @@ class AuthRepositoryImplTest {
         runTest {
             val email = "test@example.com"
             val password = "wrongpassword"
+            val request = LoginRequest(email, password, "fcmToken")
 
             coEvery {
-                userApi.login(any())
+                apiService.login(any())
             } returns
                 Response.error(
                     401,
-                    okhttp3.ResponseBody.create(null, "Unauthorized"),
+                    ResponseBody.create(null, "Unauthorized"),
                 )
 
-            val result = repository.login(email, password)
+            val result = repository.login(request)
 
-            assertTrue(result is com.loanfinancial.lofi.core.util.Resource.Error)
+            assertTrue(result.isFailure)
         }
 
     @Test
     fun `logout should clear auth data`() =
         runTest {
-            coEvery { preferencesManager.clearAuthData() } just runs
+            coEvery { apiService.logout() } returns Response.success(LogoutResponse(true, "Logged out"))
+            coEvery { dataStoreManager.clear() } just runs
+            coEvery { userDao.clearUser() } just runs
+            every { firebaseAuth.signOut() } just runs
 
             repository.logout()
 
-            coVerify { preferencesManager.clearAuthData() }
-        }
-
-    @Test
-    fun `isLoggedIn should return true when token exists`() =
-        runTest {
-            coEvery { preferencesManager.isLoggedIn() } returns true
-
-            val result = repository.isLoggedIn()
-
-            assertTrue(result)
-        }
-
-    @Test
-    fun `isLoggedIn should return false when no token`() =
-        runTest {
-            coEvery { preferencesManager.isLoggedIn() } returns false
-
-            val result = repository.isLoggedIn()
-
-            assertFalse(result)
+            coVerify { dataStoreManager.clear() }
+            coVerify { userDao.clearUser() }
+            verify { firebaseAuth.signOut() }
         }
 
     @Test
     fun `changePassword success should return success`() =
         runTest {
-            val oldPassword = "oldpassword"
-            val newPassword = "newpassword"
+            val request = ChangePasswordRequest("old", "new")
 
             coEvery {
-                userApi.changePassword(any())
+                apiService.changePassword(request)
             } returns
                 Response.success(
-                    com.loanfinancial.lofi.data.model.dto.ChangePasswordResponse(
+                    ChangePasswordResponse(
                         success = true,
                         message = "Password changed successfully",
                     ),
                 )
 
-            val result = repository.changePassword(oldPassword, newPassword)
+            val result = repository.changePassword(request)
 
-            assertTrue(result is com.loanfinancial.lofi.core.util.Resource.Success)
+            assertTrue(result.isSuccess)
         }
 }

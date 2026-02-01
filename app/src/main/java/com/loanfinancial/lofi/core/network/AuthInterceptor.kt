@@ -1,6 +1,6 @@
 package com.loanfinancial.lofi.core.network
 
-import com.loanfinancial.lofi.data.local.datastore.PreferencesManager
+import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class AuthInterceptor
     @Inject
     constructor(
-        private val preferencesManager: PreferencesManager,
+        private val dataStoreManager: DataStoreManager,
     ) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             val originalRequest = chain.request()
@@ -30,7 +30,7 @@ class AuthInterceptor
 
             val token =
                 runBlocking {
-                    preferencesManager.tokenFlow.firstOrNull()
+                    dataStoreManager.tokenFlow.firstOrNull()
                 }
 
             val request =

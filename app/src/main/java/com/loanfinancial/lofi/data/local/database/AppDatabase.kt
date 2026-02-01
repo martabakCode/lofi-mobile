@@ -33,7 +33,7 @@ import com.loanfinancial.lofi.data.model.entity.VillageEntity
         VillageEntity::class,
         UserProfileEntity::class,
     ],
-    version = 8,
+    version = 9,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)

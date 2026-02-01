@@ -1,11 +1,14 @@
 package com.loanfinancial.lofi.core.di
 
 import com.loanfinancial.lofi.domain.repository.IAuthRepository
+import com.loanfinancial.lofi.domain.repository.ILoanRepository
 import com.loanfinancial.lofi.domain.repository.INotificationRepository
 import com.loanfinancial.lofi.domain.usecase.auth.GetFirebaseIdTokenUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.GoogleAuthUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.LoginUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.RegisterUseCase
+import com.loanfinancial.lofi.domain.usecase.loan.GetLoanDetailUseCase
+import com.loanfinancial.lofi.domain.usecase.loan.SubmitLoanUseCase
 import com.loanfinancial.lofi.domain.usecase.notification.GetNotificationsUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserUseCase
 import dagger.Module
@@ -40,4 +43,12 @@ object UseCaseModule {
     @Provides
     @Singleton
     fun provideGetFirebaseIdTokenUseCase(repository: IAuthRepository): GetFirebaseIdTokenUseCase = GetFirebaseIdTokenUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideGetLoanDetailUseCase(repository: ILoanRepository): GetLoanDetailUseCase = GetLoanDetailUseCase(repository)
+
+    @Provides
+    @Singleton
+    fun provideSubmitLoanUseCase(repository: ILoanRepository): SubmitLoanUseCase = SubmitLoanUseCase(repository)
 }
