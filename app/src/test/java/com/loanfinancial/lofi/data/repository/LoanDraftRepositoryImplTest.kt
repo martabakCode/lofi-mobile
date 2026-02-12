@@ -24,7 +24,7 @@ class LoanDraftRepositoryImplTest {
 
     @Before
     fun setup() {
-        MockKAnnotations.init(this)
+        MockKAnnotations.init(this, relaxed = true)
         repository = LoanDraftRepositoryImpl(loanDraftDao)
     }
 

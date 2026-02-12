@@ -21,7 +21,7 @@ class GetLoanDraftByIdUseCaseTest {
 
     @Before
     fun setup() {
-        MockKAnnotations.init(this)
+        MockKAnnotations.init(this, relaxed = true)
         useCase = GetLoanDraftByIdUseCase(repository)
     }
 

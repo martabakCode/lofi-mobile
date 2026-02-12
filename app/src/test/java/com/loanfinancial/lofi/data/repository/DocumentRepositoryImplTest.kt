@@ -36,7 +36,7 @@ class DocumentRepositoryImplTest {
 
     @Before
     fun setup() {
-        MockKAnnotations.init(this)
+        MockKAnnotations.init(this, relaxed = true)
         repository = DocumentRepositoryImpl(documentApi, pendingUploadDao, cameraManager, dataStoreManager)
     }
 

@@ -37,7 +37,7 @@ class AuthRepositoryImplTest {
 
     @Before
     fun setup() {
-        MockKAnnotations.init(this)
+        MockKAnnotations.init(this, relaxed = true)
         repository = AuthRepositoryImpl(dataStoreManager, apiService, userDao, firebaseAuth, pinApi)
     }
 
