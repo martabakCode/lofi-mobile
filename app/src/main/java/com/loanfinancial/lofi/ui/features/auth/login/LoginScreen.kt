@@ -17,11 +17,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.facebook.CallbackManager
-import com.facebook.login.LoginManager
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.ui.components.LofiButton
 import com.loanfinancial.lofi.ui.components.LofiLogoMedium
@@ -32,7 +33,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    onLoginClick: () -> Unit = {},
+    onLoginClick: (profileCompleted: Boolean, pinSet: Boolean, isGoogleLogin: Boolean) -> Unit = { _, _, _ -> },
     onSkipLoginClick: () -> Unit = {},
     onRegisterClick: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {},
@@ -44,72 +45,47 @@ fun LoginScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    // Google Sign In
-    val googleLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) { result ->
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+    // Credential Manager
+    val credentialManager = remember { CredentialManager.create(context) }
+    
+    fun handleGoogleSignIn() {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(context.getString(R.string.default_web_client_id))
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        coroutineScope.launch {
             try {
-                val account = task.getResult(ApiException::class.java)
-                val idToken = account.idToken
-                if (idToken != null) {
-                    viewModel.onGoogleLogin(idToken)
-                } else {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(context.getString(R.string.error_google_signin_no_token))
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = context
+                )
+                val credential = result.credential
+                if (credential is GoogleIdTokenCredential) {
+                    viewModel.onGoogleLogin(credential.idToken)
+                } else if (credential is androidx.credentials.CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                    try {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        viewModel.onGoogleLogin(googleIdTokenCredential.idToken)
+                    } catch (e: Exception) {
+                        snackbarHostState.showSnackbar("Failed to parse Google Credential: ${e.message}")
                     }
+                } else {
+                    snackbarHostState.showSnackbar(context.getString(R.string.error_google_signin_no_token) + " (Type: ${credential.javaClass.simpleName})")
                 }
-            } catch (e: ApiException) {
-                coroutineScope.launch {
-                    val errorMessage =
-                        when (e.statusCode) {
-                            12500 -> context.getString(R.string.error_google_signin_sha1)
-                            12501 -> context.getString(R.string.error_google_signin_cancelled)
-                            12502 -> context.getString(R.string.error_google_signin_network)
-                            else -> context.getString(R.string.error_google_signin_generic, e.statusCode, e.message)
-                        }
-                    snackbarHostState.showSnackbar(errorMessage)
+            } catch (e: GetCredentialException) {
+                val errorMessage = when (e) {
+                    is GetCredentialCancellationException -> context.getString(R.string.error_google_signin_cancelled)
+                    else -> context.getString(R.string.error_google_signin_generic, 0, e.message)
                 }
+                snackbarHostState.showSnackbar(errorMessage)
             }
         }
-
-    // Facebook Sign In
-    val callbackManager = remember { CallbackManager.Factory.create() }
-    val fbLauncher =
-        rememberLauncherForActivityResult(
-            contract = LoginManager.getInstance().createLogInActivityResultContract(callbackManager, null),
-        ) { result ->
-            // ActivityResult -> CallbackManager.ActivityResult
-        }
-    // Note: Facebook SDK via Activity Result Contract is tricky in Compose without standard contract class.
-    // The standard way is checking `LoginManager` documentation.
-    // Actually, `LoginManager` doesn't expose a contract easily in some versions.
-    // Let's use simplified logic:
-    // We'll just define the button that triggers LoginManager and use a disposable effect or standard setup?
-    // Actually, simpler: just Google for now?
-    // User ASKED for Facebook.
-    // I will try to use `LoginManager` with `registerCallback` and `onActivityResult` is managed by Activity?
-    // No, Compose Activity Result.
-    // Let's stick to adding the button and implementing Google fully. For Facebook, I will put a TODO if I can't resolve the method.
-    // But wait, there is `Wrap` for Facebook Login Button.
-
-    // Attempting Google implementation first.
-    // I will leave Facebook button as placeholder for now to avoid compilation error if `createLogInActivityResultContract` is missing.
-    // Actually, I can use a standard `StartActivityForResult` for Facebook too if I manually handle the intent? No.
-
-    // I will only include Google launcher logic for now to be safe, Facebook button will show toast "Coming soon" or similar if I can't confirm API.
-
-    // Re-doing the block:
-
-    val googleSignInOptions =
-        remember {
-            GoogleSignInOptions
-                .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
-        }
+    }
 
     LaunchedEffect(uiState.isLoginSuccessful) {
         if (uiState.isLoginSuccessful) {
@@ -146,11 +122,11 @@ fun LoginScreen(
                 onDismiss = { viewModel.onSkipBiometric() },
                 onEnable = {
                     viewModel.onEnableBiometric()
-                    onLoginClick()
+                    onLoginClick(uiState.profileCompleted, uiState.pinSet, uiState.isGoogleLogin)
                 },
                 onSkip = {
                     viewModel.onSkipBiometric()
-                    onLoginClick()
+                    onLoginClick(uiState.profileCompleted, uiState.pinSet, uiState.isGoogleLogin)
                 },
             )
         }
@@ -266,13 +242,7 @@ fun LoginScreen(
             // Only Google Sign-In for now (Facebook requires Play Store verification)
             SocialAuthButton(
                 text = stringResource(R.string.label_sign_in_google),
-                onClick = {
-                    val client = GoogleSignIn.getClient(context, googleSignInOptions)
-                    // Sign out first to ensure fresh sign-in flow and show account picker
-                    client.signOut().addOnCompleteListener {
-                        googleLauncher.launch(client.signInIntent)
-                    }
-                },
+                onClick = { handleGoogleSignIn() },
                 modifier = Modifier.fillMaxWidth(),
             )
 

@@ -2,6 +2,7 @@ package com.loanfinancial.lofi.data.remote.api
 
 import com.loanfinancial.lofi.core.network.BaseResponse
 import com.loanfinancial.lofi.core.network.PagingResponse
+import com.loanfinancial.lofi.data.model.dto.AvailableProductDto
 import com.loanfinancial.lofi.data.model.dto.ProductDto
 import retrofit2.Response
 import retrofit2.http.GET
@@ -13,4 +14,7 @@ interface LoanProductApi {
         @Query("isActive") isActive: Boolean,
         @Query("size") size: Int,
     ): Response<BaseResponse<PagingResponse<ProductDto>>>
+
+    @GET("products/available")
+    suspend fun getAvailableProduct(): Response<BaseResponse<AvailableProductDto>>
 }

@@ -22,6 +22,7 @@ fun LofiTopBar(
     navigateUp: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
     showLogo: Boolean = false,
+    unreadCount: Int = 0,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     CenterAlignedTopAppBar(
@@ -62,7 +63,11 @@ fun LofiTopBar(
             IconButton(onClick = onNotificationClick) {
                 BadgedBox(
                     badge = {
-                        Badge { Text("3") } // Mock 3 notifications
+                        if (unreadCount > 0) {
+                            Badge {
+                                Text(if (unreadCount > 99) "99+" else unreadCount.toString())
+                            }
+                        }
                     },
                 ) {
                     Icon(

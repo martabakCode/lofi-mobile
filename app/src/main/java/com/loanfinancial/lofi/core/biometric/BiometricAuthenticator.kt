@@ -4,6 +4,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.coroutines.resume
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -99,7 +100,7 @@ class BiometricAuthenticatorImpl
                                     override fun onAuthenticationSucceeded(
                                         result: BiometricPrompt.AuthenticationResult,
                                     ) {
-                                        continuation.resume(BiometricResult.Success) {}
+                                        continuation.resume(BiometricResult.Success)
                                     }
 
                                     override fun onAuthenticationError(
@@ -109,14 +110,14 @@ class BiometricAuthenticatorImpl
                                         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
                                             errorCode == BiometricPrompt.ERROR_USER_CANCELED
                                         ) {
-                                            continuation.resume(BiometricResult.Cancelled) {}
+                                            continuation.resume(BiometricResult.Cancelled)
                                         } else {
                                             continuation.resume(
                                                 BiometricResult.Error(
                                                     errorCode,
                                                     errString.toString(),
                                                 ),
-                                            ) {}
+                                            )
                                         }
                                     }
 

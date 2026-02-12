@@ -21,12 +21,16 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(
+    onNavigateToOnboarding: () -> Unit = {},
     onNavigateToLogin: () -> Unit = {},
-    onNavigateToDashboard: () -> Unit = {},
+    onNavigateToDashboard: (Boolean) -> Unit = {},
+    onNavigateToCompleteProfile: () -> Unit = {},
+    onNavigateToSetPin: () -> Unit = {},
+    onNavigateToSetGooglePin: () -> Unit = {},
     viewModel: SplashViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
+    
     // Animation states
     var startAnimation by remember { mutableStateOf(false) }
     val scaleAnim = animateFloatAsState(
@@ -53,12 +57,24 @@ fun SplashScreen(
     }
 
     LaunchedEffect(uiState) {
-        when (uiState) {
+        when (val state = uiState) {
+            is SplashUiState.NavigateToOnboarding -> {
+                onNavigateToOnboarding()
+            }
             is SplashUiState.NavigateToLogin -> {
                 onNavigateToLogin()
             }
             is SplashUiState.NavigateToDashboard -> {
-                onNavigateToDashboard()
+                onNavigateToDashboard(state.isGuest)
+            }
+            is SplashUiState.NavigateToCompleteProfile -> {
+                onNavigateToCompleteProfile()
+            }
+            is SplashUiState.NavigateToSetPin -> {
+                onNavigateToSetPin()
+            }
+            is SplashUiState.NavigateToSetGooglePin -> {
+                onNavigateToSetGooglePin()
             }
             else -> {}
         }

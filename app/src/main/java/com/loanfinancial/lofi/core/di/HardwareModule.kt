@@ -11,6 +11,8 @@ import com.loanfinancial.lofi.core.media.CameraManager
 import com.loanfinancial.lofi.core.media.CameraManagerImpl
 import com.loanfinancial.lofi.core.media.UploadManager
 import com.loanfinancial.lofi.core.media.UploadManagerImpl
+import com.loanfinancial.lofi.core.location.LocationFallbackManager
+import com.loanfinancial.lofi.core.location.LocationFallbackManagerImpl
 import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginViewModel
 import dagger.Binds
 import dagger.Module
@@ -29,6 +31,12 @@ abstract class HardwareModule {
     abstract fun bindLocationManager(
         impl: NativeLocationManager,
     ): LocationManager
+
+    @Binds
+    @Singleton
+    abstract fun bindLocationFallbackManager(
+        impl: LocationFallbackManagerImpl,
+    ): LocationFallbackManager
 
     @Binds
     @Singleton

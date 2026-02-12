@@ -76,7 +76,7 @@ fun NotificationDetailScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
 
                     Spacer(modifier = Modifier.height(32.dp))
 

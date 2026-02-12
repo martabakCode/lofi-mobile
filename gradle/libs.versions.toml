@@ -25,10 +25,14 @@ mockk = "1.13.13"
 turbine = "1.1.0"
 coilCompose = "2.6.0"
 playServicesAuth = "21.0.0"
-facebookLogin = "17.0.0"
+
 biometric = "1.1.0"
 playServicesLocation = "21.1.0"
 cameraX = "1.3.1"
+work = "2.9.0"
+hiltWork = "1.2.0"
+credentials = "1.3.0"
+googleid = "1.1.1"
 
 
 [libraries]
@@ -91,7 +95,7 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coi
 
 # Social Auth
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
-facebook-login = { group = "com.facebook.android", name = "facebook-login", version.ref = "facebookLogin" }
+
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 
 # Hardware Integration
@@ -101,6 +105,15 @@ camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "
 camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX" }
 camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
 camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX" }
+
+# WorkManager
+work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "work" }
+work-gcm = { group = "androidx.work", name = "work-gcm", version.ref = "work" }
+hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "hiltWork" }
+hilt-work-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "hiltWork" }
+androidx-credentials = { group = "androidx.credentials", name = "credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { group = "androidx.credentials", name = "credentials-play-services-auth", version.ref = "credentials" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

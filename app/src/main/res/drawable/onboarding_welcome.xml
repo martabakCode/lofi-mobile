@@ -1,0 +1,59 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.1"
+        android:pathData="M120,120m-100,0a100,100 0,1 1,200 0a100,100 0,1 1,-200 0"/>
+    
+    <!-- Wallet Base -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M60,140L60,180c0,5.5 4.5,10 10,10h100c5.5,0 10,-4.5 10,-10v-40c0,-5.5 -4.5,-10 -10,-10h-100c-5.5,0 -10,4.5 -10,10z"/>
+    
+    <!-- Wallet Flap -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.8"
+        android:pathData="M60,140h120v-15c0,-5.5 -4.5,-10 -10,-10h-100c-5.5,0 -10,4.5 -10,10v15z"/>
+    
+    <!-- Money Bill 1 -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.9"
+        android:pathData="M75,95h90c2.8,0 5,2.2 5,5v35c0,2.8 -2.2,5 -5,5h-90c-2.8,0 -5,-2.2 -5,-5v-35c0,-2.8 2.2,-5 5,-5z"/>
+    
+    <!-- Money Circle Center -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.6"
+        android:pathData="M120,107.5c6.9,0 12.5,5.6 12.5,12.5s-5.6,12.5 -12.5,12.5s-12.5,-5.6 -12.5,-12.5s5.6,-12.5 12.5,-12.5z"/>
+    
+    <!-- Money Bill 2 (behind) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.7"
+        android:pathData="M80,85h80c2.8,0 5,2.2 5,5v35c0,2.8 -2.2,5 -5,5h-80c-2.8,0 -5,-2.2 -5,-5v-35c0,-2.8 2.2,-5 5,-5z"/>
+    
+    <!-- Dollar Sign -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M118,102v4h-2v2h2v1.5c0,1.4 1.1,2.5 2.5,2.5s2.5,1.1 2.5,2.5v2c0,1.4 -1.1,2.5 -2.5,2.5s-2.5,-1.1 -2.5,-2.5v-1.5h-2v1.5c0,2.5 2,4.5 4.5,4.5v2h2v-2c2.5,0 4.5,-2 4.5,-4.5v-2c0,-1.4 -1.1,-2.5 -2.5,-2.5s-2.5,-1.1 -2.5,-2.5v-1.5h4v-2h-4v-4h-2z"/>
+    
+    <!-- Sparkle decorations -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.8"
+        android:pathData="M45,75l3,6l6,3l-6,3l-3,6l-3,-6l-6,-3l6,-3z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.6"
+        android:pathData="M195,55l2,4l4,2l-4,2l-2,4l-2,-4l-4,-2l4,-2z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.7"
+        android:pathData="M185,165l2.5,5l5,2.5l-5,2.5l-2.5,5l-2.5,-5l-5,-2.5l5,-2.5z"/>
+</vector>

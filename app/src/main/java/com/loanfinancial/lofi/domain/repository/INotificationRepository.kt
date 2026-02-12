@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface INotificationRepository {
     fun getNotifications(): Flow<Resource<List<NotificationResponse>>>
+    fun getUnreadCount(): Flow<Int>
+    suspend fun syncNotifications()
 }

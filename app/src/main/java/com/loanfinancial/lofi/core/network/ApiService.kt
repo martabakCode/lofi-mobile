@@ -1,5 +1,7 @@
 package com.loanfinancial.lofi.core.network
 
+import com.loanfinancial.lofi.data.model.dto.RefreshTokenRequest
+import com.loanfinancial.lofi.data.model.dto.RefreshTokenResponse
 import com.loanfinancial.lofi.data.model.dto.ChangePasswordRequest
 import com.loanfinancial.lofi.data.model.dto.ChangePasswordResponse
 import com.loanfinancial.lofi.data.model.dto.GoogleAuthRequest
@@ -41,4 +43,9 @@ interface ApiService {
     suspend fun googleAuth(
         @Body request: GoogleAuthRequest,
     ): Response<GoogleAuthResponse>
+
+    @POST("auth/refresh")
+    suspend fun refreshToken(
+        @Body request: RefreshTokenRequest,
+    ): Response<RefreshTokenResponse>
 }

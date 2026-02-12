@@ -58,4 +58,23 @@ class NotificationRepositoryImpl
                     }
                 }
             }
+
+        override fun getUnreadCount(): Flow<Int> = database.notificationDao().getUnreadCount()
+
+        override suspend fun syncNotifications() {
+             try {
+                 val response = remoteDataSource.getNotifications()
+                 if (response.isSuccessful) {
+                     val baseResponse = response.body()
+                     if (baseResponse?.success == true) {
+                         val data = baseResponse.data ?: emptyList()
+                         val dao = database.notificationDao()
+                         dao.clearAll()
+                         dao.insertAll(data.map { it.toEntity() })
+                     }
+                 }
+             } catch (e: Exception) {
+                 // Ignore errors during background sync
+             }
+        }
     }

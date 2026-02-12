@@ -2,7 +2,6 @@ package com.loanfinancial.lofi.ui.features.auth.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import com.loanfinancial.lofi.data.model.dto.GoogleAuthRequest
 import com.loanfinancial.lofi.data.model.dto.RegisterRequest
@@ -10,6 +9,7 @@ import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import com.loanfinancial.lofi.domain.usecase.auth.GetFirebaseIdTokenUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.GoogleAuthUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.RegisterUseCase
+import com.loanfinancial.lofi.data.remote.firebase.IFcmTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +25,7 @@ class RegisterViewModel
         private val googleAuthUseCase: GoogleAuthUseCase,
         private val getFirebaseIdTokenUseCase: GetFirebaseIdTokenUseCase,
         private val authRepository: IAuthRepository,
+        private val fcmTokenManager: IFcmTokenManager,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow<RegisterUiState>(RegisterUiState.Idle)
         val uiState: StateFlow<RegisterUiState> = _uiState.asStateFlow()
@@ -77,15 +78,16 @@ class RegisterViewModel
                 val firebaseResult = authRepository.signInWithCredential(credential)
 
                 if (firebaseResult.isSuccess) {
-                    // 2. Step: Get Firebase ID Token
                     val tokenResult = getFirebaseIdTokenUseCase()
 
                     if (tokenResult.isSuccess) {
                         val firebaseIdToken = tokenResult.getOrThrow()
+                        val fcmToken = fcmTokenManager.getToken()
 
                         val request =
                             GoogleAuthRequest(
                                 idToken = firebaseIdToken,
+                                fcmToken = fcmToken,
                                 latitude = latitude,
                                 longitude = longitude,
                             )
@@ -110,24 +112,6 @@ class RegisterViewModel
                     }
                 } else {
                     _uiState.value = RegisterUiState.Error("Firebase Sign In Failed")
-                }
-            }
-        }
-
-        fun onFacebookRegister(accessToken: String) {
-            viewModelScope.launch {
-                _uiState.value = RegisterUiState.Loading
-                val credential = FacebookAuthProvider.getCredential(accessToken)
-                val result = authRepository.signInWithCredential(credential)
-                if (result.isSuccess) {
-                    // Facebook registration still uses Firebase for now
-                    // TODO: Implement backend Facebook auth when endpoint is available
-                    _uiState.value = RegisterUiState.Success("Registered with Facebook")
-                } else {
-                    _uiState.value =
-                        RegisterUiState.Error(
-                            result.exceptionOrNull()?.message ?: "Facebook Registration Failed",
-                        )
                 }
             }
         }

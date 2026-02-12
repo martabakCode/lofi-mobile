@@ -6,7 +6,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.GoogleAuthProvider
 import com.loanfinancial.lofi.core.network.toUserFriendlyMessage
 import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
@@ -22,6 +21,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -36,6 +36,9 @@ data class LoginUiState(
     val isLoginSuccessful: Boolean = false,
     val isBiometricEnabled: Boolean = false,
     val showEnableBiometricDialog: Boolean = false,
+    val profileCompleted: Boolean = true,
+    val pinSet: Boolean = true,
+    val isGoogleLogin: Boolean = false,
 )
 
 @HiltViewModel
@@ -112,7 +115,7 @@ class LoginViewModel
 
         private fun performLogin() {
             viewModelScope.launch {
-                _uiState.update { it.copy(isLoading = true, loginError = null) }
+                _uiState.update { it.copy(isLoading = true, loginError = null, isGoogleLogin = false) }
 
                 val fcmToken = fcmTokenManager.getToken() ?: ""
 
@@ -127,6 +130,11 @@ class LoginViewModel
                 val loginResult = loginUseCase(request)
 
                 if (loginResult.isSuccess) {
+                    val loginResponse = loginResult.getOrNull()
+                    // Get profile status directly from login response (avoid race condition with DataStore)
+                    val profileCompleted = loginResponse?.data?.profileCompleted ?: false
+                    val pinSet = loginResponse?.data?.pinSet ?: false
+                    
                     // 2. Fetch User Info to check Role
                     val userResult = getUserUseCase()
 
@@ -134,7 +142,17 @@ class LoginViewModel
                         val user = userResult.getOrNull()?.data
                         if (user != null && user.roles.contains("ROLE_CUSTOMER")) {
                             // 3a. Role is valid
-                            _uiState.update { it.copy(isLoading = false, isLoginSuccessful = true) }
+                            dataStoreManager.setFirstInstall(false)
+                            
+                            _uiState.update { 
+                                it.copy(
+                                    isLoading = false, 
+                                    isLoginSuccessful = true,
+                                    profileCompleted = profileCompleted,
+                                    pinSet = pinSet,
+                                    isGoogleLogin = false
+                                ) 
+                            }
                         } else {
                             // 3b. Role invalid - Logout and show error
                             authRepository.logout()
@@ -201,7 +219,7 @@ class LoginViewModel
             longitude: Double? = null,
         ) {
             viewModelScope.launch {
-                _uiState.update { it.copy(isLoading = true, loginError = null) }
+                _uiState.update { it.copy(isLoading = true, loginError = null, isGoogleLogin = true) }
 
                 // 1. Step: Sign in to Firebase with Google idToken to get Firebase User
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
@@ -214,9 +232,12 @@ class LoginViewModel
                     if (tokenResult.isSuccess) {
                         val firebaseIdToken = tokenResult.getOrThrow()
 
+                        val fcmToken = fcmTokenManager.getToken()
+                        
                         val request =
                             GoogleAuthRequest(
                                 idToken = firebaseIdToken,
+                                fcmToken = fcmToken,
                                 latitude = latitude,
                                 longitude = longitude,
                             )
@@ -225,13 +246,28 @@ class LoginViewModel
                         val googleAuthResult = googleAuthUseCase(request)
 
                         if (googleAuthResult.isSuccess) {
+                            val googleResponse = googleAuthResult.getOrNull()
+                            // Get profile status directly from Google auth response (avoid race condition)
+                            val profileCompleted = googleResponse?.data?.profileCompleted ?: false
+                            val pinSet = googleResponse?.data?.pinSet ?: false
+                            
                             // 4. Step: Fetch User Info to check Role
                             val userResult = getUserUseCase()
 
                             if (userResult.isSuccess) {
                                 val user = userResult.getOrNull()?.data
                                 if (user != null && user.roles.contains("ROLE_CUSTOMER")) {
-                                    _uiState.update { it.copy(isLoading = false, isLoginSuccessful = true) }
+                                    dataStoreManager.setFirstInstall(false)
+                                    
+                                    _uiState.update { 
+                                        it.copy(
+                                            isLoading = false, 
+                                            isLoginSuccessful = true,
+                                            profileCompleted = profileCompleted,
+                                            pinSet = pinSet,
+                                            isGoogleLogin = true
+                                        ) 
+                                    }
                                 } else {
                                     authRepository.logout()
                                     _uiState.update {
@@ -283,23 +319,5 @@ class LoginViewModel
             }
         }
 
-        fun onFacebookLogin(accessToken: String) {
-            viewModelScope.launch {
-                _uiState.update { it.copy(isLoading = true, loginError = null) }
-                val credential = FacebookAuthProvider.getCredential(accessToken)
-                val result = authRepository.signInWithCredential(credential)
-                if (result.isSuccess) {
-                    _uiState.update { it.copy(isLoading = false, isLoginSuccessful = true) }
-                } else {
-                    val exception = result.exceptionOrNull()
-                    val errorMessage = exception?.toUserFriendlyMessage() ?: context.getString(R.string.error_facebook_login_failed)
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            loginError = errorMessage,
-                        )
-                    }
-                }
-            }
-        }
+
     }

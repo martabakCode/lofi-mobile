@@ -1,0 +1,101 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="240dp"
+    android:height="240dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <!-- Background Circle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.1"
+        android:pathData="M120,120m-100,0a100,100 0,1 1,200 0a100,100 0,1 1,-200 0"/>
+    
+    <!-- Rocket Body -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M120,50c-15,0 -35,25 -35,60c0,25 15,45 35,50c20,-5 35,-25 35,-50c0,-35 -20,-60 -35,-60z"/>
+    
+    <!-- Rocket Window -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.4"
+        android:pathData="M120,85c8.3,0 15,6.7 15,15s-6.7,15 -15,15s-15,-6.7 -15,-15s6.7,-15 15,-15z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.8"
+        android:pathData="M120,90c5.5,0 10,4.5 10,10s-4.5,10 -10,10s-10,-4.5 -10,-10s4.5,-10 10,-10z"/>
+    
+    <!-- Left Fin -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.8"
+        android:pathData="M85,130l-20,25c-3,3.8 -2.5,9.3 1.3,12.3c3.8,3 9.3,2.5 12.3,-1.3l15,-20l-8.6,-16z"/>
+    
+    <!-- Right Fin -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.8"
+        android:pathData="M155,130l20,25c3,3.8 2.5,9.3 -1.3,12.3c-3.8,3 -9.3,2.5 -12.3,-1.3l-15,-20l8.6,-16z"/>
+    
+    <!-- Center Fin -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.9"
+        android:pathData="M120,155l-10,35c-1,3.5 1.5,7 5,8c3.5,1 7,-1 8,-5l10,-38l-13,0z"/>
+    
+    <!-- Flame Outer -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.4"
+        android:pathData="M120,190l-12,30c-1.5,3.8 0.5,8 4.3,9.5c3.8,1.5 8,-0.5 9.5,-4.3l7.7,-19.3l-9.5,-16z"/>
+    
+    <!-- Flame Middle -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.7"
+        android:pathData="M120,195l-8,20c-1,2.5 0.3,5.3 2.8,6.3c2.5,1 5.3,-0.3 6.3,-2.8l5,-12.5l-6.1,-11z"/>
+    
+    <!-- Flame Inner -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M120,200l-5,12c-0.6,1.5 0.2,3.2 1.7,3.8c1.5,0.6 3.2,-0.2 3.8,-1.7l3.5,-8.8l-4,-5.3z"/>
+    
+    <!-- Stars/Sparkles -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.8"
+        android:pathData="M50,80l4,8l8,4l-8,4l-4,8l-4,-8l-8,-4l8,-4z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.6"
+        android:pathData="M195,100l2.5,5l5,2.5l-5,2.5l-2.5,5l-2.5,-5l-5,-2.5l5,-2.5z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.5"
+        android:pathData="M180,60l2,4l4,2l-4,2l-2,4l-2,-4l-4,-2l4,-2z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.4"
+        android:pathData="M45,140l2,4l4,2l-4,2l-2,4l-2,-4l-4,-2l4,-2z"/>
+    
+    <!-- Speed lines -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.5"
+        android:pathData="M60,100L40,95"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.4"
+        android:pathData="M55,120L35,118"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.5"
+        android:pathData="M180,110L200,105"/>
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeAlpha="0.4"
+        android:pathData="M185,130L205,128"/>
+</vector>

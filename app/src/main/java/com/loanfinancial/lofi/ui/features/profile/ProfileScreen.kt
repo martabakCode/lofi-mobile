@@ -78,6 +78,9 @@ fun ProfileScreen(
     onEditProfileClick: () -> Unit = {},
     onProfileDetailClick: () -> Unit = {},
     onChangePasswordClick: () -> Unit = {},
+    onSetPinClick: () -> Unit = {},
+    onChangeGooglePinClick: () -> Unit = {},
+    onSetGooglePinClick: () -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     if (isGuest) {
@@ -376,10 +379,23 @@ fun ProfileScreen(
                     onClick = onEditProfileClick,
                 )
                 HorizontalDivider(modifier = Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                if (!uiState.isGoogleUser) {
+                    ProfileOptionItem(
+                        icon = Icons.Default.LockOpen,
+                        title = "Change Password",
+                        onClick = onChangePasswordClick,
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                }
+                
                 ProfileOptionItem(
                     icon = Icons.Default.LockOpen,
-                    title = "Change Password",
-                    onClick = onChangePasswordClick,
+                    title = if (uiState.hasPin) "PIN Management" else "Set PIN",
+                    onClick = if (uiState.isGoogleUser) {
+                        if (uiState.hasPin) onChangeGooglePinClick else onSetGooglePinClick
+                    } else {
+                        onSetPinClick
+                    },
                 )
             }
 

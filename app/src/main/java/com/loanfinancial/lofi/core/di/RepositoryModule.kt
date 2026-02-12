@@ -18,6 +18,8 @@ import com.loanfinancial.lofi.domain.repository.INotificationRepository
 import com.loanfinancial.lofi.domain.repository.IProductRepository
 import com.loanfinancial.lofi.domain.repository.IRegionRepository
 import com.loanfinancial.lofi.domain.repository.IUserRepository
+import com.loanfinancial.lofi.data.repository.DocumentRepositoryImpl
+import com.loanfinancial.lofi.domain.repository.IDocumentRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -80,4 +82,22 @@ abstract class RepositoryModule {
     abstract fun bindProductRepository(
         impl: ProductRepositoryImpl,
     ): IProductRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDocumentRepository(
+        impl: DocumentRepositoryImpl
+    ): IDocumentRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLoanSubmissionManager(
+        impl: com.loanfinancial.lofi.data.manager.LoanSubmissionManagerImpl
+    ): com.loanfinancial.lofi.domain.manager.LoanSubmissionManager
+
+    @Binds
+    @Singleton
+    abstract fun bindLoanDraftRepository(
+        impl: com.loanfinancial.lofi.data.repository.LoanDraftRepositoryImpl
+    ): com.loanfinancial.lofi.domain.repository.ILoanDraftRepository
 }

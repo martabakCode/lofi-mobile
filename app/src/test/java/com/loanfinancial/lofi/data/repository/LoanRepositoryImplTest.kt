@@ -36,11 +36,46 @@ class LoanRepositoryImplTest {
     fun `getMyLoans should emit loading, then cached data, then remote data`() =
         runBlocking {
             // Arrange
-            val cachedEntities =
-                listOf(
-                    LoanEntity("1", "User", "P1", "Prod 1", 1.5, 1000, 12, "DRAFT", "STAGE", null, "Draft"),
-                )
-            val remoteDto = LoanDto("1", "C1", "User", ProductDto("P1", "P1", "Prod 1", null, 1.5, null, null, null, null, null, null), 1000, 12, "DRAFT", "STAGE", null, null, null, null, null, null, null)
+            val cachedEntities = listOf(
+                LoanEntity(
+                    id = "1", 
+                    userId = "User", 
+                    customerName = "Test User",
+                    productCode = "P1", 
+                    productName = "Prod 1", 
+                    interestRate = 1.5, 
+                    loanAmount = 1000, 
+                    tenor = 12, 
+                    loanStatus = "DRAFT", 
+                    currentStage = "STAGE", 
+                    submittedAt = null,
+                    reviewedAt = null,
+                    approvedAt = null,
+                    rejectedAt = null,
+                    disbursedAt = null,
+                    loanStatusDisplay = "Draft",
+                    slaDurationHours = null,
+                    disbursementReference = null
+                ),
+            )
+            val remoteDto = LoanDto(
+                id = "1", 
+                customerId = "C1", 
+                customerName = "User", 
+                product = ProductDto("P1", "P1", "Prod 1", null, 1.5, null, null, null, null, null, null), 
+                loanAmount = 1000, 
+                tenor = 12, 
+                loanStatus = "DRAFT", 
+                currentStage = "STAGE", 
+                submittedAt = null, 
+                approvedAt = null,
+                rejectedAt = null,
+                disbursedAt = null,
+                documents = null,
+                disbursementReference = null,
+                aiAnalysis = null,
+                slaDurationHours = null
+            )
             val remoteResponse = BaseResponse(true, "Success", PagingResponse(listOf(remoteDto), mockk()))
 
             every { localDataSource.getAllLoans() } returns flowOf(cachedEntities)
@@ -49,7 +84,7 @@ class LoanRepositoryImplTest {
             coEvery { localDataSource.insertLoans(any()) } returns Unit
 
             // Act & Assert
-            repository.getMyLoans(0, 10, "createdAt").test {
+            repository.getMyLoans("user_123", 0, 10, "createdAt").test {
                 assertEquals(Resource.Loading, awaitItem())
                 val cachedResult = awaitItem()
                 assertTrue(cachedResult is Resource.Success)

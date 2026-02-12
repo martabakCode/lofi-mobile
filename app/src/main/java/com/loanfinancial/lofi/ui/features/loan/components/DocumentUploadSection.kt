@@ -49,7 +49,7 @@ import com.loanfinancial.lofi.ui.features.loan.DocumentUploadState
 @Composable
 fun DocumentUploadSection(
     ktpState: DocumentUploadState?,
-    selfieState: DocumentUploadState?,
+    selfieKtpState: DocumentUploadState?,
     onEvent: (ApplyLoanUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -71,13 +71,9 @@ fun DocumentUploadSection(
             onEvent = onEvent,
         )
 
-        DocumentUploadCard(
-            title = "Selfie with KTP",
-            description = "Take a selfie while holding your KTP",
-            documentType = DocumentType.SELFIE,
-            uploadState = selfieState,
-            onEvent = onEvent,
-        )
+        // Note: Selfie with KTP is no longer uploaded separately
+        // It should be combined with KTP or handled as OTHER document type
+        // based on backend requirements
     }
 }
 

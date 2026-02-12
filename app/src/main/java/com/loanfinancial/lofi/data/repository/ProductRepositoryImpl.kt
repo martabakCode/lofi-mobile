@@ -2,6 +2,7 @@ package com.loanfinancial.lofi.data.repository
 
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.database.AppDatabase
+import com.loanfinancial.lofi.data.model.dto.AvailableProductDto
 import com.loanfinancial.lofi.data.model.dto.ProductDto
 import com.loanfinancial.lofi.data.model.entity.toEntity
 import com.loanfinancial.lofi.data.remote.api.LoanProductApi
@@ -54,6 +55,27 @@ class ProductRepositoryImpl
                     if (localData.isEmpty()) {
                         emit(Resource.Error(e.message ?: "Network error"))
                     }
+                }
+            }
+
+        override fun getAvailableProduct(): Flow<Resource<AvailableProductDto>> =
+            flow {
+                emit(Resource.Loading)
+
+                try {
+                    val response = api.getAvailableProduct()
+                    if (response.isSuccessful) {
+                        val body = response.body()
+                        if (body != null && body.success && body.data != null) {
+                            emit(Resource.Success(body.data))
+                        } else {
+                            emit(Resource.Error(body?.message ?: "Unknown error"))
+                        }
+                    } else {
+                        emit(Resource.Error("Error ${response.code()}: ${response.message()}"))
+                    }
+                } catch (e: Exception) {
+                    emit(Resource.Error(e.message ?: "Network error"))
                 }
             }
     }

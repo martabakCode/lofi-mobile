@@ -82,8 +82,7 @@ data class LoanPreviewData(
         amount.isNotBlank() &&
             tenor.isNotBlank() &&
             purpose.isNotBlank() &&
-            documents[DocumentType.KTP]?.isUploaded == true &&
-            documents[DocumentType.SELFIE]?.isUploaded == true
+            documents[DocumentType.KTP]?.isUploaded == true
 }
 
 /**

@@ -74,7 +74,7 @@
     <string name="error_backend_verification_failed">Backend Verification Failed</string>
     <string name="error_firebase_token_failed">Failed to get Firebase token</string>
     <string name="error_firebase_signin_failed">Firebase Sign In Failed</string>
-    <string name="error_facebook_login_failed">Facebook Login Failed</string>
+
     <string name="biometric_prompt_title">Login to LOFI</string>
     <string name="biometric_prompt_subtitle">Authenticate to continue</string>
     <string name="biometric_prompt_description">Use your fingerprint or face to login</string>

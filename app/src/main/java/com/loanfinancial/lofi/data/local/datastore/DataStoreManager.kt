@@ -46,6 +46,15 @@ class DataStoreManager
             private val PREF_USER_PHONE = stringPreferencesKey(KEY_USER_PHONE)
             private val PREF_USER_AVATAR = stringPreferencesKey(KEY_USER_AVATAR)
             private val PREF_BIOMETRIC_ENABLED = booleanPreferencesKey(KEY_BIOMETRIC_ENABLED)
+            const val KEY_IS_PIN_SET = "is_pin_set"
+            const val KEY_IS_PROFILE_COMPLETED = "is_profile_completed"
+            const val KEY_IS_FIRST_INSTALL = "is_first_install"
+            const val KEY_HAS_COMPLETED_FIRST_SESSION = "has_completed_first_session"
+            
+            private val PREF_IS_PIN_SET = booleanPreferencesKey(KEY_IS_PIN_SET)
+            private val PREF_IS_PROFILE_COMPLETED = booleanPreferencesKey(KEY_IS_PROFILE_COMPLETED)
+            private val PREF_IS_FIRST_INSTALL = booleanPreferencesKey(KEY_IS_FIRST_INSTALL)
+            private val PREF_HAS_COMPLETED_FIRST_SESSION = booleanPreferencesKey(KEY_HAS_COMPLETED_FIRST_SESSION)
         }
 
         suspend fun saveAuthTokens(
@@ -56,6 +65,28 @@ class DataStoreManager
                 preferences[PREF_ACCESS_TOKEN] = accessToken
                 preferences[PREF_REFRESH_TOKEN] = refreshToken
                 preferences[PREF_IS_LOGGED_IN] = true
+            }
+        }
+        
+        suspend fun saveProfileStatus(
+            pinSet: Boolean,
+            profileCompleted: Boolean
+        ) {
+            dataStore.edit { preferences ->
+                preferences[PREF_IS_PIN_SET] = pinSet
+                preferences[PREF_IS_PROFILE_COMPLETED] = profileCompleted
+            }
+        }
+        
+        suspend fun setPinSet(isSet: Boolean) {
+            dataStore.edit { preferences ->
+                preferences[PREF_IS_PIN_SET] = isSet
+            }
+        }
+
+        suspend fun setProfileCompleted(isCompleted: Boolean) {
+            dataStore.edit { preferences ->
+                preferences[PREF_IS_PROFILE_COMPLETED] = isCompleted
             }
         }
 
@@ -93,6 +124,10 @@ class DataStoreManager
 
         suspend fun isLoggedIn(): Boolean = dataStore.data.map { it[PREF_IS_LOGGED_IN] ?: false }.first()
 
+        suspend fun isPinSet(): Boolean = dataStore.data.map { it[PREF_IS_PIN_SET] ?: false }.first()
+
+        suspend fun isProfileCompleted(): Boolean = dataStore.data.map { it[PREF_IS_PROFILE_COMPLETED] ?: false }.first()
+
         suspend fun getFcmToken(): String? = dataStore.data.map { it[PREF_FCM_TOKEN] }.first()
 
         suspend fun saveToken(token: String) {
@@ -109,6 +144,16 @@ class DataStoreManager
         val isLoggedInFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PREF_IS_LOGGED_IN] ?: false
+            }
+            
+        val isPinSetFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PREF_IS_PIN_SET] ?: false
+            }
+
+        val isProfileCompletedFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PREF_IS_PROFILE_COMPLETED] ?: false
             }
 
         val userInfoFlow: Flow<UserInfo> =
@@ -136,6 +181,28 @@ class DataStoreManager
                 preferences[PREF_BIOMETRIC_ENABLED] ?: false
             }
 
+        val isFirstInstallFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PREF_IS_FIRST_INSTALL] ?: true // Default to true (first install)
+            }
+
+        suspend fun setFirstInstall(isFirst: Boolean) {
+            dataStore.edit { preferences ->
+                preferences[PREF_IS_FIRST_INSTALL] = isFirst
+            }
+        }
+
+        val hasCompletedFirstSessionFlow: Flow<Boolean> =
+            dataStore.data.map { preferences ->
+                preferences[PREF_HAS_COMPLETED_FIRST_SESSION] ?: false
+            }
+
+        suspend fun setHasCompletedFirstSession(completed: Boolean) {
+            dataStore.edit { preferences ->
+                preferences[PREF_HAS_COMPLETED_FIRST_SESSION] = completed
+            }
+        }
+
         suspend fun clearAuthData() {
             dataStore.edit { preferences ->
                 preferences.remove(PREF_ACCESS_TOKEN)
@@ -147,6 +214,9 @@ class DataStoreManager
                 preferences.remove(PREF_USER_PHONE)
                 preferences.remove(PREF_USER_AVATAR)
                 preferences.remove(PREF_BIOMETRIC_ENABLED)
+                preferences.remove(PREF_IS_PIN_SET)
+                preferences.remove(PREF_IS_PROFILE_COMPLETED)
+                preferences.remove(PREF_IS_FIRST_INSTALL)
             }
         }
 

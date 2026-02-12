@@ -39,6 +39,8 @@ data class UserUpdateData(
     @SerializedName("branch") val branch: BranchDto?,
     @SerializedName("biodata") val biodata: UserBiodataDto?,
     @SerializedName("product") val product: ProductDto?,
+    @SerializedName("pinSet") val pinSet: Boolean?,
+    @SerializedName("profileCompleted") val profileCompleted: Boolean?,
 )
 
 data class BranchDto(

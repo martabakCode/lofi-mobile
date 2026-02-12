@@ -29,13 +29,16 @@ class AuthRepositoryImplTest {
     
     @MockK
     private lateinit var firebaseAuth: FirebaseAuth
+    
+    @MockK
+    private lateinit var pinApi: com.loanfinancial.lofi.data.remote.api.PinApi
 
     private lateinit var repository: AuthRepositoryImpl
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        repository = AuthRepositoryImpl(dataStoreManager, apiService, userDao, firebaseAuth)
+        repository = AuthRepositoryImpl(dataStoreManager, apiService, userDao, firebaseAuth, pinApi)
     }
 
     @Test

@@ -1,6 +1,7 @@
 package com.loanfinancial.lofi.core.network
 
 import com.loanfinancial.lofi.core.common.result.ErrorType
+import okhttp3.OkHttpClient
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.SocketTimeoutException

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 data class LoanHistoryUiState(
     val loans: List<Loan> = emptyList(),
@@ -24,17 +25,69 @@ data class LoanHistoryUiState(
     val isLoadingMore: Boolean = false,
 )
 
+
+
 @HiltViewModel
 class LoanHistoryViewModel
     @Inject
     constructor(
         private val getMyLoansUseCase: GetMyLoansUseCase,
+        private val loanSubmissionManager: com.loanfinancial.lofi.domain.manager.LoanSubmissionManager
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(LoanHistoryUiState())
         val uiState: StateFlow<LoanHistoryUiState> = _uiState.asStateFlow()
 
+        private var currentPendingLoans: List<Loan> = emptyList()
+        private var currentRemoteLoans: List<Loan> = emptyList()
+
         init {
+            observePendingSubmissions()
             loadHistory()
+        }
+
+        private fun observePendingSubmissions() {
+            loanSubmissionManager.getPendingSubmissions()
+                .onEach { submissions ->
+                    currentPendingLoans = submissions.map { it.toLoan() }
+                    updateUiState()
+                }.launchIn(viewModelScope)
+        }
+
+        private fun updateUiState() {
+            _uiState.update { it.copy(loans = currentPendingLoans + currentRemoteLoans) }
+        }
+
+        private fun com.loanfinancial.lofi.domain.model.PendingLoanSubmission.toLoan(): Loan {
+            return Loan(
+                id = loanId,
+                customerName = "", // Not available in pending submission properly, or needed? 
+                // Wait, PendingLoanSubmission doesn't have customerName. PendingLoanSubmissionEntity has. 
+                // I should probably add customerName to PendingLoanSubmission domain model or just ignore it for list item.
+                product = com.loanfinancial.lofi.domain.model.Product(
+                    productCode = "", // Not in domain model
+                    productName = productName,
+                    interestRate = 0.0, // Not in domain model
+                ),
+                loanAmount = loanAmount,
+                tenor = tenor,
+                loanStatus = status.name,
+                currentStage = "SUBMISSION",
+                submittedAt = null,
+                reviewedAt = null,
+                approvedAt = null,
+                rejectedAt = null,
+                disbursedAt = null,
+                loanStatusDisplay = when(status) {
+                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.PENDING -> "Menunggu Jaringan"
+                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.SUBMITTING -> "Mengirim..."
+                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.SUCCESS -> "Terkirim"
+                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.FAILED -> "Gagal"
+                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.CANCELLED -> "Dibatalkan"
+                },
+                slaDurationHours = null,
+                pendingStatus = status,
+                failureReason = failureReason
+            )
         }
 
         fun loadHistory(isRefreshing: Boolean = false) {
@@ -55,8 +108,10 @@ class LoanHistoryViewModel
                         is Resource.Success -> {
                             val newLoans = result.data
                             _uiState.update { state ->
+                                currentRemoteLoans = if (state.page == 0) newLoans else currentRemoteLoans + newLoans
+                                val mergedLoans = currentPendingLoans + currentRemoteLoans
                                 state.copy(
-                                    loans = if (state.page == 0) newLoans else state.loans + newLoans,
+                                    loans = mergedLoans,
                                     isLoading = false,
                                     isRefreshing = false,
                                     isLoadingMore = false,
@@ -81,12 +136,27 @@ class LoanHistoryViewModel
         }
 
         fun refresh() {
+            viewModelScope.launch {
+                loanSubmissionManager.triggerPendingSubmissions()
+            }
             loadHistory(isRefreshing = true)
         }
 
         fun loadMore() {
             if (!_uiState.value.isLoading && !_uiState.value.isLoadingMore && _uiState.value.hasMore) {
                 loadHistory()
+            }
+        }
+
+        fun retrySubmission(loanId: String) {
+            viewModelScope.launch {
+                loanSubmissionManager.retrySubmission(loanId)
+            }
+        }
+
+        fun cancelSubmission(loanId: String) {
+            viewModelScope.launch {
+                loanSubmissionManager.cancelSubmission(loanId)
             }
         }
     }

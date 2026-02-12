@@ -14,6 +14,8 @@ data class AuthTokenData(
     val refreshToken: String,
     val expiresIn: Long,
     val tokenType: String,
+    val pinSet: Boolean = false,
+    val profileCompleted: Boolean = false,
 )
 
 data class LoginResponse(
@@ -29,6 +31,7 @@ data class LoginResponse(
  */
 data class GoogleAuthRequest(
     val idToken: String,
+    val fcmToken: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
 )
@@ -55,7 +58,8 @@ data class UserData(
     val email: String,
     val username: String,
     val branchId: String?,
-    val branchName: String?, // Nullable because branchName wasn't in LoginData, best to be safe
+    // Nullable because branchName wasn't in LoginData, best to be safe
+    val branchName: String?,
     val roles: List<String>,
     val permissions: List<String>,
 )
@@ -93,3 +97,19 @@ data class ChangePasswordResponse(
     val data: Any? = null,
     val errors: Any? = null,
 )
+
+data class SetPinRequest(
+    val pin: String,
+    val password: String? = null,
+)
+
+data class ChangePinRequest(
+    val oldPin: String,
+    val newPin: String,
+)
+
+data class RefreshTokenRequest(
+    val refreshToken: String,
+)
+
+typealias RefreshTokenResponse = LoginResponse

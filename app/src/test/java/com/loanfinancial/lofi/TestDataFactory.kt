@@ -1,44 +1,48 @@
 package com.loanfinancial.lofi
 
 import com.loanfinancial.lofi.domain.model.Loan
-import com.loanfinancial.lofi.domain.model.User
+import com.loanfinancial.lofi.domain.model.Product
 
 object TestDataFactory {
-    fun createUser(
-        id: String = "user_123",
-        email: String = "test@example.com",
-        name: String = "Test User",
-        phone: String = "+6281234567890",
-    ): User =
-        User(
-            id = id,
-            email = email,
-            name = name,
-            phone = phone,
-        )
-
     fun createLoan(
         id: String = "loan_123",
-        amount: Double = 5000000.0,
+        amount: Long = 5000000,
         tenor: Int = 12,
-        purpose: String = "Business",
-        status: String = "PENDING",
+        customerName: String = "Test Customer",
+        status: String = "SUBMITTED",
+        loanStatusDisplay: String = "Menunggu Review",
     ): Loan =
         Loan(
             id = id,
-            amount = amount,
+            customerName = customerName,
+            product = Product(
+                productCode = "CASH_LOAN",
+                productName = "Pinjaman Tunai",
+                interestRate = 0.05,
+            ),
+            loanAmount = amount,
             tenor = tenor,
-            purpose = purpose,
-            status = status,
+            loanStatus = status,
+            currentStage = "SUBMISSION",
+            submittedAt = "2024-01-15T10:30:00Z",
+            reviewedAt = null,
+            approvedAt = null,
+            rejectedAt = null,
+            disbursedAt = null,
+            loanStatusDisplay = loanStatusDisplay,
+            slaDurationHours = 24,
+            disbursementReference = null
         )
 
     fun createLoanList(count: Int = 3): List<Loan> =
         (1..count).map { index ->
             createLoan(
                 id = "loan_$index",
-                amount = (index * 1000000).toDouble(),
+                amount = (index * 1000000).toLong(),
                 tenor = index * 6,
-                purpose = "Purpose $index",
+                customerName = "Customer $index",
+                status = if (index % 2 == 0) "APPROVED" else "SUBMITTED",
+                loanStatusDisplay = if (index % 2 == 0) "Disetujui" else "Menunggu Review"
             )
         }
 

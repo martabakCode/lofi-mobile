@@ -137,36 +137,34 @@ class EditProfileViewModel
                         getUserProfileUseCase().collect { result ->
                             if (result is Resource.Success) {
                                 val data = result.data
-                                if (data != null) {
-                                    _uiState.update {
-                                        it.copy(
-                                            fullName = data.fullName ?: "",
-                                            phoneNumber = data.phoneNumber ?: "",
-                                            profilePictureUrl = UrlUtil.getFullProfileUrl(data.profilePictureUrl) ?: "",
-                                            // Biodata fields
-                                            incomeSource = data.biodata?.incomeSource ?: "",
-                                            incomeType = data.biodata?.incomeType ?: "",
-                                            monthlyIncome =
-                                                data.biodata
-                                                    ?.monthlyIncome
-                                                    ?.toLong()
-                                                    ?.toString() ?: "0",
-                                            // Show as integer string if possible
-                                            nik = data.biodata?.nik ?: "",
-                                            dateOfBirth = data.biodata?.dateOfBirth ?: "",
-                                            placeOfBirth = data.biodata?.placeOfBirth ?: "",
-                                            city = data.biodata?.city ?: "",
-                                            address = data.biodata?.address ?: "",
-                                            province = data.biodata?.province ?: "",
-                                            district = data.biodata?.district ?: "",
-                                            subDistrict = data.biodata?.subDistrict ?: "",
-                                            postalCode = data.biodata?.postalCode ?: "",
-                                            gender = data.biodata?.gender ?: "MALE",
-                                            maritalStatus = data.biodata?.maritalStatus ?: "SINGLE",
-                                            occupation = data.biodata?.occupation ?: "",
-                                            isLoading = false,
-                                        )
-                                    }
+                                _uiState.update {
+                                    it.copy(
+                                        fullName = data.fullName ?: "",
+                                        phoneNumber = data.phoneNumber ?: "",
+                                        profilePictureUrl = UrlUtil.getFullProfileUrl(data.profilePictureUrl) ?: "",
+                                        // Biodata fields
+                                        incomeSource = data.biodata?.incomeSource ?: "",
+                                        incomeType = data.biodata?.incomeType ?: "",
+                                        monthlyIncome =
+                                            data.biodata
+                                                ?.monthlyIncome
+                                                ?.toLong()
+                                                ?.toString() ?: "0",
+                                        // Show as integer string if possible
+                                        nik = data.biodata?.nik ?: "",
+                                        dateOfBirth = data.biodata?.dateOfBirth ?: "",
+                                        placeOfBirth = data.biodata?.placeOfBirth ?: "",
+                                        city = data.biodata?.city ?: "",
+                                        address = data.biodata?.address ?: "",
+                                        province = data.biodata?.province ?: "",
+                                        district = data.biodata?.district ?: "",
+                                        subDistrict = data.biodata?.subDistrict ?: "",
+                                        postalCode = data.biodata?.postalCode ?: "",
+                                        gender = data.biodata?.gender ?: "MALE",
+                                        maritalStatus = data.biodata?.maritalStatus ?: "SINGLE",
+                                        occupation = data.biodata?.occupation ?: "",
+                                        isLoading = false,
+                                    )
                                 }
                             } else if (result is Resource.Error) {
                                 _uiState.update { it.copy(isLoading = false, errorMessage = result.message) }

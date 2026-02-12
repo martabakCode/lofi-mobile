@@ -44,7 +44,10 @@ fun LofiDropdown(
                 },
                 modifier =
                     Modifier
-                        .menuAnchor()
+                        .menuAnchor(
+                            type = if (isSearchable) MenuAnchorType.PrimaryEditable else MenuAnchorType.PrimaryNotEditable,
+                            enabled = true
+                        )
                         .fillMaxWidth(),
             )
 

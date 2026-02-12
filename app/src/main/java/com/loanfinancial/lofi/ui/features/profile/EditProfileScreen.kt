@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -64,7 +63,7 @@ fun EditProfileScreen(
                 navigationIcon = {
                     IconButton(onClick = navigateUp) {
                         Icon(
-                            imageVector = androidx.compose.material.icons.Icons.Default.KeyboardArrowLeft,
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                             contentDescription = "Back",
                             modifier = Modifier.size(28.dp),
                             tint = MaterialTheme.colorScheme.primary,
@@ -189,7 +188,7 @@ fun StepDot(
 
 @Composable
 fun Line(isActive: Boolean) {
-    Divider(
+    HorizontalDivider(
         modifier =
             Modifier
                 .width(40.dp)

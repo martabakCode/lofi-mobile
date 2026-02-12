@@ -42,7 +42,7 @@ fun LoanPreviewScreen(
     onNavigateToTnC: () -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    val currencyFormatter = NumberFormat.getCurrencyInstance(Locale("id", "ID"))
+    val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("id-ID"))
 
     Scaffold(
         topBar = {
@@ -60,7 +60,7 @@ fun LoanPreviewScreen(
                         .padding(16.dp),
             ) {
                 LofiButton(
-                    text = "Lanjut ke Syarat & Ketentuan",
+                    text = "Ajukan Pinjaman",
                     onClick = onNavigateToTnC,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -321,14 +321,6 @@ private fun DocumentsStatusCard(
             DocumentStatusRow(
                 label = "KTP",
                 isUploaded = documents[DocumentType.KTP]?.isUploaded == true,
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Selfie Status
-            DocumentStatusRow(
-                label = "Foto Selfie dengan KTP",
-                isUploaded = documents[DocumentType.SELFIE]?.isUploaded == true,
             )
         }
     }

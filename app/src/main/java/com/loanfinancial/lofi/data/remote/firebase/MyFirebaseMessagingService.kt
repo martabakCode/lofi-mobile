@@ -48,7 +48,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val pendingIntent =
             PendingIntent.getActivity(
                 this,
-                0, // Request code
+                // Request code
+                0,
                 intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT,
             )
@@ -58,7 +59,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val notificationBuilder =
             NotificationCompat
                 .Builder(this, channelId)
-                .setSmallIcon(R.mipmap.ic_launcher) // Ensure this resource exists or use a default
+                // Ensure this resource exists or use a default
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
                 .setContentText(messageBody)
                 .setAutoCancel(true)
@@ -78,7 +80,8 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
             notificationManager.createNotificationChannel(channel)
         }
 
-        notificationManager.notify(0, notificationBuilder.build()) // ID of notification
+        // ID of notification
+        notificationManager.notify(0, notificationBuilder.build())
     }
 
     companion object {

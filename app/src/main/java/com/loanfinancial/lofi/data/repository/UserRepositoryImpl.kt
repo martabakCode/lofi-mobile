@@ -4,6 +4,8 @@ import com.google.gson.Gson
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.ProfileDraftDao
 import com.loanfinancial.lofi.data.local.dao.UserDao
+import com.loanfinancial.lofi.data.model.dto.ChangePinRequest
+import com.loanfinancial.lofi.data.model.dto.SetPinRequest
 import com.loanfinancial.lofi.data.model.dto.UserUpdateData
 import com.loanfinancial.lofi.data.model.dto.UserUpdateRequest
 import com.loanfinancial.lofi.data.model.entity.ProfileDraftEntity
@@ -114,4 +116,40 @@ class UserRepositoryImpl
         override suspend fun clearProfileDraft(userId: String) {
             profileDraftDao.deleteDraft(userId)
         }
+
+        override fun setPin(request: SetPinRequest): Flow<Resource<Unit>> =
+            flow {
+                emit(Resource.Loading)
+                val response = userApi.setPin(request)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.success == true) {
+                        emit(Resource.Success(Unit))
+                    } else {
+                        emit(Resource.Error(body?.message ?: "Unknown Error"))
+                    }
+                } else {
+                    emit(Resource.Error("Error: ${response.code()} ${response.message()}"))
+                }
+            }.catch { e ->
+                emit(Resource.Error(e.message ?: "Unknown error"))
+            }
+
+        override fun changePin(request: ChangePinRequest): Flow<Resource<Unit>> =
+            flow {
+                emit(Resource.Loading)
+                val response = userApi.changePin(request)
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body?.success == true) {
+                        emit(Resource.Success(Unit))
+                    } else {
+                        emit(Resource.Error(body?.message ?: "Unknown Error"))
+                    }
+                } else {
+                    emit(Resource.Error("Error: ${response.code()} ${response.message()}"))
+                }
+            }.catch { e ->
+                emit(Resource.Error(e.message ?: "Unknown error"))
+            }
     }

@@ -2,6 +2,7 @@ package com.loanfinancial.lofi.data.remote.datasource
 
 import com.loanfinancial.lofi.core.network.BaseResponse
 import com.loanfinancial.lofi.core.network.PagingResponse
+import com.loanfinancial.lofi.data.model.dto.CreateLoanRequest
 import com.loanfinancial.lofi.data.model.dto.LoanDto
 import com.loanfinancial.lofi.data.remote.api.LoanApi
 import retrofit2.Response
@@ -15,6 +16,8 @@ interface LoanRemoteDataSource {
     ): Response<BaseResponse<PagingResponse<LoanDto>>>
 
     suspend fun getLoanDetail(id: String): Response<BaseResponse<LoanDto>>
+
+    suspend fun createLoan(request: CreateLoanRequest): Response<BaseResponse<LoanDto>>
 
     suspend fun submitLoan(id: String): Response<BaseResponse<LoanDto>>
 }
@@ -31,6 +34,8 @@ class LoanRemoteDataSourceImpl
         ): Response<BaseResponse<PagingResponse<LoanDto>>> = loanApi.getMyLoans(page, size, sort)
 
         override suspend fun getLoanDetail(id: String): Response<BaseResponse<LoanDto>> = loanApi.getLoanDetail(id)
+
+        override suspend fun createLoan(request: CreateLoanRequest): Response<BaseResponse<LoanDto>> = loanApi.createLoan(request)
 
         override suspend fun submitLoan(id: String): Response<BaseResponse<LoanDto>> = loanApi.submitLoan(id)
     }

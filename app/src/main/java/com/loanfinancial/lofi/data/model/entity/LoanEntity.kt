@@ -5,10 +5,26 @@ import androidx.room.PrimaryKey
 import com.loanfinancial.lofi.domain.model.Loan
 import com.loanfinancial.lofi.domain.model.Product
 
-@Entity(tableName = "loans")
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.ForeignKey.Companion.CASCADE
+
+@Entity(
+    tableName = "loans",
+    foreignKeys = [
+        ForeignKey(
+            entity = UserEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["userId"],
+            onDelete = CASCADE
+        )
+    ],
+    indices = [Index("userId")]
+)
 data class LoanEntity(
     @PrimaryKey
     val id: String,
+    val userId: String,
     val customerName: String,
     val productCode: String,
     val productName: String,
@@ -18,8 +34,13 @@ data class LoanEntity(
     val loanStatus: String,
     val currentStage: String,
     val submittedAt: String?,
+    val reviewedAt: String?,
+    val approvedAt: String?,
+    val rejectedAt: String?,
+    val disbursedAt: String?,
     val loanStatusDisplay: String,
     val slaDurationHours: Int?,
+    val disbursementReference: String?,
 )
 
 fun LoanEntity.toDomain(): Loan =
@@ -37,13 +58,19 @@ fun LoanEntity.toDomain(): Loan =
         loanStatus = loanStatus,
         currentStage = currentStage,
         submittedAt = submittedAt,
+        reviewedAt = reviewedAt,
+        approvedAt = approvedAt,
+        rejectedAt = rejectedAt,
+        disbursedAt = disbursedAt,
         loanStatusDisplay = loanStatusDisplay,
         slaDurationHours = slaDurationHours,
+        disbursementReference = disbursementReference,
     )
 
-fun Loan.toEntity(): LoanEntity =
+fun Loan.toEntity(userId: String): LoanEntity =
     LoanEntity(
         id = id,
+        userId = userId,
         customerName = customerName,
         productCode = product.productCode,
         productName = product.productName,
@@ -53,6 +80,11 @@ fun Loan.toEntity(): LoanEntity =
         loanStatus = loanStatus,
         currentStage = currentStage,
         submittedAt = submittedAt,
+        reviewedAt = reviewedAt,
+        approvedAt = approvedAt,
+        rejectedAt = rejectedAt,
+        disbursedAt = disbursedAt,
         loanStatusDisplay = loanStatusDisplay,
         slaDurationHours = slaDurationHours,
+        disbursementReference = disbursementReference,
     )

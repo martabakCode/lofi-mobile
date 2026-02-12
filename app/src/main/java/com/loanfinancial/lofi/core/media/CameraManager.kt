@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -45,12 +46,27 @@ sealed class GalleryResult {
 }
 
 enum class DocumentType {
-    KTP,
-    SELFIE,
     KK,
-    NPWP,
-    SLIP_GAJI,
+    KTP,
+    PAYSLIP,
+    PROOFOFRESIDENCE,
+    BANK_STATEMENT,
     OTHER,
+    PROFILE_PICTURE,
+    NPWP,
+    ;
+
+    val backendName: String
+        get() = when (this) {
+            KTP -> "KTP"
+            KK -> "KK"
+            NPWP -> "NPWP"
+            PAYSLIP -> "PAYSLIP"
+            PROOFOFRESIDENCE -> "PROOFOFRESIDENCE"
+            BANK_STATEMENT -> "BANK_STATEMENT"
+            PROFILE_PICTURE -> "PROFILE_PICTURE"
+            OTHER -> "OTHER"
+        }
 }
 
 interface CameraManager {
@@ -116,10 +132,10 @@ class CameraManagerImpl
                                 if (success) {
                                     continuation.resume(
                                         CameraResult.Success(tempFile.absolutePath, photoUri),
-                                    ) {}
+                                    )
                                 } else {
                                     tempFile.delete()
-                                    continuation.resume(CameraResult.Cancelled) {}
+                                    continuation.resume(CameraResult.Cancelled)
                                 }
                             }
 
@@ -155,14 +171,14 @@ class CameraManagerImpl
                                     if (filePath != null) {
                                         continuation.resume(
                                             GalleryResult.Success(filePath, uri),
-                                        ) {}
+                                        )
                                     } else {
                                         continuation.resume(
                                             GalleryResult.Error("Failed to copy file"),
-                                        ) {}
+                                        )
                                     }
                                 } else {
-                                    continuation.resume(GalleryResult.Cancelled) {}
+                                    continuation.resume(GalleryResult.Cancelled)
                                 }
                             }
 

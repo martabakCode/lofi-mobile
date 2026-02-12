@@ -1,6 +1,8 @@
 package com.loanfinancial.lofi.domain.repository
 
 import com.loanfinancial.lofi.core.util.Resource
+import com.loanfinancial.lofi.data.model.dto.ChangePinRequest
+import com.loanfinancial.lofi.data.model.dto.SetPinRequest
 import com.loanfinancial.lofi.data.model.dto.UserUpdateData
 import com.loanfinancial.lofi.data.model.dto.UserUpdateRequest
 import com.loanfinancial.lofi.data.model.entity.ProfileDraftEntity
@@ -19,4 +21,8 @@ interface IUserRepository {
     suspend fun saveProfileDraft(draft: ProfileDraftEntity)
 
     suspend fun clearProfileDraft(userId: String)
+
+    fun setPin(request: SetPinRequest): Flow<Resource<Unit>>
+
+    fun changePin(request: ChangePinRequest): Flow<Resource<Unit>>
 }

@@ -12,6 +12,18 @@ interface LoanDao {
     @Query("SELECT * FROM loans")
     fun getAllLoans(): Flow<List<LoanEntity>>
 
+    @Query("SELECT * FROM loans WHERE userId = :userId")
+    fun getLoansByUser(userId: String): Flow<List<LoanEntity>>
+
+    @Query("DELETE FROM loans WHERE userId = :userId")
+    suspend fun deleteByUser(userId: String)
+
+    @androidx.room.Transaction
+    suspend fun clearAndInsertByUser(userId: String, loans: List<LoanEntity>) {
+        deleteByUser(userId)
+        insertLoans(loans)
+    }
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLoans(loans: List<LoanEntity>)
 

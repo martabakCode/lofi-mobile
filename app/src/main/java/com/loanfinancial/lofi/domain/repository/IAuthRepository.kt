@@ -12,6 +12,8 @@ import com.loanfinancial.lofi.data.model.dto.LogoutResponse
 import com.loanfinancial.lofi.data.model.dto.RegisterRequest
 import com.loanfinancial.lofi.data.model.dto.RegisterResponse
 import com.loanfinancial.lofi.data.model.dto.UserResponse
+import com.loanfinancial.lofi.data.remote.api.AuthSourceResponse
+import com.loanfinancial.lofi.data.remote.api.PinStatusResponse
 import com.loanfinancial.lofi.domain.model.User
 import kotlinx.coroutines.flow.Flow
 
@@ -36,5 +38,17 @@ interface IAuthRepository {
 
     suspend fun getFirebaseIdToken(): Result<String>
 
+    suspend fun hasPin(): Result<Boolean>
+
+    suspend fun setPin(pin: String): Result<Unit>
+
+    suspend fun verifyPin(pin: String, purpose: String): Result<com.loanfinancial.lofi.data.remote.api.PinVerificationResponse>
+
     fun getUser(): Flow<User?>
+
+    // NEW METHODS untuk Google PIN
+    suspend fun getAuthSource(): Result<AuthSourceResponse>
+    suspend fun setGooglePin(pin: String): Result<Unit>
+    suspend fun updateGooglePin(oldPin: String, newPin: String): Result<Unit>
+    suspend fun getPinStatus(): Result<PinStatusResponse>
 }

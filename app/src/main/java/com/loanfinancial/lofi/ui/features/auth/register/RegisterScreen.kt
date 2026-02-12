@@ -18,11 +18,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.facebook.CallbackManager
-import com.facebook.login.LoginManager
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.android.gms.common.api.ApiException
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.ui.components.LofiButton
 import com.loanfinancial.lofi.ui.components.LofiLogoMedium
@@ -42,53 +43,40 @@ fun RegisterScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
-    // Google Sign In
-    val googleLauncher =
-        rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.StartActivityForResult(),
-        ) { result ->
-            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+    // Credential Manager
+    val credentialManager = remember { CredentialManager.create(context) }
+    
+    fun handleGoogleSignUp() {
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(context.getString(R.string.default_web_client_id))
+            .build()
+
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
+
+        coroutineScope.launch {
             try {
-                val account = task.getResult(ApiException::class.java)
-                val idToken = account.idToken
-                if (idToken != null) {
-                    viewModel.onGoogleRegister(idToken)
+                val result = credentialManager.getCredential(
+                    request = request,
+                    context = context
+                )
+                val credential = result.credential
+                if (credential is GoogleIdTokenCredential) {
+                    viewModel.onGoogleRegister(credential.idToken)
                 } else {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar("Google Sign Up Failed: No ID token received. Please ensure your app is properly configured in Firebase Console with SHA-1 fingerprint.")
-                    }
+                    snackbarHostState.showSnackbar("Google Sign Up Failed: No ID token received.")
                 }
-            } catch (e: ApiException) {
-                coroutineScope.launch {
-                    val errorMessage =
-                        when (e.statusCode) {
-                            12500 -> "Google Sign Up failed: Please check SHA-1 configuration in Firebase Console"
-                            12501 -> "Google Sign Up cancelled"
-                            12502 -> "Google Sign Up failed: Network error"
-                            else -> "Google Sign Up Failed: ${e.statusCode} - ${e.message}"
-                        }
-                    snackbarHostState.showSnackbar(errorMessage)
+            } catch (e: GetCredentialException) {
+                val errorMessage = when (e) {
+                    is GetCredentialCancellationException -> "Google Sign Up cancelled"
+                    else -> "Google Sign Up Failed: ${e.message}"
                 }
+                snackbarHostState.showSnackbar(errorMessage)
             }
         }
-
-    // Facebook Sign In
-    val callbackManager = remember { CallbackManager.Factory.create() }
-    val fbLauncher =
-        rememberLauncherForActivityResult(
-            contract = LoginManager.getInstance().createLogInActivityResultContract(callbackManager, null),
-        ) { result ->
-            // ActivityResult -> CallbackManager.ActivityResult
-        }
-
-    val googleSignInOptions =
-        remember {
-            GoogleSignInOptions
-                .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build()
-        }
+    }
 
     var fullName by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
@@ -362,13 +350,7 @@ fun RegisterScreen(
             // Only Google Sign-Up for now (Facebook requires Play Store verification)
             SocialAuthButton(
                 text = "Sign up with Google",
-                onClick = {
-                    val client = GoogleSignIn.getClient(context, googleSignInOptions)
-                    // Sign out first to ensure fresh sign-in flow and show account picker
-                    client.signOut().addOnCompleteListener {
-                        googleLauncher.launch(client.signInIntent)
-                    }
-                },
+                onClick = { handleGoogleSignUp() },
                 modifier = Modifier.fillMaxWidth(),
             )
 

@@ -22,7 +22,7 @@ fun LoanSimulationScreen(
     val uiState by viewModel.uiState.collectAsState()
     val scrollState = rememberScrollState()
     val rupiahFormat =
-        NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply {
+        NumberFormat.getCurrencyInstance(Locale.forLanguageTag("id-ID")).apply {
             maximumFractionDigits = 0
         }
 

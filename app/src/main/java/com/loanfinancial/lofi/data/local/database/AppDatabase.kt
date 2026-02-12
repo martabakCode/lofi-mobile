@@ -4,14 +4,20 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.loanfinancial.lofi.data.local.dao.LoanDao
+import com.loanfinancial.lofi.data.local.dao.LoanDraftDao
 import com.loanfinancial.lofi.data.local.dao.NotificationDao
+import com.loanfinancial.lofi.data.local.dao.PendingLoanSubmissionDao
+import com.loanfinancial.lofi.data.local.dao.PendingDocumentUploadDao
 import com.loanfinancial.lofi.data.local.dao.ProductDao
 import com.loanfinancial.lofi.data.local.dao.ProfileDraftDao
 import com.loanfinancial.lofi.data.local.dao.RegionDao
 import com.loanfinancial.lofi.data.local.dao.UserDao
 import com.loanfinancial.lofi.data.model.entity.DistrictEntity
+import com.loanfinancial.lofi.data.model.entity.LoanDraftEntity
 import com.loanfinancial.lofi.data.model.entity.LoanEntity
 import com.loanfinancial.lofi.data.model.entity.NotificationEntity
+import com.loanfinancial.lofi.data.model.entity.PendingDocumentUploadEntity
+import com.loanfinancial.lofi.data.model.entity.PendingLoanSubmissionEntity
 import com.loanfinancial.lofi.data.model.entity.ProductEntity
 import com.loanfinancial.lofi.data.model.entity.ProfileDraftEntity
 import com.loanfinancial.lofi.data.model.entity.ProvinceEntity
@@ -32,8 +38,11 @@ import com.loanfinancial.lofi.data.model.entity.VillageEntity
         DistrictEntity::class,
         VillageEntity::class,
         UserProfileEntity::class,
+        PendingLoanSubmissionEntity::class,
+        LoanDraftEntity::class,
+        PendingDocumentUploadEntity::class
     ],
-    version = 9,
+    version = 15,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -49,4 +58,10 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun productDao(): ProductDao
 
     abstract fun regionDao(): RegionDao
+
+    abstract fun pendingLoanSubmissionDao(): PendingLoanSubmissionDao
+    
+    abstract fun loanDraftDao(): LoanDraftDao
+
+    abstract fun pendingDocumentUploadDao(): PendingDocumentUploadDao
 }

@@ -23,8 +23,11 @@ class AuthInterceptor
             // ONLY add auth header if the request is to our own backend
             val isOurBackend = requestUrl.toString().startsWith(baseUrl)
 
-            // Skip auth header for login/register or IF IT'S NOT our backend (e.g. Cloudflare R2 presigned URL)
-            if (!isOurBackend || path.contains("auth/login") || path.contains("auth/register")) {
+            // Skip auth header for login/register/google
+            if (!isOurBackend ||
+                path.contains("auth/login") ||
+                path.contains("auth/register") ||
+                path.contains("auth/google")) {
                 return chain.proceed(originalRequest)
             }
 

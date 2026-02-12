@@ -5,9 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.core.util.UrlUtil
 import com.loanfinancial.lofi.domain.repository.IAuthRepository
+import com.loanfinancial.lofi.data.model.dto.ChangePinRequest
+import com.loanfinancial.lofi.data.model.dto.SetPinRequest
+import com.loanfinancial.lofi.domain.usecase.auth.HasPinUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.LogoutUseCase
+import com.loanfinancial.lofi.domain.usecase.user.ChangePinUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserProfileUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserUseCase
+import com.loanfinancial.lofi.domain.usecase.user.SetPinUseCase
 import com.loanfinancial.lofi.domain.usecase.user.UploadProfilePictureUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +38,11 @@ data class ProfileUiState(
     val province: String = "",
     val city: String = "",
     val nik: String = "",
+    val hasPin: Boolean = false,
+    val pinActionLoading: Boolean = false,
+    val pinActionError: String? = null,
+    val pinActionSuccess: Boolean = false,
+    val isGoogleUser: Boolean = false,
 )
 
 @HiltViewModel
@@ -44,6 +54,10 @@ class ProfileViewModel
         private val authRepository: IAuthRepository,
         private val getUserProfileUseCase: GetUserProfileUseCase,
         private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
+        private val hasPinUseCase: HasPinUseCase,
+        private val setPinUseCase: SetPinUseCase,
+        private val changePinUseCase: ChangePinUseCase,
+        private val getAuthSourceUseCase: com.loanfinancial.lofi.domain.usecase.auth.GetAuthSourceUseCase,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(ProfileUiState())
         val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
@@ -61,9 +75,29 @@ class ProfileViewModel
                             )
                         }
                         loadFullProfile()
+                        checkHasPin()
+                        checkAuthSource()
                     } else {
                         getProfile()
                     }
+                }
+            }
+        }
+
+        private fun checkAuthSource() {
+            viewModelScope.launch {
+                val result = getAuthSourceUseCase()
+                if (result.isSuccess) {
+                    _uiState.update { it.copy(isGoogleUser = result.getOrNull()?.googleUser == true) }
+                }
+            }
+        }
+
+        private fun checkHasPin() {
+            viewModelScope.launch {
+                val result = hasPinUseCase()
+                if (result.isSuccess) {
+                    _uiState.update { it.copy(hasPin = result.getOrDefault(false)) }
                 }
             }
         }
@@ -162,5 +196,42 @@ class ProfileViewModel
                     }
                 }
             }
+        }
+        fun setPin(pin: String) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(pinActionLoading = true, pinActionError = null, pinActionSuccess = false) }
+                setPinUseCase(SetPinRequest(pin)).collect { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            _uiState.update { it.copy(pinActionLoading = false, pinActionSuccess = true, hasPin = true) }
+                        }
+                        is Resource.Error -> {
+                            _uiState.update { it.copy(pinActionLoading = false, pinActionError = result.message) }
+                        }
+                        is Resource.Loading -> {}
+                    }
+                }
+            }
+        }
+
+        fun changePin(oldPin: String, newPin: String) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(pinActionLoading = true, pinActionError = null, pinActionSuccess = false) }
+                changePinUseCase(ChangePinRequest(oldPin, newPin)).collect { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            _uiState.update { it.copy(pinActionLoading = false, pinActionSuccess = true) }
+                        }
+                        is Resource.Error -> {
+                            _uiState.update { it.copy(pinActionLoading = false, pinActionError = result.message) }
+                        }
+                        is Resource.Loading -> {}
+                    }
+                }
+            }
+        }
+
+        fun resetPinActionState() {
+            _uiState.update { it.copy(pinActionSuccess = false, pinActionError = null) }
         }
     }

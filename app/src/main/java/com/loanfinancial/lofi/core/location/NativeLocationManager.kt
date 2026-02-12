@@ -88,7 +88,7 @@ class NativeLocationManager
                         val locationListener =
                             object : LocationListener {
                                 override fun onLocationChanged(location: Location) {
-                                    continuation.resume(location) {}
+                                    continuation.resume(location)
                                     locationManager.removeUpdates(this)
                                 }
 
@@ -96,20 +96,22 @@ class NativeLocationManager
 
                                 override fun onProviderDisabled(provider: String) {
                                     if (continuation.isActive) {
-                                        continuation.resume(null) {}
+                                        continuation.resume(null)
                                         locationManager.removeUpdates(this)
                                     }
                                 }
                             }
 
                         try {
-                            locationManager.requestSingleUpdate(
+                            locationManager.requestLocationUpdates(
                                 provider,
+                                0L,
+                                0f,
                                 locationListener,
                                 Looper.getMainLooper(),
                             )
                         } catch (e: SecurityException) {
-                            continuation.resume(null) {}
+                            continuation.resume(null)
                         }
 
                         continuation.invokeOnCancellation {
@@ -119,7 +121,7 @@ class NativeLocationManager
                         // Timeout after 30 seconds
                         android.os.Handler(Looper.getMainLooper()).postDelayed({
                             if (continuation.isActive) {
-                                continuation.resume(null) {}
+                                continuation.resume(null)
                                 locationManager.removeUpdates(locationListener)
                             }
                         }, 30000)

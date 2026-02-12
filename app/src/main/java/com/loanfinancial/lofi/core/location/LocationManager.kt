@@ -18,9 +18,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
+import kotlin.coroutines.resume
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.resume
 
 sealed class LofiLocationResult {
     data class Success(
@@ -88,7 +88,7 @@ class LocationManagerImpl
                         val locationCallback =
                             object : LocationCallback() {
                                 override fun onLocationResult(result: LocationResult) {
-                                    continuation.resume(result.lastLocation) {}
+                                    continuation.resume(result.lastLocation)
                                     fusedLocationClient.removeLocationUpdates(this)
                                 }
                             }
@@ -100,7 +100,7 @@ class LocationManagerImpl
                                 Looper.getMainLooper(),
                             )
                         } catch (e: SecurityException) {
-                            continuation.resume(null) {}
+                            continuation.resume(null)
                         }
 
                         continuation.invokeOnCancellation {

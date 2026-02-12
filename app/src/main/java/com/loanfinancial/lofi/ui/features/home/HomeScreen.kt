@@ -26,30 +26,36 @@ import com.loanfinancial.lofi.ui.components.LofiCard
 
 @Composable
 fun HomeScreen(
+    isGuest: Boolean = false,
     viewModel: HomeViewModel = hiltViewModel(),
     onApplyLoanClick: () -> Unit = {},
     onMyLoansClick: () -> Unit = {},
     onCompleteProfileClick: () -> Unit = {},
+    onViewDraftsClick: () -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     HomeScreenContent(
+        isGuest = isGuest,
         uiState = uiState,
         onRefresh = { viewModel.refreshLoans() },
         onApplyLoanClick = onApplyLoanClick,
         onMyLoansClick = onMyLoansClick,
         onCompleteProfileClick = onCompleteProfileClick,
+        onViewDraftsClick = onViewDraftsClick,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
+    isGuest: Boolean = false,
     uiState: HomeUiState,
     onRefresh: () -> Unit,
     onApplyLoanClick: () -> Unit = {},
     onMyLoansClick: () -> Unit = {},
     onCompleteProfileClick: () -> Unit = {},
+    onViewDraftsClick: () -> Unit = {},
 ) {
     PullToRefreshBox(
         isRefreshing = uiState.isRefreshing,
@@ -65,7 +71,7 @@ fun HomeScreenContent(
         ) {
             item {
                 Text(
-                    text = stringResource(R.string.hi_user, uiState.userProfile?.fullName ?: "User"),
+                    text = if (isGuest) "Selamat Datang di LoFi" else stringResource(R.string.hi_user, uiState.userProfile?.fullName ?: "User"),
                     style =
                         MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Bold,
@@ -76,11 +82,9 @@ fun HomeScreenContent(
 
             // 💳 Loan Summary Card or Complete Profile Card
             item {
-                val product = uiState.userProfile?.product
-                if (product != null && product.maxLoanAmount != null) {
-                    // Show Plafond
+                if (isGuest) {
                     LofiCard(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().clickable { onCompleteProfileClick() },
                     ) {
                         Column(
                             modifier =
@@ -90,98 +94,166 @@ fun HomeScreenContent(
                                     .fillMaxWidth(),
                         ) {
                             Text(
-                                text = stringResource(R.string.loan_limit),
+                                text = "Mulai Perjalanan Finansial Anda",
                                 color = Color.White.copy(alpha = 0.8f),
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Rp ${String.format("%,.0f", product.maxLoanAmount)}",
-                                fontSize = 32.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                            )
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(
-                                text = stringResource(R.string.used, "Rp 0"), // Currently hardcoded used amount as 0 or need logic
-                                color = Color.White.copy(alpha = 0.9f),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    }
-                } else {
-                    // Show Complete Profile
-                    LofiCard(
-                        modifier = Modifier.fillMaxWidth().clickable { onCompleteProfileClick() },
-                    ) {
-                        Column(
-                            modifier =
-                                Modifier
-                                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                                    .padding(20.dp)
-                                    .fillMaxWidth(),
-                        ) {
-                            Text(
-                                text = stringResource(R.string.complete_profile_title),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = stringResource(R.string.complete_profile_desc),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                                text = "Daftar sekarang untuk melihat limit pinjaman Anda dan mulai mengajukan pinjaman dengan bunga rendah.",
+                                color = Color.White.copy(alpha = 0.9f),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Button(
                                 onClick = onCompleteProfileClick,
-                                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = MaterialTheme.colorScheme.primary),
                             ) {
-                                Text(stringResource(R.string.complete_profile_cta))
+                                Text("Daftar Sekarang")
+                            }
+                        }
+                    }
+                } else {
+                    val availableProduct = uiState.availableProduct
+                    if (uiState.isProfileCompleted && availableProduct != null) {
+                        // Show Plafond
+                        LofiCard(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .background(MaterialTheme.colorScheme.primary)
+                                        .padding(20.dp)
+                                        .fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.loan_limit),
+                                    color = Color.White.copy(alpha = 0.8f),
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Rp ${String.format("%,.0f", availableProduct.availableAmount)}",
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(
+                                    text = stringResource(R.string.used, "Rp ${String.format("%,.0f", availableProduct.approvedLoanAmount)}"),
+                                    color = Color.White.copy(alpha = 0.9f),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                            }
+                        }
+                    } else if (uiState.hasCompletedFirstSession && !uiState.isProfileCompleted) {
+                        // Show Complete Profile only after registration and PIN setup is complete
+                        LofiCard(
+                            modifier = Modifier.fillMaxWidth().clickable { onCompleteProfileClick() },
+                        ) {
+                            Column(
+                                modifier =
+                                    Modifier
+                                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                                        .padding(20.dp)
+                                        .fillMaxWidth(),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.complete_profile_title),
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = stringResource(R.string.complete_profile_desc),
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Button(
+                                    onClick = onCompleteProfileClick,
+                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                                ) {
+                                    Text(stringResource(R.string.complete_profile_cta))
+                                }
                             }
                         }
                     }
                 }
             }
 
+
             // 🚀 Quick Actions
-            item {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    HomeActionButton(stringResource(R.string.apply_loan), Modifier.weight(1f), onClick = onApplyLoanClick)
-                    HomeActionButton(stringResource(R.string.my_loans), Modifier.weight(1f), onClick = onMyLoansClick)
+            if (!isGuest) {
+                item {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        HomeActionButton(stringResource(R.string.apply_loan), Modifier.weight(1f), onClick = onApplyLoanClick)
+                        HomeActionButton(stringResource(R.string.my_loans), Modifier.weight(1f), onClick = onMyLoansClick)
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        HomeActionButton("View Drafts", Modifier.weight(1f), onClick = onViewDraftsClick)
+                        HomeActionButton(stringResource(R.string.complete_profile_cta), Modifier.weight(1f), onClick = onCompleteProfileClick)
+                    }
+                }
+            }
+
+            // 🎁 Product Catalog
+            if (uiState.products.isNotEmpty()) {
+                item {
+                    Text(
+                        text = "Explore Our Products",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+                item {
+                    androidx.compose.foundation.lazy.LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 8.dp)
+                    ) {
+                        items(uiState.products) { product ->
+                            ProductCard(product = product, onClick = onApplyLoanClick)
+                        }
+                    }
                 }
             }
 
             // 📄 Active Loans Title
-            item {
-                Text(
-                    text = stringResource(R.string.active_loan),
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                )
-            }
-
-            if (uiState.isLoading) {
+            if (!isGuest) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
+                    Text(
+                        text = stringResource(R.string.active_loan),
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+    
+                if (uiState.isLoading) {
+                    item {
+                        Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
                     }
-                }
-            } else if (uiState.error != null) {
-                item {
-                    Text(text = uiState.error, color = MaterialTheme.colorScheme.error)
-                }
-            } else if (uiState.loans.isEmpty()) {
-                item {
-                    Text(text = stringResource(R.string.no_active_loans), color = Color.Gray)
-                }
-            } else {
-                items(uiState.loans.take(2)) { loan ->
-                    LoanItem(loan = loan)
+                } else if (uiState.error != null) {
+                    item {
+                        Text(text = uiState.error, color = MaterialTheme.colorScheme.error)
+                    }
+                } else if (uiState.loans.isEmpty()) {
+                    item {
+                        Text(text = stringResource(R.string.no_active_loans), color = Color.Gray)
+                    }
+                } else {
+                    items(uiState.loans.take(2)) { loan ->
+                        LoanItem(loan = loan)
+                    }
                 }
             }
         }
@@ -231,6 +303,56 @@ fun LoanItem(loan: Loan) {
 }
 
 @Composable
+fun ProductCard(
+    product: com.loanfinancial.lofi.data.model.dto.ProductDto,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .width(160.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { onClick() }
+            .padding(16.dp)
+    ) {
+        Column {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = product.productCode.take(1),
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = product.productName,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+            Text(
+                text = "Up to Rp ${String.format("%,.0f", product.maxLoanAmount ?: 0.0)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "${product.interestRate}% Interest",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+    }
+}
+
+@Composable
 fun HomeActionButton(
     title: String,
     modifier: Modifier = Modifier,
@@ -239,7 +361,7 @@ fun HomeActionButton(
     Box(
         modifier =
             modifier
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(16.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable { onClick() }
                 .padding(vertical = 16.dp),

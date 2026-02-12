@@ -2,8 +2,10 @@ package com.loanfinancial.lofi.data.remote.api
 
 import com.loanfinancial.lofi.core.network.BaseResponse
 import com.loanfinancial.lofi.core.network.PagingResponse
+import com.loanfinancial.lofi.data.model.dto.CreateLoanRequest
 import com.loanfinancial.lofi.data.model.dto.LoanDto
 import retrofit2.Response
+import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -20,6 +22,16 @@ interface LoanApi {
     @GET("loans/{id}")
     suspend fun getLoanDetail(
         @Path("id") id: String,
+    ): Response<BaseResponse<LoanDto>>
+
+    @POST("loans")
+    suspend fun createLoan(
+        @Body request: CreateLoanRequest,
+    ): Response<BaseResponse<LoanDto>>
+
+    @POST("loans/draft")
+    suspend fun createDraft(
+        @Body request: CreateLoanRequest,
     ): Response<BaseResponse<LoanDto>>
 
     @POST("loans/{id}/submit")
