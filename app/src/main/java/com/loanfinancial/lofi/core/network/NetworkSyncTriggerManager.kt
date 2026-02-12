@@ -14,32 +14,33 @@ interface NetworkSyncTriggerManager {
 }
 
 @Singleton
-class NetworkSyncTriggerManagerImpl @Inject constructor(
-    private val networkManager: NetworkManager,
-    private val loanSubmissionManager: LoanSubmissionManager,
-    private val notificationRepository: INotificationRepository,
-) : NetworkSyncTriggerManager {
+class NetworkSyncTriggerManagerImpl
+    @Inject
+    constructor(
+        private val networkManager: NetworkManager,
+        private val loanSubmissionManager: LoanSubmissionManager,
+        private val notificationRepository: INotificationRepository,
+    ) : NetworkSyncTriggerManager {
+        private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
-    override fun startMonitoring() {
-        scope.launch {
-            networkManager.observeNetworkState().collect { isConnected ->
-                if (isConnected) {
-                    triggerSync()
+        override fun startMonitoring() {
+            scope.launch {
+                networkManager.observeNetworkState().collect { isConnected ->
+                    if (isConnected) {
+                        triggerSync()
+                    }
                 }
             }
         }
-    }
 
-    private suspend fun triggerSync() {
-        // Trigger loan submission retry/sync
-        loanSubmissionManager.triggerPendingSubmissions()
-        
-        // Trigger notification sync
-        notificationRepository.syncNotifications()
-        
-        // Add other sync tasks here (e.g., document uploads might be handled by WorkManager automatically if constrained by network, 
-        // but if we have manual retry logic, we could trigger it here)
+        private suspend fun triggerSync() {
+            // Trigger loan submission retry/sync
+            loanSubmissionManager.triggerPendingSubmissions()
+
+            // Trigger notification sync
+            notificationRepository.syncNotifications()
+
+            // Add other sync tasks here (e.g., document uploads might be handled by WorkManager automatically if constrained by network,
+            // but if we have manual retry logic, we could trigger it here)
+        }
     }
-}

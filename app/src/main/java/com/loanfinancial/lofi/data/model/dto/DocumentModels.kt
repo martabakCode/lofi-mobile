@@ -11,7 +11,7 @@ data class PresignUploadRequest(
     @SerializedName("documentType")
     val documentType: String,
     @SerializedName("contentType")
-    val contentType: String
+    val contentType: String,
 )
 
 data class PresignUploadResponse(
@@ -20,14 +20,14 @@ data class PresignUploadResponse(
     @SerializedName("uploadUrl")
     val uploadUrl: String,
     @SerializedName("objectKey")
-    val objectKey: String
+    val objectKey: String,
 )
 
 data class DocumentUploadResult(
     val documentType: DocumentType,
     val documentId: String,
     val objectKey: String,
-    val isUploaded: Boolean
+    val isUploaded: Boolean,
 )
 
 data class DownloadDocumentResponse(
@@ -36,5 +36,5 @@ data class DownloadDocumentResponse(
     @SerializedName("fileName")
     val fileName: String,
     @SerializedName("contentType")
-    val contentType: String? = null
+    val contentType: String? = null,
 )

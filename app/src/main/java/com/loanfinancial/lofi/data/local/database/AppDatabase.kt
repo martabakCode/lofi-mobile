@@ -6,8 +6,8 @@ import androidx.room.TypeConverters
 import com.loanfinancial.lofi.data.local.dao.LoanDao
 import com.loanfinancial.lofi.data.local.dao.LoanDraftDao
 import com.loanfinancial.lofi.data.local.dao.NotificationDao
-import com.loanfinancial.lofi.data.local.dao.PendingLoanSubmissionDao
 import com.loanfinancial.lofi.data.local.dao.PendingDocumentUploadDao
+import com.loanfinancial.lofi.data.local.dao.PendingLoanSubmissionDao
 import com.loanfinancial.lofi.data.local.dao.ProductDao
 import com.loanfinancial.lofi.data.local.dao.ProfileDraftDao
 import com.loanfinancial.lofi.data.local.dao.RegionDao
@@ -40,7 +40,7 @@ import com.loanfinancial.lofi.data.model.entity.VillageEntity
         UserProfileEntity::class,
         PendingLoanSubmissionEntity::class,
         LoanDraftEntity::class,
-        PendingDocumentUploadEntity::class
+        PendingDocumentUploadEntity::class,
     ],
     version = 15,
     exportSchema = false,
@@ -60,7 +60,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun regionDao(): RegionDao
 
     abstract fun pendingLoanSubmissionDao(): PendingLoanSubmissionDao
-    
+
     abstract fun loanDraftDao(): LoanDraftDao
 
     abstract fun pendingDocumentUploadDao(): PendingDocumentUploadDao

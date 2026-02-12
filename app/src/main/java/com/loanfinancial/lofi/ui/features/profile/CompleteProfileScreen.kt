@@ -29,7 +29,7 @@ import com.loanfinancial.lofi.ui.components.LofiTextField
 fun CompleteProfileScreen(
     onCompleteSuccess: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: CompleteProfileViewModel = hiltViewModel()
+    viewModel: CompleteProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -38,7 +38,7 @@ fun CompleteProfileScreen(
             onCompleteSuccess()
         }
     }
-    
+
     BackHandler {
         if (uiState.currentStep > 1) {
             viewModel.onEvent(CompleteProfileEvent.PreviousStep)
@@ -61,22 +61,23 @@ fun CompleteProfileScreen(
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
             )
-        }
+        },
     ) { padding ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
         ) {
             // Step Indicator - 3 steps: Personal, Financial, Address
             CompleteProfileStepIndicator(currentStep = uiState.currentStep, totalSteps = 3)
-            
+
             AnimatedContent(
                 targetState = uiState.currentStep,
                 label = "ProfileSteps",
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) { step ->
                 when (step) {
                     1 -> PersonalInfoStep(uiState, viewModel)
@@ -89,41 +90,50 @@ fun CompleteProfileScreen(
 }
 
 @Composable
-fun CompleteProfileStepIndicator(currentStep: Int, totalSteps: Int = 3) {
+fun CompleteProfileStepIndicator(
+    currentStep: Int,
+    totalSteps: Int = 3,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         repeat(totalSteps) { index ->
             val stepNumber = index + 1 // Steps are 1-based
             val isCurrent = stepNumber == currentStep
             val isCompleted = stepNumber < currentStep
-            
+
             Box(
-                modifier = Modifier
-                    .size(if (isCurrent) 12.dp else 8.dp)
-                    .clip(CircleShape)
-                    .background(
-                        when {
-                            isCompleted || isCurrent -> MaterialTheme.colorScheme.primary
-                            else -> MaterialTheme.colorScheme.outlineVariant
-                        }
-                    )
+                modifier =
+                    Modifier
+                        .size(if (isCurrent) 12.dp else 8.dp)
+                        .clip(CircleShape)
+                        .background(
+                            when {
+                                isCompleted || isCurrent -> MaterialTheme.colorScheme.primary
+                                else -> MaterialTheme.colorScheme.outlineVariant
+                            },
+                        ),
             )
-            
+
             if (index < totalSteps - 1) {
                 Spacer(modifier = Modifier.width(8.dp))
                 Box(
-                    modifier = Modifier
-                        .width(40.dp)
-                        .height(2.dp)
-                        .background(
-                            if (isCompleted) MaterialTheme.colorScheme.primary 
-                            else MaterialTheme.colorScheme.outlineVariant
-                        )
+                    modifier =
+                        Modifier
+                            .width(40.dp)
+                            .height(2.dp)
+                            .background(
+                                if (isCompleted) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outlineVariant
+                                },
+                            ),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -134,26 +144,27 @@ fun CompleteProfileStepIndicator(currentStep: Int, totalSteps: Int = 3) {
 @Composable
 fun PersonalInfoStep(
     uiState: CompleteProfileUiState,
-    viewModel: CompleteProfileViewModel
+    viewModel: CompleteProfileViewModel,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             text = "Personal Information",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = "Please verify and complete your personal details.",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        
+
         LofiTextField(
             value = uiState.fullName,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.FULL_NAME, it)) },
@@ -161,21 +172,25 @@ fun PersonalInfoStep(
             isError = uiState.validationErrors["fullName"] != null,
             errorMessage = uiState.validationErrors["fullName"],
         )
-        
+
         LofiTextField(
             value = uiState.phoneNumber,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.PHONE_NUMBER, it)) },
             label = "Phone Number",
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Phone),
+            keyboardOptions =
+                androidx.compose.foundation.text
+                    .KeyboardOptions(keyboardType = KeyboardType.Phone),
             isError = uiState.validationErrors["phoneNumber"] != null,
             errorMessage = uiState.validationErrors["phoneNumber"],
         )
-        
+
         LofiTextField(
             value = uiState.nik,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.NIK, it)) },
             label = "NIK",
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions =
+                androidx.compose.foundation.text
+                    .KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = uiState.validationErrors["nik"] != null,
             errorMessage = uiState.validationErrors["nik"],
         )
@@ -191,34 +206,34 @@ fun PersonalInfoStep(
         LofiTextField(
             value = uiState.placeOfBirth,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.PLACE_OF_BIRTH, it)) },
-            label = "Place of Birth"
+            label = "Place of Birth",
         )
-        
+
         LofiDropdown(
             label = "Gender",
             options = uiState.genderOptions,
             selectedOption = uiState.gender,
             onOptionSelected = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.GENDER, it)) },
         )
-        
+
         LofiDropdown(
             label = "Marital Status",
             options = uiState.maritalStatusOptions,
             selectedOption = uiState.maritalStatus,
             onOptionSelected = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.MARITAL_STATUS, it)) },
         )
-        
+
         if (uiState.error != null) {
             Text(
                 text = uiState.error!!,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier.padding(vertical = 4.dp),
             )
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         LofiButton(
             text = "Next",
             onClick = { viewModel.onEvent(CompleteProfileEvent.NextStep) },
@@ -229,26 +244,27 @@ fun PersonalInfoStep(
 @Composable
 fun FinancialInfoStep(
     uiState: CompleteProfileUiState,
-    viewModel: CompleteProfileViewModel
+    viewModel: CompleteProfileViewModel,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             text = "Financial Information",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = "Please provide your financial details.",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        
+
         LofiDropdown(
             label = "Income Source",
             options = uiState.incomeSourceOptions,
@@ -257,24 +273,26 @@ fun FinancialInfoStep(
             isError = uiState.validationErrors["incomeSource"] != null,
             errorMessage = uiState.validationErrors["incomeSource"],
         )
-        
+
         LofiDropdown(
             label = "Income Type",
             options = uiState.incomeTypeOptions,
             selectedOption = uiState.incomeType,
             onOptionSelected = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.INCOME_TYPE, it)) },
         )
-        
+
         LofiTextField(
             value = uiState.monthlyIncome,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.MONTHLY_INCOME, it)) },
             label = "Monthly Income",
             prefix = { Text("Rp ") },
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions =
+                androidx.compose.foundation.text
+                    .KeyboardOptions(keyboardType = KeyboardType.Number),
             isError = uiState.validationErrors["monthlyIncome"] != null,
             errorMessage = uiState.validationErrors["monthlyIncome"],
         )
-        
+
         LofiDropdown(
             label = "Occupation",
             options = uiState.occupationOptions,
@@ -282,18 +300,18 @@ fun FinancialInfoStep(
             onOptionSelected = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.OCCUPATION, it)) },
             isSearchable = true,
         )
-        
+
         if (uiState.error != null) {
             Text(
                 text = uiState.error!!,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier.padding(vertical = 4.dp),
             )
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         LofiButton(
             text = "Next",
             onClick = { viewModel.onEvent(CompleteProfileEvent.NextStep) },
@@ -304,26 +322,27 @@ fun FinancialInfoStep(
 @Composable
 fun AddressInfoStep(
     uiState: CompleteProfileUiState,
-    viewModel: CompleteProfileViewModel
+    viewModel: CompleteProfileViewModel,
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             text = "Address Information",
             style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Text(
             text = "Please provide your complete address.",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        
+
         LofiDropdown(
             label = "Province",
             options = uiState.provinces.map { it.name },
@@ -333,7 +352,7 @@ fun AddressInfoStep(
             isError = uiState.validationErrors["province"] != null,
             errorMessage = uiState.validationErrors["province"],
         )
-        
+
         LofiDropdown(
             label = "City",
             options = uiState.regencies.map { it.name },
@@ -343,7 +362,7 @@ fun AddressInfoStep(
             isError = uiState.validationErrors["city"] != null,
             errorMessage = uiState.validationErrors["city"],
         )
-        
+
         LofiDropdown(
             label = "District (Kecamatan)",
             options = uiState.districts.map { it.name },
@@ -351,7 +370,7 @@ fun AddressInfoStep(
             onOptionSelected = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.DISTRICT, it)) },
             isSearchable = true,
         )
-        
+
         LofiDropdown(
             label = "Sub-District (Kelurahan)",
             options = uiState.subDistricts.map { it.name },
@@ -359,7 +378,7 @@ fun AddressInfoStep(
             onOptionSelected = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.SUB_DISTRICT, it)) },
             isSearchable = true,
         )
-        
+
         LofiTextField(
             value = uiState.address,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.ADDRESS, it)) },
@@ -367,25 +386,27 @@ fun AddressInfoStep(
             isError = uiState.validationErrors["address"] != null,
             errorMessage = uiState.validationErrors["address"],
         )
-        
+
         LofiTextField(
             value = uiState.postalCode,
             onValueChange = { viewModel.onEvent(CompleteProfileEvent.UpdateField(ProfileField.POSTAL_CODE, it)) },
             label = "Postal Code",
-            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = KeyboardType.Number)
+            keyboardOptions =
+                androidx.compose.foundation.text
+                    .KeyboardOptions(keyboardType = KeyboardType.Number),
         )
-        
+
         if (uiState.error != null) {
             Text(
                 text = uiState.error!!,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(vertical = 4.dp)
+                modifier = Modifier.padding(vertical = 4.dp),
             )
         }
-        
+
         Spacer(modifier = Modifier.weight(1f))
-        
+
         LofiButton(
             text = "Submit Details",
             onClick = { viewModel.onEvent(CompleteProfileEvent.SubmitProfile) },
@@ -393,5 +414,3 @@ fun AddressInfoStep(
         )
     }
 }
-
-

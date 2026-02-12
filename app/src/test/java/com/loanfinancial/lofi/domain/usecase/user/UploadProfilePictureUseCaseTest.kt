@@ -17,7 +17,6 @@ import java.io.File
 
 @ExperimentalCoroutinesApi
 class UploadProfilePictureUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: UploadProfilePictureUseCase
 
@@ -28,20 +27,21 @@ class UploadProfilePictureUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository updateProfilePicture`() = runTest {
-        // Arrange
-        val file = mockk<File>()
-        val expectedData = mockk<UserUpdateData>(relaxed = true)
-        
-        every { repository.updateProfilePicture(file) } returns flowOf(Resource.Success(expectedData))
+    fun `invoke should delegate to repository updateProfilePicture`() =
+        runTest {
+            // Arrange
+            val file = mockk<File>()
+            val expectedData = mockk<UserUpdateData>(relaxed = true)
 
-        // Act & Assert
-        useCase(file).test {
-            val result = awaitItem()
-            assertEquals(Resource.Success(expectedData), result)
-            awaitComplete()
+            every { repository.updateProfilePicture(file) } returns flowOf(Resource.Success(expectedData))
+
+            // Act & Assert
+            useCase(file).test {
+                val result = awaitItem()
+                assertEquals(Resource.Success(expectedData), result)
+                awaitComplete()
+            }
+
+            verify(exactly = 1) { repository.updateProfilePicture(file) }
         }
-        
-        verify(exactly = 1) { repository.updateProfilePicture(file) }
-    }
 }

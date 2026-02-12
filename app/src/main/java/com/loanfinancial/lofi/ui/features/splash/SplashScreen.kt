@@ -30,25 +30,29 @@ fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
+
     // Animation states
     var startAnimation by remember { mutableStateOf(false) }
-    val scaleAnim = animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0.5f,
-        animationSpec = tween(
-            durationMillis = 800,
-            easing = EaseOutBack
-        ),
-        label = "scale"
-    )
-    val alphaAnim = animateFloatAsState(
-        targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 600,
-            easing = LinearEasing
-        ),
-        label = "alpha"
-    )
+    val scaleAnim =
+        animateFloatAsState(
+            targetValue = if (startAnimation) 1f else 0.5f,
+            animationSpec =
+                tween(
+                    durationMillis = 800,
+                    easing = EaseOutBack,
+                ),
+            label = "scale",
+        )
+    val alphaAnim =
+        animateFloatAsState(
+            targetValue = if (startAnimation) 1f else 0f,
+            animationSpec =
+                tween(
+                    durationMillis = 600,
+                    easing = LinearEasing,
+                ),
+            label = "alpha",
+        )
 
     LaunchedEffect(Unit) {
         startAnimation = true
@@ -82,7 +86,7 @@ fun SplashScreen(
 
     SplashScreenContent(
         scale = scaleAnim.value,
-        alpha = alphaAnim.value
+        alpha = alphaAnim.value,
     )
 }
 
@@ -92,20 +96,22 @@ fun SplashScreenContent(
     alpha: Float = 1f,
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
         ) {
             // 🎨 Logo with animation
             Box(
-                modifier = Modifier
-                    .scale(scale)
-                    .alpha(alpha)
+                modifier =
+                    Modifier
+                        .scale(scale)
+                        .alpha(alpha),
             ) {
                 LofiLogoLarge()
             }
@@ -115,12 +121,13 @@ fun SplashScreenContent(
             // App Name
             Text(
                 text = "LoFi",
-                style = MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 36.sp
-                ),
+                style =
+                    MaterialTheme.typography.displayMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 36.sp,
+                    ),
                 color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.alpha(alpha)
+                modifier = Modifier.alpha(alpha),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -130,7 +137,7 @@ fun SplashScreenContent(
                 text = "Loan Financial",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.alpha(alpha)
+                modifier = Modifier.alpha(alpha),
             )
         }
     }

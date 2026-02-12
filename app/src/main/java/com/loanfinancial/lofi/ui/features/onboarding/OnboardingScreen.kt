@@ -39,13 +39,14 @@ private fun Color.isLight(): Boolean = this.luminance() > 0.5f
 fun OnboardingScreen(
     dataStoreManager: DataStoreManager,
     onComplete: () -> Unit,
-    onSkip: () -> Unit
+    onSkip: () -> Unit,
 ) {
     val pageCount = onboardingSlides.size
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { pageCount }
-    )
+    val pagerState =
+        rememberPagerState(
+            initialPage = 0,
+            pageCount = { pageCount },
+        )
     val scope = rememberCoroutineScope()
 
     val currentSlide = onboardingSlides[pagerState.currentPage]
@@ -58,19 +59,21 @@ fun OnboardingScreen(
     val contentColorMuted = if (isBackgroundLight) TextPrimary.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.6f)
 
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(backgroundColor),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             // Skip Button Row
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.End
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.End,
             ) {
                 TextButton(
                     onClick = {
@@ -79,13 +82,14 @@ fun OnboardingScreen(
                             onSkip()
                         }
                     },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = contentColorSecondary
-                    )
+                    colors =
+                        ButtonDefaults.textButtonColors(
+                            contentColor = contentColorSecondary,
+                        ),
                 ) {
                     Text(
                         text = "Lewati",
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 }
             }
@@ -93,52 +97,56 @@ fun OnboardingScreen(
             // Pager Content
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 24.dp),
-                verticalAlignment = Alignment.Top
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.Top,
             ) { page ->
                 OnboardingPage(
                     slide = onboardingSlides[page],
                     contentColor = if (Color(onboardingSlides[page].backgroundColor).isLight()) TextPrimary else Color.White,
                     contentColorSecondary = if (Color(onboardingSlides[page].backgroundColor).isLight()) TextPrimary.copy(alpha = 0.8f) else Color.White.copy(alpha = 0.9f),
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
 
             // Page Indicators
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
                 horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 repeat(pageCount) { index ->
                     val isSelected = pagerState.currentPage == index
                     Box(
-                        modifier = Modifier
-                            .padding(horizontal = 4.dp)
-                            .size(
-                                width = if (isSelected) 24.dp else 8.dp,
-                                height = 8.dp
-                            )
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(
-                                if (isSelected)
-                                    contentColor
-                                else
-                                    contentColor.copy(alpha = 0.4f)
-                            )
+                        modifier =
+                            Modifier
+                                .padding(horizontal = 4.dp)
+                                .size(
+                                    width = if (isSelected) 24.dp else 8.dp,
+                                    height = 8.dp,
+                                ).clip(RoundedCornerShape(4.dp))
+                                .background(
+                                    if (isSelected) {
+                                        contentColor
+                                    } else {
+                                        contentColor.copy(alpha = 0.4f)
+                                    },
+                                ),
                     )
                 }
             }
 
             // Bottom CTA Area
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 24.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 24.dp),
             ) {
                 if (pagerState.currentPage == pageCount - 1) {
                     // Final slide: Show primary button
@@ -152,7 +160,7 @@ fun OnboardingScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = if (isBackgroundLight) TextPrimary else Color.White,
-                        contentColor = if (isBackgroundLight) Color.White else TextPrimary
+                        contentColor = if (isBackgroundLight) Color.White else TextPrimary,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     TextButton(
@@ -163,13 +171,14 @@ fun OnboardingScreen(
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = contentColorSecondary
-                        )
+                        colors =
+                            ButtonDefaults.textButtonColors(
+                                contentColor = contentColorSecondary,
+                            ),
                     ) {
                         Text(
                             text = "Sudah punya akun? Login",
-                            color = contentColorSecondary
+                            color = contentColorSecondary,
                         )
                     }
                 } else {
@@ -183,7 +192,7 @@ fun OnboardingScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         containerColor = if (isBackgroundLight) TextPrimary else Color.White,
-                        contentColor = if (isBackgroundLight) Color.White else TextPrimary
+                        contentColor = if (isBackgroundLight) Color.White else TextPrimary,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -192,7 +201,7 @@ fun OnboardingScreen(
                         style = MaterialTheme.typography.bodySmall,
                         color = contentColorMuted,
                         modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
@@ -205,12 +214,12 @@ fun OnboardingPage(
     slide: OnboardingSlide,
     contentColor: Color,
     contentColorSecondary: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Top,
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -218,10 +227,11 @@ fun OnboardingPage(
         Image(
             painter = painterResource(id = slide.illustrationResId),
             contentDescription = slide.title,
-            modifier = Modifier
-                .size(220.dp)
-                .padding(8.dp),
-            contentScale = ContentScale.Fit
+            modifier =
+                Modifier
+                    .size(220.dp)
+                    .padding(8.dp),
+            contentScale = ContentScale.Fit,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -233,7 +243,7 @@ fun OnboardingPage(
             fontWeight = FontWeight.Bold,
             color = contentColor,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
@@ -245,7 +255,7 @@ fun OnboardingPage(
             color = contentColorSecondary,
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(horizontal = 24.dp),
-            maxLines = 4
+            maxLines = 4,
         )
 
         // Benefits List
@@ -253,23 +263,23 @@ fun OnboardingPage(
             Spacer(modifier = Modifier.height(16.dp))
             Column(
                 modifier = Modifier.padding(horizontal = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 benefits.forEach { benefit ->
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
                             contentDescription = null,
                             tint = contentColor,
-                            modifier = Modifier.size(20.dp)
+                            modifier = Modifier.size(20.dp),
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
                             text = benefit,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = contentColorSecondary
+                            color = contentColorSecondary,
                         )
                     }
                 }
@@ -281,29 +291,31 @@ fun OnboardingPage(
             Spacer(modifier = Modifier.height(16.dp))
             Column(
                 modifier = Modifier.padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 steps.forEach { step ->
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(contentColor.copy(alpha = 0.12f))
-                            .padding(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(contentColor.copy(alpha = 0.12f))
+                                .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(contentColor),
-                            contentAlignment = Alignment.Center
+                            modifier =
+                                Modifier
+                                    .size(32.dp)
+                                    .clip(CircleShape)
+                                    .background(contentColor),
+                            contentAlignment = Alignment.Center,
                         ) {
                             Text(
                                 text = step.number.toString(),
                                 style = MaterialTheme.typography.labelMedium,
                                 fontWeight = FontWeight.Bold,
-                                color = Color(slide.backgroundColor)
+                                color = Color(slide.backgroundColor),
                             )
                         }
                         Spacer(modifier = Modifier.width(14.dp))
@@ -311,7 +323,7 @@ fun OnboardingPage(
                             text = step.title,
                             style = MaterialTheme.typography.bodyMedium,
                             color = contentColor,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
                         )
                     }
                 }
@@ -326,13 +338,13 @@ fun OnboardingPage(
                 modifier = Modifier.padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                maxItemsInEachRow = 2
+                maxItemsInEachRow = 2,
             ) {
                 badges.forEach { badge ->
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = contentColor.copy(alpha = 0.15f),
-                        modifier = Modifier.padding(horizontal = 4.dp)
+                        modifier = Modifier.padding(horizontal = 4.dp),
                     ) {
                         Text(
                             text = badge,
@@ -340,7 +352,7 @@ fun OnboardingPage(
                             color = contentColor,
                             modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
                             textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Medium
+                            fontWeight = FontWeight.Medium,
                         )
                     }
                 }

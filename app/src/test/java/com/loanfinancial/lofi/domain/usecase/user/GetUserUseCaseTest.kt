@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetUserUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: GetUserUseCase
 
@@ -26,43 +25,46 @@ class GetUserUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getUserInfo`() = runTest {
-        // Arrange
-        val userData = UserData(
-            id = "user_123",
-            email = "john@example.com",
-            username = "john",
-            roles = listOf("USER"),
-            permissions = emptyList(),
-            branchId = null,
-            branchName = null
-        )
-        val expectedResponse = UserResponse(success = true, message = "Success", data = userData)
-        
-        coEvery { repository.getUserInfo() } returns Result.success(expectedResponse)
+    fun `invoke should delegate to repository getUserInfo`() =
+        runTest {
+            // Arrange
+            val userData =
+                UserData(
+                    id = "user_123",
+                    email = "john@example.com",
+                    username = "john",
+                    roles = listOf("USER"),
+                    permissions = emptyList(),
+                    branchId = null,
+                    branchName = null,
+                )
+            val expectedResponse = UserResponse(success = true, message = "Success", data = userData)
 
-        // Act
-        val result = useCase()
+            coEvery { repository.getUserInfo() } returns Result.success(expectedResponse)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedResponse, result.getOrNull())
-        coVerify(exactly = 1) { repository.getUserInfo() }
-    }
+            // Act
+            val result = useCase()
+
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedResponse, result.getOrNull())
+            coVerify(exactly = 1) { repository.getUserInfo() }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val expectedException = Exception("Network error")
-        
-        coEvery { repository.getUserInfo() } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val expectedException = Exception("Network error")
 
-        // Act
-        val result = useCase()
+            coEvery { repository.getUserInfo() } returns Result.failure(expectedException)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.getUserInfo() }
-    }
+            // Act
+            val result = useCase()
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.getUserInfo() }
+        }
 }

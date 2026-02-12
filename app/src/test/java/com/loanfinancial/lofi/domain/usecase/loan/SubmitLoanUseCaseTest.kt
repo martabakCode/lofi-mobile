@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class SubmitLoanUseCaseTest {
-
     @MockK
     private lateinit var repository: ILoanRepository
 
@@ -29,56 +28,61 @@ class SubmitLoanUseCaseTest {
     }
 
     @Test
-    fun `invoke should call repository submitLoan`() = runTest {
-        // Arrange
-        val loanId = "loan_123"
-        val loan = Loan(
-            id = loanId,
-            customerName = "Test Customer",
-            product = Product("CASH_LOAN", "Pinjaman Tunai", 0.05),
-            loanAmount = 5000000,
-            tenor = 12,
-            loanStatus = "SUBMITTED",
-            currentStage = "SUBMISSION",
-            submittedAt = "2024-01-15T10:30:00Z",
-            reviewedAt = null,
-            approvedAt = null,
-            rejectedAt = null,
-            disbursedAt = null,
-            loanStatusDisplay = "Submitted",
-            slaDurationHours = 24
-        )
-        
-        every { repository.submitLoan(loanId) } returns flowOf(
-            Resource.Loading,
-            Resource.Success(loan)
-        )
+    fun `invoke should call repository submitLoan`() =
+        runTest {
+            // Arrange
+            val loanId = "loan_123"
+            val loan =
+                Loan(
+                    id = loanId,
+                    customerName = "Test Customer",
+                    product = Product("CASH_LOAN", "Pinjaman Tunai", 0.05),
+                    loanAmount = 5000000,
+                    tenor = 12,
+                    loanStatus = "SUBMITTED",
+                    currentStage = "SUBMISSION",
+                    submittedAt = "2024-01-15T10:30:00Z",
+                    reviewedAt = null,
+                    approvedAt = null,
+                    rejectedAt = null,
+                    disbursedAt = null,
+                    loanStatusDisplay = "Submitted",
+                    slaDurationHours = 24,
+                )
 
-        // Act & Assert
-        useCase(loanId).test {
-            assertEquals(Resource.Loading, awaitItem())
-            val success = awaitItem() as Resource.Success
-            assertEquals("SUBMITTED", success.data?.loanStatus)
-            awaitComplete()
+            every { repository.submitLoan(loanId) } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Success(loan),
+                )
+
+            // Act & Assert
+            useCase(loanId).test {
+                assertEquals(Resource.Loading, awaitItem())
+                val success = awaitItem() as Resource.Success
+                assertEquals("SUBMITTED", success.data?.loanStatus)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun `invoke should propagate error`() = runTest {
-        // Arrange
-        val loanId = "loan_123"
-        
-        every { repository.submitLoan(loanId) } returns flowOf(
-            Resource.Loading,
-            Resource.Error("Submission failed")
-        )
+    fun `invoke should propagate error`() =
+        runTest {
+            // Arrange
+            val loanId = "loan_123"
 
-        // Act & Assert
-        useCase(loanId).test {
-            assertEquals(Resource.Loading, awaitItem())
-            val error = awaitItem() as Resource.Error
-            assertEquals("Submission failed", error.message)
-            awaitComplete()
+            every { repository.submitLoan(loanId) } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Error("Submission failed"),
+                )
+
+            // Act & Assert
+            useCase(loanId).test {
+                assertEquals(Resource.Loading, awaitItem())
+                val error = awaitItem() as Resource.Error
+                assertEquals("Submission failed", error.message)
+                awaitComplete()
+            }
         }
-    }
 }

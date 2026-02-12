@@ -15,11 +15,12 @@ object TestDataFactory {
         Loan(
             id = id,
             customerName = customerName,
-            product = Product(
-                productCode = "CASH_LOAN",
-                productName = "Pinjaman Tunai",
-                interestRate = 0.05,
-            ),
+            product =
+                Product(
+                    productCode = "CASH_LOAN",
+                    productName = "Pinjaman Tunai",
+                    interestRate = 0.05,
+                ),
             loanAmount = amount,
             tenor = tenor,
             loanStatus = status,
@@ -31,7 +32,7 @@ object TestDataFactory {
             disbursedAt = null,
             loanStatusDisplay = loanStatusDisplay,
             slaDurationHours = 24,
-            disbursementReference = null
+            disbursementReference = null,
         )
 
     fun createLoanList(count: Int = 3): List<Loan> =
@@ -42,7 +43,7 @@ object TestDataFactory {
                 tenor = index * 6,
                 customerName = "Customer $index",
                 status = if (index % 2 == 0) "APPROVED" else "SUBMITTED",
-                loanStatusDisplay = if (index % 2 == 0) "Disetujui" else "Menunggu Review"
+                loanStatusDisplay = if (index % 2 == 0) "Disetujui" else "Menunggu Review",
             )
         }
 

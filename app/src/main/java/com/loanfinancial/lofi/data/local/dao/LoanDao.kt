@@ -19,7 +19,10 @@ interface LoanDao {
     suspend fun deleteByUser(userId: String)
 
     @androidx.room.Transaction
-    suspend fun clearAndInsertByUser(userId: String, loans: List<LoanEntity>) {
+    suspend fun clearAndInsertByUser(
+        userId: String,
+        loans: List<LoanEntity>,
+    ) {
         deleteByUser(userId)
         insertLoans(loans)
     }

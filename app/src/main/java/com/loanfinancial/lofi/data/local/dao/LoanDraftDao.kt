@@ -23,10 +23,19 @@ interface LoanDraftDao {
     suspend fun updateDraft(draft: LoanDraftEntity)
 
     @Query("UPDATE loan_drafts SET currentStep = :step, stepData = :stepData, updatedAt = :timestamp WHERE id = :draftId")
-    suspend fun updateDraftStep(draftId: String, step: String, stepData: String?, timestamp: Long = System.currentTimeMillis())
+    suspend fun updateDraftStep(
+        draftId: String,
+        step: String,
+        stepData: String?,
+        timestamp: Long = System.currentTimeMillis(),
+    )
 
     @Query("UPDATE loan_drafts SET status = :status, updatedAt = :timestamp WHERE id = :draftId")
-    suspend fun updateDraftStatus(draftId: String, status: String, timestamp: Long = System.currentTimeMillis())
+    suspend fun updateDraftStatus(
+        draftId: String,
+        status: String,
+        timestamp: Long = System.currentTimeMillis(),
+    )
 
     @Query("DELETE FROM loan_drafts WHERE id = :draftId")
     suspend fun deleteDraft(draftId: String)
@@ -41,11 +50,14 @@ interface LoanDraftDao {
     suspend fun getUnsyncedCompletedDrafts(): List<LoanDraftEntity>
 
     @Query("UPDATE loan_drafts SET isSynced = 1, serverLoanId = :serverLoanId WHERE id = :draftId")
-    suspend fun markAsSynced(draftId: String, serverLoanId: String?)
+    suspend fun markAsSynced(
+        draftId: String,
+        serverLoanId: String?,
+    )
 
     @Query("SELECT * FROM loan_drafts WHERE currentStep = :step AND status IN ('DRAFT', 'IN_PROGRESS') ORDER BY updatedAt DESC")
     fun getDraftsByStep(step: String): Flow<List<LoanDraftEntity>>
-    
+
     @Query("UPDATE loan_drafts SET amount = :amount, tenor = :tenor, purpose = :purpose, downPayment = :downPayment, latitude = :latitude, longitude = :longitude, isBiometricVerified = :isBiometricVerified, currentStep = :currentStep, updatedAt = :timestamp WHERE id = :draftId")
     suspend fun updateBasicInfo(
         draftId: String,
@@ -57,7 +69,7 @@ interface LoanDraftDao {
         longitude: Double?,
         isBiometricVerified: Boolean,
         currentStep: String,
-        timestamp: Long = System.currentTimeMillis()
+        timestamp: Long = System.currentTimeMillis(),
     )
 
     @Query("UPDATE loan_drafts SET jobType = :jobType, companyName = :companyName, jobPosition = :jobPosition, workDurationMonths = :workDurationMonths, workAddress = :workAddress, officePhoneNumber = :officePhoneNumber, declaredIncome = :declaredIncome, additionalIncome = :additionalIncome, npwpNumber = :npwpNumber, currentStep = :currentStep, updatedAt = :timestamp WHERE id = :draftId")
@@ -73,7 +85,7 @@ interface LoanDraftDao {
         additionalIncome: Long?,
         npwpNumber: String?,
         currentStep: String,
-        timestamp: Long = System.currentTimeMillis()
+        timestamp: Long = System.currentTimeMillis(),
     )
 
     @Query("UPDATE loan_drafts SET emergencyContactName = :name, emergencyContactRelation = :relation, emergencyContactPhone = :phone, emergencyContactAddress = :address, currentStep = :currentStep, updatedAt = :timestamp WHERE id = :draftId")
@@ -84,7 +96,7 @@ interface LoanDraftDao {
         phone: String?,
         address: String?,
         currentStep: String,
-        timestamp: Long = System.currentTimeMillis()
+        timestamp: Long = System.currentTimeMillis(),
     )
 
     @Query("UPDATE loan_drafts SET bankName = :bankName, bankBranch = :bankBranch, accountNumber = :accountNumber, accountHolderName = :accountHolderName, currentStep = :currentStep, updatedAt = :timestamp WHERE id = :draftId")
@@ -95,23 +107,23 @@ interface LoanDraftDao {
         accountNumber: String?,
         accountHolderName: String?,
         currentStep: String,
-        timestamp: Long = System.currentTimeMillis()
+        timestamp: Long = System.currentTimeMillis(),
     )
-    
+
     @Query("UPDATE loan_drafts SET documentPaths = :documentPaths, currentStep = :currentStep, updatedAt = :timestamp WHERE id = :draftId")
     suspend fun updateDocumentPaths(
         draftId: String,
         documentPaths: String?,
         currentStep: String,
-        timestamp: Long = System.currentTimeMillis()
+        timestamp: Long = System.currentTimeMillis(),
     )
-    
+
     @Query("UPDATE loan_drafts SET isAgreementChecked = :isAgreementChecked, status = :status, currentStep = :currentStep, updatedAt = :timestamp WHERE id = :draftId")
     suspend fun updateTncAndComplete(
         draftId: String,
         isAgreementChecked: Boolean,
         status: String,
         currentStep: String,
-        timestamp: Long = System.currentTimeMillis()
+        timestamp: Long = System.currentTimeMillis(),
     )
 }

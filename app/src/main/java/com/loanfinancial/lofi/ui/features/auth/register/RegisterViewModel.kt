@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.GoogleAuthProvider
 import com.loanfinancial.lofi.data.model.dto.GoogleAuthRequest
 import com.loanfinancial.lofi.data.model.dto.RegisterRequest
+import com.loanfinancial.lofi.data.remote.firebase.IFcmTokenManager
 import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import com.loanfinancial.lofi.domain.usecase.auth.GetFirebaseIdTokenUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.GoogleAuthUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.RegisterUseCase
-import com.loanfinancial.lofi.data.remote.firebase.IFcmTokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

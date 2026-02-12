@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetAvailableProductUseCaseTest {
-
     private lateinit var repository: IProductRepository
     private lateinit var useCase: GetAvailableProductUseCase
 
@@ -27,19 +26,20 @@ class GetAvailableProductUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getAvailableProduct`() = runTest {
-        // Arrange
-        val expectedData = mockk<AvailableProductDto>(relaxed = true)
-        
-        every { repository.getAvailableProduct() } returns flowOf(Resource.Success(expectedData))
+    fun `invoke should delegate to repository getAvailableProduct`() =
+        runTest {
+            // Arrange
+            val expectedData = mockk<AvailableProductDto>(relaxed = true)
 
-        // Act & Assert
-        useCase().test {
-            val result = awaitItem()
-            assertEquals(Resource.Success(expectedData), result)
-            awaitComplete()
+            every { repository.getAvailableProduct() } returns flowOf(Resource.Success(expectedData))
+
+            // Act & Assert
+            useCase().test {
+                val result = awaitItem()
+                assertEquals(Resource.Success(expectedData), result)
+                awaitComplete()
+            }
+
+            verify(exactly = 1) { repository.getAvailableProduct() }
         }
-        
-        verify(exactly = 1) { repository.getAvailableProduct() }
-    }
 }

@@ -50,7 +50,7 @@ class DataStoreManager
             const val KEY_IS_PROFILE_COMPLETED = "is_profile_completed"
             const val KEY_IS_FIRST_INSTALL = "is_first_install"
             const val KEY_HAS_COMPLETED_FIRST_SESSION = "has_completed_first_session"
-            
+
             private val PREF_IS_PIN_SET = booleanPreferencesKey(KEY_IS_PIN_SET)
             private val PREF_IS_PROFILE_COMPLETED = booleanPreferencesKey(KEY_IS_PROFILE_COMPLETED)
             private val PREF_IS_FIRST_INSTALL = booleanPreferencesKey(KEY_IS_FIRST_INSTALL)
@@ -67,17 +67,17 @@ class DataStoreManager
                 preferences[PREF_IS_LOGGED_IN] = true
             }
         }
-        
+
         suspend fun saveProfileStatus(
             pinSet: Boolean,
-            profileCompleted: Boolean
+            profileCompleted: Boolean,
         ) {
             dataStore.edit { preferences ->
                 preferences[PREF_IS_PIN_SET] = pinSet
                 preferences[PREF_IS_PROFILE_COMPLETED] = profileCompleted
             }
         }
-        
+
         suspend fun setPinSet(isSet: Boolean) {
             dataStore.edit { preferences ->
                 preferences[PREF_IS_PIN_SET] = isSet
@@ -145,7 +145,7 @@ class DataStoreManager
             dataStore.data.map { preferences ->
                 preferences[PREF_IS_LOGGED_IN] ?: false
             }
-            
+
         val isPinSetFlow: Flow<Boolean> =
             dataStore.data.map { preferences ->
                 preferences[PREF_IS_PIN_SET] ?: false

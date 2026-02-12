@@ -29,30 +29,27 @@ object Routes {
     const val CHANGE_GOOGLE_PIN = "change_google_pin"
 
     // Helper functions to create routes with parameters
-    fun applyLoan(draftId: String? = null): String {
-        return if (draftId != null) {
+    fun applyLoan(draftId: String? = null): String =
+        if (draftId != null) {
             "apply_loan?draftId=$draftId"
         } else {
             "apply_loan"
         }
-    }
 
-    fun documentUpload(draftId: String? = null): String {
-        return if (draftId != null) {
+    fun documentUpload(draftId: String? = null): String =
+        if (draftId != null) {
             "document_upload?draftId=$draftId"
         } else {
             "document_upload"
         }
-    }
 
     fun loanDetail(loanId: String): String = "loan_detail/$loanId"
 
     fun notificationDetail(notificationId: String): String = "notification_detail/$notificationId"
 
-    fun setPin(fromProfile: Boolean = false): String {
-        return "set_pin?fromProfile=$fromProfile"
-    }
+    fun setPin(fromProfile: Boolean = false): String = "set_pin?fromProfile=$fromProfile"
 
     fun setGooglePin(): String = SET_GOOGLE_PIN
+
     fun changeGooglePin(): String = CHANGE_GOOGLE_PIN
 }

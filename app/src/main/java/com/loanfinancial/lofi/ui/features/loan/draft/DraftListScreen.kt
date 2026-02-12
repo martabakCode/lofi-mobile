@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -71,19 +70,20 @@ fun DraftListScreen(
         containerColor = MaterialTheme.colorScheme.background,
     ) { padding ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(padding),
         ) {
             when {
                 uiState.isLoading -> {
                     CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 }
                 uiState.drafts.isEmpty() -> {
                     EmptyDraftsState(
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 }
                 else -> {
@@ -93,13 +93,13 @@ fun DraftListScreen(
                     ) {
                         items(
                             items = uiState.drafts,
-                            key = { it.id }
+                            key = { it.id },
                         ) { draft ->
                             DraftCard(
                                 draft = draft,
                                 isDeleting = uiState.deletingDraftId == draft.id,
                                 onContinueClick = { onDraftClick(draft.id) },
-                                onDeleteClick = { draftToDelete = draft }
+                                onDeleteClick = { draftToDelete = draft },
                             )
                         }
                     }
@@ -116,7 +116,7 @@ fun DraftListScreen(
                 viewModel.deleteDraft(draft.id)
                 draftToDelete = null
             },
-            onDismiss = { draftToDelete = null }
+            onDismiss = { draftToDelete = null },
         )
     }
 }
@@ -151,28 +151,32 @@ fun DraftCard(
     onDeleteClick: () -> Unit,
 ) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = !isDeleting) { onContinueClick() },
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clickable(enabled = !isDeleting) { onContinueClick() },
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             // Draft Info
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = draft.purpose ?: "Loan Application",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
+                    style =
+                        MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.SemiBold,
+                        ),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 if (draft.amount != null) {
@@ -225,22 +229,24 @@ fun DraftCard(
 
 @Composable
 fun StepBadge(step: DraftStep) {
-    val stepText = when (step) {
-        DraftStep.BASIC_INFO -> "Basic Info"
-        DraftStep.EMPLOYMENT_INFO -> "Employment"
-        DraftStep.EMERGENCY_CONTACT -> "Emergency Contact"
-        DraftStep.BANK_INFO -> "Bank Info"
-        DraftStep.DOCUMENTS -> "Documents"
-        DraftStep.PREVIEW -> "Preview"
-        DraftStep.TNC -> "Terms"
-        DraftStep.COMPLETED -> "Completed"
-    }
+    val stepText =
+        when (step) {
+            DraftStep.BASIC_INFO -> "Basic Info"
+            DraftStep.EMPLOYMENT_INFO -> "Employment"
+            DraftStep.EMERGENCY_CONTACT -> "Emergency Contact"
+            DraftStep.BANK_INFO -> "Bank Info"
+            DraftStep.DOCUMENTS -> "Documents"
+            DraftStep.PREVIEW -> "Preview"
+            DraftStep.TNC -> "Terms"
+            DraftStep.COMPLETED -> "Completed"
+        }
 
     Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
-            .padding(horizontal = 8.dp, vertical = 2.dp),
+        modifier =
+            Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .padding(horizontal = 8.dp, vertical = 2.dp),
     ) {
         Text(
             text = stepText,
@@ -262,7 +268,7 @@ fun DeleteConfirmationDialog(
         text = {
             Text(
                 "Are you sure you want to delete this draft? " +
-                "This action cannot be undone."
+                    "This action cannot be undone.",
             )
         },
         confirmButton = {

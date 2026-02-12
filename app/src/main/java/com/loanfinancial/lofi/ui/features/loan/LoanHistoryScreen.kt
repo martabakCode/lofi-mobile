@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +41,6 @@ import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.domain.model.Loan
 import com.loanfinancial.lofi.domain.model.PendingSubmissionStatus
 import com.loanfinancial.lofi.ui.components.LofiCard
-import androidx.compose.material3.TextButton
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,8 +144,6 @@ fun LoanHistoryScreen(
     }
 }
 
-
-
 @Composable
 fun LoanHistoryItem(
     loan: Loan,
@@ -172,13 +170,13 @@ fun LoanHistoryItem(
                     containerColor =
                         when {
                             loan.pendingStatus != null -> {
-                                when(loan.pendingStatus) {
-                                     PendingSubmissionStatus.PENDING -> Color(0xFFFFC107) // Amber
-                                     PendingSubmissionStatus.SUBMITTING -> Color(0xFF2196F3) // Blue
-                                     PendingSubmissionStatus.SUCCESS -> Color(0xFF4CAF50) // Green
-                                     PendingSubmissionStatus.FAILED -> Color(0xFFF44336) // Red
-                                     PendingSubmissionStatus.CANCELLED -> Color.Gray
-                                     else -> Color.Gray
+                                when (loan.pendingStatus) {
+                                    PendingSubmissionStatus.PENDING -> Color(0xFFFFC107) // Amber
+                                    PendingSubmissionStatus.SUBMITTING -> Color(0xFF2196F3) // Blue
+                                    PendingSubmissionStatus.SUCCESS -> Color(0xFF4CAF50) // Green
+                                    PendingSubmissionStatus.FAILED -> Color(0xFFF44336) // Red
+                                    PendingSubmissionStatus.CANCELLED -> Color.Gray
+                                    else -> Color.Gray
                                 }
                             }
                             loan.loanStatus == "APPROVED" -> Color(0xFF4CAF50)

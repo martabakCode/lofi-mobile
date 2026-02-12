@@ -31,16 +31,17 @@ class NotificationRepositoryImplTest {
     @Test
     fun `getNotifications returns list from API`() =
         runTest {
-            val notifications = listOf(
-                NotificationEntity(
-                    id = "1",
-                    title = "Test Notification",
-                    body = "This is a test",
-                    type = "LOAN_STATUS",
-                    isRead = false,
-                    createdAt = System.currentTimeMillis()
+            val notifications =
+                listOf(
+                    NotificationEntity(
+                        id = "1",
+                        title = "Test Notification",
+                        body = "This is a test",
+                        type = "LOAN_STATUS",
+                        isRead = false,
+                        createdAt = System.currentTimeMillis(),
+                    ),
                 )
-            )
 
             coEvery { notificationDao.getAllNotifications() } returns notifications
 
@@ -93,16 +94,17 @@ class NotificationRepositoryImplTest {
     @Test
     fun `getNotificationsFlow emits updates`() =
         runTest {
-            val notifications = listOf(
-                NotificationEntity(
-                    id = "1",
-                    title = "Flow Test",
-                    body = "Testing flow",
-                    type = "PROMO",
-                    isRead = false,
-                    createdAt = System.currentTimeMillis()
+            val notifications =
+                listOf(
+                    NotificationEntity(
+                        id = "1",
+                        title = "Flow Test",
+                        body = "Testing flow",
+                        type = "PROMO",
+                        isRead = false,
+                        createdAt = System.currentTimeMillis(),
+                    ),
                 )
-            )
 
             every { notificationDao.getAllNotificationsFlow() } returns flowOf(notifications)
 

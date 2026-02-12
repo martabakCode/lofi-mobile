@@ -17,7 +17,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class UploadDocumentUseCaseTest {
-
     private lateinit var repository: IDocumentRepository
     private lateinit var useCase: UploadDocumentUseCase
 
@@ -28,30 +27,32 @@ class UploadDocumentUseCaseTest {
     }
 
     @Test
-    fun `invoke should emit loading then result from repository`() = runTest {
-        // Arrange
-        val loanId = "loan_123"
-        val filePath = "/path/to/file.jpg"
-        val documentType = DocumentType.KTP
-        val expectedResult = BaseResult.Success(
-            DocumentUploadResult(
-                documentType = documentType,
-                documentId = "doc_1",
-                objectKey = "key_1",
-                isUploaded = true
-            )
-        )
-        
-        coEvery { repository.uploadDocument(loanId, filePath, documentType) } returns expectedResult
+    fun `invoke should emit loading then result from repository`() =
+        runTest {
+            // Arrange
+            val loanId = "loan_123"
+            val filePath = "/path/to/file.jpg"
+            val documentType = DocumentType.KTP
+            val expectedResult =
+                BaseResult.Success(
+                    DocumentUploadResult(
+                        documentType = documentType,
+                        documentId = "doc_1",
+                        objectKey = "key_1",
+                        isUploaded = true,
+                    ),
+                )
 
-        // Act
-        val results = useCase(loanId, filePath, documentType).toList()
+            coEvery { repository.uploadDocument(loanId, filePath, documentType) } returns expectedResult
 
-        // Assert
-        assertEquals(2, results.size)
-        assertTrue(results[0] is BaseResult.Loading)
-        assertEquals(expectedResult, results[1])
-        
-        coVerify(exactly = 1) { repository.uploadDocument(loanId, filePath, documentType) }
-    }
+            // Act
+            val results = useCase(loanId, filePath, documentType).toList()
+
+            // Assert
+            assertEquals(2, results.size)
+            assertTrue(results[0] is BaseResult.Loading)
+            assertEquals(expectedResult, results[1])
+
+            coVerify(exactly = 1) { repository.uploadDocument(loanId, filePath, documentType) }
+        }
 }

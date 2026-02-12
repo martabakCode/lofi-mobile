@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetProfileDraftUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: GetProfileDraftUseCase
 
@@ -26,19 +25,20 @@ class GetProfileDraftUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getProfileDraft`() = runTest {
-        // Arrange
-        val userId = "user_123"
-        val expectedDraft = ProfileDraftEntity(userId = userId, fullName = "John Doe")
-        
-        every { repository.getProfileDraft(userId) } returns flowOf(expectedDraft)
+    fun `invoke should delegate to repository getProfileDraft`() =
+        runTest {
+            // Arrange
+            val userId = "user_123"
+            val expectedDraft = ProfileDraftEntity(userId = userId, fullName = "John Doe")
 
-        // Act & Assert
-        useCase(userId).test {
-            assertEquals(expectedDraft, awaitItem())
-            awaitComplete()
+            every { repository.getProfileDraft(userId) } returns flowOf(expectedDraft)
+
+            // Act & Assert
+            useCase(userId).test {
+                assertEquals(expectedDraft, awaitItem())
+                awaitComplete()
+            }
+
+            verify(exactly = 1) { repository.getProfileDraft(userId) }
         }
-        
-        verify(exactly = 1) { repository.getProfileDraft(userId) }
-    }
 }

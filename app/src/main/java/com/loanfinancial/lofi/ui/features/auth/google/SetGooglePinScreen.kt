@@ -21,16 +21,16 @@ fun SetGooglePinScreen(
     onBackClick: () -> Unit,
     onSuccess: () -> Unit,
     onNavigateToChangePin: () -> Unit = {},
-    viewModel: SetGooglePinViewModel = hiltViewModel()
+    viewModel: SetGooglePinViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+
     LaunchedEffect(uiState.isSuccess) {
         if (uiState.isSuccess) {
             onSuccess()
         }
     }
-    
+
     // Handle case when PIN is already set on server
     if (uiState.shouldNavigateToChangePin) {
         AlertDialog(
@@ -49,68 +49,69 @@ fun SetGooglePinScreen(
                 TextButton(onClick = { viewModel.onNavigateToChangePinHandled() }) {
                     Text("Stay Here")
                 }
-            }
+            },
         )
     }
-    
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = { Text(text = "Set Security PIN") },
                 navigationIcon = {
-                    IconButton(onClick = { 
-                        if (uiState.step == 1) viewModel.onBackClick() else onBackClick() 
+                    IconButton(onClick = {
+                        if (uiState.step == 1) viewModel.onBackClick() else onBackClick()
                     }) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(24.dp),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     text = if (uiState.step == 0) "Create a 6-digit PIN" else "Confirm your PIN",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
-                
+
                 // Pin Display
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     val currentPinLength = if (uiState.step == 0) uiState.pin.length else uiState.confirmPin.length
                     repeat(6) { index ->
                         PinDot(isFilled = index < currentPinLength)
                     }
                 }
-                
+
                 if (uiState.error != null) {
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = uiState.error!!,
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
-            
+
             NumericKeypad(
                 onInput = { key -> viewModel.updatePin((if (uiState.step == 0) uiState.pin else uiState.confirmPin) + key) },
                 onDeleteClick = {
@@ -118,15 +119,15 @@ fun SetGooglePinScreen(
                     if (currentPin.isNotEmpty()) {
                         viewModel.updatePin(currentPin.dropLast(1))
                     }
-                }
+                },
             )
         }
     }
-    
+
     if (uiState.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             CircularProgressIndicator()
         }

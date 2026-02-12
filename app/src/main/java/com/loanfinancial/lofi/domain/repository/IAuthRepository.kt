@@ -42,13 +42,22 @@ interface IAuthRepository {
 
     suspend fun setPin(pin: String): Result<Unit>
 
-    suspend fun verifyPin(pin: String, purpose: String): Result<com.loanfinancial.lofi.data.remote.api.PinVerificationResponse>
+    suspend fun verifyPin(
+        pin: String,
+        purpose: String,
+    ): Result<com.loanfinancial.lofi.data.remote.api.PinVerificationResponse>
 
     fun getUser(): Flow<User?>
 
     // NEW METHODS untuk Google PIN
     suspend fun getAuthSource(): Result<AuthSourceResponse>
+
     suspend fun setGooglePin(pin: String): Result<Unit>
-    suspend fun updateGooglePin(oldPin: String, newPin: String): Result<Unit>
+
+    suspend fun updateGooglePin(
+        oldPin: String,
+        newPin: String,
+    ): Result<Unit>
+
     suspend fun getPinStatus(): Result<PinStatusResponse>
 }

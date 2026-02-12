@@ -23,7 +23,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
-
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
@@ -50,7 +49,7 @@ class HomeViewModelTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        
+
         // Default mocks
         every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Success(emptyList()))
         every { getUserProfileUseCase() } returns flowOf(Resource.Loading)
@@ -60,90 +59,97 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `initial state should have default values`() = runTest {
-        // Act
-        viewModel = HomeViewModel(
-            getMyLoansUseCase,
-            getUserProfileUseCase,
-            getProductsUseCase,
-            getAvailableProductUseCase,
-            loanSubmissionManager,
-            dataStoreManager
-        )
+    fun `initial state should have default values`() =
+        runTest {
+            // Act
+            viewModel =
+                HomeViewModel(
+                    getMyLoansUseCase,
+                    getUserProfileUseCase,
+                    getProductsUseCase,
+                    getAvailableProductUseCase,
+                    loanSubmissionManager,
+                    dataStoreManager,
+                )
 
-        // Assert
-        viewModel.uiState.test {
-            val state = awaitItem()
-            assertFalse(state.isLoading)
-            assertTrue(state.loans.isEmpty())
-            assertNull(state.error)
+            // Assert
+            viewModel.uiState.test {
+                val state = awaitItem()
+                assertFalse(state.isLoading)
+                assertTrue(state.loans.isEmpty())
+                assertNull(state.error)
+            }
         }
-    }
 
     @Test
-    fun `fetchLoans should update uiState with success`() = runTest {
-        // Arrange
-        val loans = listOf(
-            Loan(
-                id = "loan_1",
-                customerName = "Test",
-                product = Product("CASH", "Pinjaman", 0.05),
-                loanAmount = 5000000,
-                tenor = 12,
-                loanStatus = "SUBMITTED",
-                currentStage = "SUBMISSION",
-                submittedAt = "2024-01-15T10:30:00Z",
-                reviewedAt = null,
-                approvedAt = null,
-                rejectedAt = null,
-                disbursedAt = null,
-                loanStatusDisplay = "Menunggu Review",
-                slaDurationHours = 24
-            )
-        )
-        
-        every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Success(loans))
+    fun `fetchLoans should update uiState with success`() =
+        runTest {
+            // Arrange
+            val loans =
+                listOf(
+                    Loan(
+                        id = "loan_1",
+                        customerName = "Test",
+                        product = Product("CASH", "Pinjaman", 0.05),
+                        loanAmount = 5000000,
+                        tenor = 12,
+                        loanStatus = "SUBMITTED",
+                        currentStage = "SUBMISSION",
+                        submittedAt = "2024-01-15T10:30:00Z",
+                        reviewedAt = null,
+                        approvedAt = null,
+                        rejectedAt = null,
+                        disbursedAt = null,
+                        loanStatusDisplay = "Menunggu Review",
+                        slaDurationHours = 24,
+                    ),
+                )
 
-        // Act
-        viewModel = HomeViewModel(
-            getMyLoansUseCase,
-            getUserProfileUseCase,
-            getProductsUseCase,
-            getAvailableProductUseCase,
-            loanSubmissionManager,
-            dataStoreManager
-        )
+            every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Success(loans))
 
-        // Assert
-        viewModel.uiState.test {
-            skipItems(1) // Skip initial state
-            val state = awaitItem()
-            assertEquals(1, state.loans.size)
-            assertEquals("loan_1", state.loans[0].id)
+            // Act
+            viewModel =
+                HomeViewModel(
+                    getMyLoansUseCase,
+                    getUserProfileUseCase,
+                    getProductsUseCase,
+                    getAvailableProductUseCase,
+                    loanSubmissionManager,
+                    dataStoreManager,
+                )
+
+            // Assert
+            viewModel.uiState.test {
+                skipItems(1) // Skip initial state
+                val state = awaitItem()
+                assertEquals(1, state.loans.size)
+                assertEquals("loan_1", state.loans[0].id)
+            }
         }
-    }
 
     @Test
-    fun `fetchLoans should update uiState with error`() = runTest {
-        // Arrange
-        val errorMessage = "Network error"
-        every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Error(errorMessage))
+    fun `fetchLoans should update uiState with error`() =
+        runTest {
+            // Arrange
+            val errorMessage = "Network error"
+            every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Error(errorMessage))
 
-        // Act
-        viewModel = HomeViewModel(
-            getMyLoansUseCase,
-            getUserProfileUseCase,
-            getProductsUseCase,
-            getAvailableProductUseCase,
-            loanSubmissionManager,
-            dataStoreManager
-        )
+            // Act
+            viewModel =
+                HomeViewModel(
+                    getMyLoansUseCase,
+                    getUserProfileUseCase,
+                    getProductsUseCase,
+                    getAvailableProductUseCase,
+                    loanSubmissionManager,
+                    dataStoreManager,
+                )
 
-        // Assert
-        viewModel.uiState.test {
-            skipItems(1)
-            val state = awaitItem()
-            assertEquals(errorMessage, state.error)
+            // Assert
+            viewModel.uiState.test {
+                skipItems(1)
+                val state = awaitItem()
+                assertEquals(errorMessage, state.error)
+            }
         }
-    }
 }

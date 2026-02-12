@@ -19,84 +19,86 @@ data class SetPinUiState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val isSuccess: Boolean = false,
-    val step: Int = 0 // 0 for password, 1 for enter pin, 2 for confirm pin
+    // 0 for password, 1 for enter pin, 2 for confirm pin
+    val step: Int = 0,
 )
 
 @HiltViewModel
-class SetPinViewModel @Inject constructor(
-    private val setPinUseCase: SetPinUseCase,
-    private val dataStoreManager: com.loanfinancial.lofi.data.local.datastore.DataStoreManager
-) : ViewModel() {
+class SetPinViewModel
+    @Inject
+    constructor(
+        private val setPinUseCase: SetPinUseCase,
+        private val dataStoreManager: com.loanfinancial.lofi.data.local.datastore.DataStoreManager,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(SetPinUiState())
+        val uiState: StateFlow<SetPinUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(SetPinUiState())
-    val uiState: StateFlow<SetPinUiState> = _uiState.asStateFlow()
-
-    fun onPasswordInput(value: String) {
-        _uiState.update { it.copy(password = value, error = null) }
-    }
-
-    fun onSubmitPassword() {
-        if (_uiState.value.password.isEmpty()) {
-            _uiState.update { it.copy(error = "Password is required") }
-            return
+        fun onPasswordInput(value: String) {
+            _uiState.update { it.copy(password = value, error = null) }
         }
-        _uiState.update { it.copy(step = 1, error = null) }
-    }
 
-    fun updatePin(newValue: String) {
-        if (newValue.length > 6) return
-        
-        if (_uiState.value.step == 1) {
-            _uiState.update { it.copy(pin = newValue, error = null) }
-            if (newValue.length == 6) {
-                _uiState.update { it.copy(step = 2) }
+        fun onSubmitPassword() {
+            if (_uiState.value.password.isEmpty()) {
+                _uiState.update { it.copy(error = "Password is required") }
+                return
             }
-        } else if (_uiState.value.step == 2) {
-             _uiState.update { it.copy(confirmPin = newValue, error = null) }
-            if (newValue.length == 6) {
-                submitPin() // Check logic inside submitPin to ensure it uses the latest value
-            }
-        }
-    }
-
-    private fun submitPin() {
-        val state = _uiState.value
-        if (state.pin != state.confirmPin) {
-            _uiState.update { it.copy(error = "PIN does not match", confirmPin = "", step = 1, pin = "") }
-            return
+            _uiState.update { it.copy(step = 1, error = null) }
         }
 
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            setPinUseCase(SetPinRequest(state.pin, state.password)).collect { result ->
-                 when (result) {
-                    is com.loanfinancial.lofi.core.util.Resource.Success -> {
-                        dataStoreManager.setPinSet(true)
-                        _uiState.update { it.copy(isLoading = false, isSuccess = true) }
-                    }
-                    is com.loanfinancial.lofi.core.util.Resource.Error -> {
-                        _uiState.update { 
-                            it.copy(
-                                isLoading = false, 
-                                error = result.message ?: "Failed to set PIN", 
-                                pin = "", 
-                                confirmPin = "", 
-                                step = 1,
-                                password = ""
-                            ) 
-                        }
-                    }
-                    is com.loanfinancial.lofi.core.util.Resource.Loading -> {}
+        fun updatePin(newValue: String) {
+            if (newValue.length > 6) return
+
+            if (_uiState.value.step == 1) {
+                _uiState.update { it.copy(pin = newValue, error = null) }
+                if (newValue.length == 6) {
+                    _uiState.update { it.copy(step = 2) }
+                }
+            } else if (_uiState.value.step == 2) {
+                _uiState.update { it.copy(confirmPin = newValue, error = null) }
+                if (newValue.length == 6) {
+                    submitPin() // Check logic inside submitPin to ensure it uses the latest value
                 }
             }
         }
-    }
 
-    fun onBack() {
-        if (_uiState.value.step == 2) {
-            _uiState.update { it.copy(step = 1, confirmPin = "") }
-        } else if (_uiState.value.step == 1) {
-             _uiState.update { it.copy(step = 0, pin = "") }
+        private fun submitPin() {
+            val state = _uiState.value
+            if (state.pin != state.confirmPin) {
+                _uiState.update { it.copy(error = "PIN does not match", confirmPin = "", step = 1, pin = "") }
+                return
+            }
+
+            viewModelScope.launch {
+                _uiState.update { it.copy(isLoading = true, error = null) }
+                setPinUseCase(SetPinRequest(state.pin, state.password)).collect { result ->
+                    when (result) {
+                        is com.loanfinancial.lofi.core.util.Resource.Success -> {
+                            dataStoreManager.setPinSet(true)
+                            _uiState.update { it.copy(isLoading = false, isSuccess = true) }
+                        }
+                        is com.loanfinancial.lofi.core.util.Resource.Error -> {
+                            _uiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    error = result.message ?: "Failed to set PIN",
+                                    pin = "",
+                                    confirmPin = "",
+                                    step = 1,
+                                    password = "",
+                                )
+                            }
+                        }
+                        is com.loanfinancial.lofi.core.util.Resource.Loading -> {}
+                    }
+                }
+            }
+        }
+
+        fun onBack() {
+            if (_uiState.value.step == 2) {
+                _uiState.update { it.copy(step = 1, confirmPin = "") }
+            } else if (_uiState.value.step == 1) {
+                _uiState.update { it.copy(step = 0, pin = "") }
+            }
         }
     }
-}

@@ -46,14 +46,15 @@ class GlobalExceptionHandler
 
             // TODO: Temporarily disabled developer error activity for testing
             // Uncomment the following block to re-enable error screenshot functionality
+
             /*
             if (isDeveloperMode) {
                 handleDeveloperModeException(thread, throwable)
             } else {
                 handleProductionException(throwable)
             }
-            */
-            
+             */
+
             // Always handle as production for now (log only, no UI)
             handleProductionException(throwable)
 

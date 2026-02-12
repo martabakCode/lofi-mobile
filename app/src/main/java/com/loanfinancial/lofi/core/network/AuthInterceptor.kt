@@ -27,7 +27,8 @@ class AuthInterceptor
             if (!isOurBackend ||
                 path.contains("auth/login") ||
                 path.contains("auth/register") ||
-                path.contains("auth/google")) {
+                path.contains("auth/google")
+            ) {
                 return chain.proceed(originalRequest)
             }
 

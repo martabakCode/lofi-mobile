@@ -50,16 +50,17 @@ class NotificationViewModelTest {
 
     @Test
     fun `fetchNotifications success should update state with notifications`() {
-        val notifications = listOf(
-            NotificationResponse(
-                id = "1",
-                title = "Test Notification",
-                body = "This is a test",
-                type = "LOAN_STATUS",
-                isRead = false,
-                createdAt = System.currentTimeMillis()
+        val notifications =
+            listOf(
+                NotificationResponse(
+                    id = "1",
+                    title = "Test Notification",
+                    body = "This is a test",
+                    type = "LOAN_STATUS",
+                    isRead = false,
+                    createdAt = System.currentTimeMillis(),
+                ),
             )
-        )
 
         every { getNotificationsUseCase() } returns flowOf(Resource.Success(notifications))
 
@@ -85,16 +86,17 @@ class NotificationViewModelTest {
 
     @Test
     fun `getNotification should return notification when found`() {
-        val notifications = listOf(
-            NotificationResponse(
-                id = "1",
-                title = "Test Notification",
-                body = "This is a test",
-                type = "LOAN_STATUS",
-                isRead = false,
-                createdAt = System.currentTimeMillis()
+        val notifications =
+            listOf(
+                NotificationResponse(
+                    id = "1",
+                    title = "Test Notification",
+                    body = "This is a test",
+                    type = "LOAN_STATUS",
+                    isRead = false,
+                    createdAt = System.currentTimeMillis(),
+                ),
             )
-        )
 
         every { getNotificationsUseCase() } returns flowOf(Resource.Success(notifications))
 
@@ -109,16 +111,17 @@ class NotificationViewModelTest {
 
     @Test
     fun `getNotification should return null when not found`() {
-        val notifications = listOf(
-            NotificationResponse(
-                id = "1",
-                title = "Test Notification",
-                body = "This is a test",
-                type = "LOAN_STATUS",
-                isRead = false,
-                createdAt = System.currentTimeMillis()
+        val notifications =
+            listOf(
+                NotificationResponse(
+                    id = "1",
+                    title = "Test Notification",
+                    body = "This is a test",
+                    type = "LOAN_STATUS",
+                    isRead = false,
+                    createdAt = System.currentTimeMillis(),
+                ),
             )
-        )
 
         every { getNotificationsUseCase() } returns flowOf(Resource.Success(notifications))
 

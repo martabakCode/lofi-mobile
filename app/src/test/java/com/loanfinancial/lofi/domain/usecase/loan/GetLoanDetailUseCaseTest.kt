@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetLoanDetailUseCaseTest {
-
     @MockK
     private lateinit var repository: ILoanRepository
 
@@ -29,56 +28,61 @@ class GetLoanDetailUseCaseTest {
     }
 
     @Test
-    fun `invoke should return loan detail`() = runTest {
-        // Arrange
-        val loanId = "loan_123"
-        val loan = Loan(
-            id = loanId,
-            customerName = "Test Customer",
-            product = Product("CASH_LOAN", "Pinjaman Tunai", 0.05),
-            loanAmount = 5000000,
-            tenor = 12,
-            loanStatus = "SUBMITTED",
-            currentStage = "SUBMISSION",
-            submittedAt = "2024-01-15T10:30:00Z",
-            reviewedAt = null,
-            approvedAt = null,
-            rejectedAt = null,
-            disbursedAt = null,
-            loanStatusDisplay = "Menunggu Review",
-            slaDurationHours = 24
-        )
-        
-        every { repository.getLoanDetail(loanId) } returns flowOf(
-            Resource.Loading,
-            Resource.Success(loan)
-        )
+    fun `invoke should return loan detail`() =
+        runTest {
+            // Arrange
+            val loanId = "loan_123"
+            val loan =
+                Loan(
+                    id = loanId,
+                    customerName = "Test Customer",
+                    product = Product("CASH_LOAN", "Pinjaman Tunai", 0.05),
+                    loanAmount = 5000000,
+                    tenor = 12,
+                    loanStatus = "SUBMITTED",
+                    currentStage = "SUBMISSION",
+                    submittedAt = "2024-01-15T10:30:00Z",
+                    reviewedAt = null,
+                    approvedAt = null,
+                    rejectedAt = null,
+                    disbursedAt = null,
+                    loanStatusDisplay = "Menunggu Review",
+                    slaDurationHours = 24,
+                )
 
-        // Act & Assert
-        useCase(loanId).test {
-            assertEquals(Resource.Loading, awaitItem())
-            val success = awaitItem() as Resource.Success
-            assertEquals(loanId, success.data?.id)
-            assertEquals("Test Customer", success.data?.customerName)
-            awaitComplete()
+            every { repository.getLoanDetail(loanId) } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Success(loan),
+                )
+
+            // Act & Assert
+            useCase(loanId).test {
+                assertEquals(Resource.Loading, awaitItem())
+                val success = awaitItem() as Resource.Success
+                assertEquals(loanId, success.data?.id)
+                assertEquals("Test Customer", success.data?.customerName)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val loanId = "loan_123"
-        every { repository.getLoanDetail(loanId) } returns flowOf(
-            Resource.Loading,
-            Resource.Error("Network error")
-        )
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val loanId = "loan_123"
+            every { repository.getLoanDetail(loanId) } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Error("Network error"),
+                )
 
-        // Act & Assert
-        useCase(loanId).test {
-            assertEquals(Resource.Loading, awaitItem())
-            val error = awaitItem() as Resource.Error
-            assertEquals("Network error", error.message)
-            awaitComplete()
+            // Act & Assert
+            useCase(loanId).test {
+                assertEquals(Resource.Loading, awaitItem())
+                val error = awaitItem() as Resource.Error
+                assertEquals("Network error", error.message)
+                awaitComplete()
+            }
         }
-    }
 }

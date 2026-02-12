@@ -23,7 +23,10 @@ interface PendingLoanSubmissionDao {
     suspend fun getAllPendingSubmissionsSync(): List<PendingLoanSubmissionEntity>
 
     @Query("SELECT * FROM pending_loan_submissions WHERE pendingStatus = 'PENDING' AND (lastRetryTime IS NULL OR :currentTime - lastRetryTime >= :minInterval)")
-    suspend fun getRetryableSubmissions(currentTime: Long, minInterval: Long): List<PendingLoanSubmissionEntity>
+    suspend fun getRetryableSubmissions(
+        currentTime: Long,
+        minInterval: Long,
+    ): List<PendingLoanSubmissionEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(submission: PendingLoanSubmissionEntity)
@@ -32,10 +35,21 @@ interface PendingLoanSubmissionDao {
     suspend fun update(submission: PendingLoanSubmissionEntity)
 
     @Query("UPDATE pending_loan_submissions SET pendingStatus = :status, retryCount = :retryCount, lastRetryTime = :timestamp, failureReason = :reason WHERE loanId = :loanId")
-    suspend fun updateSubmissionStatus(loanId: String, status: String, retryCount: Int, timestamp: Long, reason: String?)
+    suspend fun updateSubmissionStatus(
+        loanId: String,
+        status: String,
+        retryCount: Int,
+        timestamp: Long,
+        reason: String?,
+    )
 
     @Query("UPDATE pending_loan_submissions SET pendingStatus = :status, lastRetryTime = :timestamp, failureReason = :reason WHERE loanId = :loanId")
-    suspend fun updateSubmissionStatus(loanId: String, status: String, timestamp: Long, reason: String?)
+    suspend fun updateSubmissionStatus(
+        loanId: String,
+        status: String,
+        timestamp: Long,
+        reason: String?,
+    )
 
     @Query("SELECT * FROM pending_loan_submissions WHERE loanId = :loanId")
     suspend fun getById(loanId: String): PendingLoanSubmissionEntity

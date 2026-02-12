@@ -8,16 +8,19 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class UploadDocumentUseCase @Inject constructor(
-    private val documentRepository: IDocumentRepository
-) {
-    suspend operator fun invoke(
-        loanId: String,
-        filePath: String,
-        documentType: DocumentType
-    ): Flow<BaseResult<DocumentUploadResult>> = flow {
-        emit(BaseResult.Loading)
-        val result = documentRepository.uploadDocument(loanId, filePath, documentType)
-        emit(result)
+class UploadDocumentUseCase
+    @Inject
+    constructor(
+        private val documentRepository: IDocumentRepository,
+    ) {
+        suspend operator fun invoke(
+            loanId: String,
+            filePath: String,
+            documentType: DocumentType,
+        ): Flow<BaseResult<DocumentUploadResult>> =
+            flow {
+                emit(BaseResult.Loading)
+                val result = documentRepository.uploadDocument(loanId, filePath, documentType)
+                emit(result)
+            }
     }
-}

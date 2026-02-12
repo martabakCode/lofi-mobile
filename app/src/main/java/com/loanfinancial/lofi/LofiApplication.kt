@@ -34,7 +34,9 @@ class LofiApplication :
             .build()
 
     override val workManagerConfiguration: androidx.work.Configuration
-        get() = androidx.work.Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+        get() =
+            androidx.work.Configuration
+                .Builder()
+                .setWorkerFactory(workerFactory)
+                .build()
 }

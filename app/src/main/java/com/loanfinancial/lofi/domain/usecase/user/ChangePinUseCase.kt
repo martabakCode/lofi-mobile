@@ -6,10 +6,10 @@ import com.loanfinancial.lofi.domain.repository.IUserRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class ChangePinUseCase @Inject constructor(
-    private val userRepository: IUserRepository
-) {
-    operator fun invoke(request: ChangePinRequest): Flow<Resource<Unit>> {
-        return userRepository.changePin(request)
+class ChangePinUseCase
+    @Inject
+    constructor(
+        private val userRepository: IUserRepository,
+    ) {
+        operator fun invoke(request: ChangePinRequest): Flow<Resource<Unit>> = userRepository.changePin(request)
     }
-}

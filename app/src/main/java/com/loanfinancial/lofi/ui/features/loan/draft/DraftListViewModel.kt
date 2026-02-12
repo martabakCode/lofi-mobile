@@ -24,52 +24,52 @@ data class DraftListUiState(
 )
 
 @HiltViewModel
-class DraftListViewModel @Inject constructor(
-    private val getAllLoanDraftsUseCase: GetAllLoanDraftsUseCase,
-    private val deleteLoanDraftUseCase: DeleteLoanDraftUseCase,
-) : ViewModel() {
+class DraftListViewModel
+    @Inject
+    constructor(
+        private val getAllLoanDraftsUseCase: GetAllLoanDraftsUseCase,
+        private val deleteLoanDraftUseCase: DeleteLoanDraftUseCase,
+    ) : ViewModel() {
+        private val _uiState = MutableStateFlow(DraftListUiState())
+        val uiState: StateFlow<DraftListUiState> = _uiState.asStateFlow()
 
-    private val _uiState = MutableStateFlow(DraftListUiState())
-    val uiState: StateFlow<DraftListUiState> = _uiState.asStateFlow()
+        init {
+            loadDrafts()
+        }
 
-    init {
-        loadDrafts()
-    }
+        private fun loadDrafts() {
+            _uiState.update { it.copy(isLoading = true) }
+            getAllLoanDraftsUseCase()
+                .onEach { drafts ->
+                    _uiState.update {
+                        it.copy(
+                            isLoading = false,
+                            drafts = drafts.sortedByDescending { draft -> draft.updatedAt },
+                            error = null,
+                        )
+                    }
+                }.launchIn(viewModelScope)
+        }
 
-    private fun loadDrafts() {
-        _uiState.update { it.copy(isLoading = true) }
-        getAllLoanDraftsUseCase()
-            .onEach { drafts ->
-                _uiState.update {
-                    it.copy(
-                        isLoading = false,
-                        drafts = drafts.sortedByDescending { draft -> draft.updatedAt },
-                        error = null,
-                    )
-                }
-            }
-            .launchIn(viewModelScope)
-    }
-
-    fun deleteDraft(draftId: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isDeleting = true, deletingDraftId = draftId) }
-            try {
-                deleteLoanDraftUseCase(draftId)
-                _uiState.update { it.copy(isDeleting = false, deletingDraftId = null) }
-            } catch (e: Exception) {
-                _uiState.update {
-                    it.copy(
-                        isDeleting = false,
-                        deletingDraftId = null,
-                        error = e.message ?: "Failed to delete draft"
-                    )
+        fun deleteDraft(draftId: String) {
+            viewModelScope.launch {
+                _uiState.update { it.copy(isDeleting = true, deletingDraftId = draftId) }
+                try {
+                    deleteLoanDraftUseCase(draftId)
+                    _uiState.update { it.copy(isDeleting = false, deletingDraftId = null) }
+                } catch (e: Exception) {
+                    _uiState.update {
+                        it.copy(
+                            isDeleting = false,
+                            deletingDraftId = null,
+                            error = e.message ?: "Failed to delete draft",
+                        )
+                    }
                 }
             }
         }
-    }
 
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
+        fun clearError() {
+            _uiState.update { it.copy(error = null) }
+        }
     }
-}

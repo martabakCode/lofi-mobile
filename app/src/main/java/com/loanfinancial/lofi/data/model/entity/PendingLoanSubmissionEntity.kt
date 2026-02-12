@@ -1,11 +1,10 @@
 package com.loanfinancial.lofi.data.model.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
-
 import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
+import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "pending_loan_submissions",
@@ -14,10 +13,10 @@ import androidx.room.ForeignKey.Companion.CASCADE
             entity = UserEntity::class,
             parentColumns = ["id"],
             childColumns = ["userId"],
-            onDelete = CASCADE
-        )
+            onDelete = CASCADE,
+        ),
     ],
-    indices = [Index("userId")]
+    indices = [Index("userId")],
 )
 data class PendingLoanSubmissionEntity(
     @PrimaryKey
@@ -45,5 +44,5 @@ data class PendingLoanSubmissionEntity(
     val retryCount: Int = 0,
     val lastRetryTime: Long? = null,
     val failureReason: String? = null,
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
 )

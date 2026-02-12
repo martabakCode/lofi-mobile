@@ -13,7 +13,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class DeleteAllDraftsUseCaseTest {
-
     private lateinit var repository: ILoanDraftRepository
     private lateinit var useCase: DeleteAllDraftsUseCase
 
@@ -24,14 +23,15 @@ class DeleteAllDraftsUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository deleteAllDrafts`() = runTest {
-        // Arrange
-        coEvery { repository.deleteAllDrafts() } just Runs
+    fun `invoke should delegate to repository deleteAllDrafts`() =
+        runTest {
+            // Arrange
+            coEvery { repository.deleteAllDrafts() } just Runs
 
-        // Act
-        useCase()
+            // Act
+            useCase()
 
-        // Assert
-        coVerify(exactly = 1) { repository.deleteAllDrafts() }
-    }
+            // Assert
+            coVerify(exactly = 1) { repository.deleteAllDrafts() }
+        }
 }

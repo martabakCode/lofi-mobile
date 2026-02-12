@@ -13,7 +13,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetFirebaseIdTokenUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: GetFirebaseIdTokenUseCase
 
@@ -24,32 +23,34 @@ class GetFirebaseIdTokenUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getFirebaseIdToken`() = runTest {
-        // Arrange
-        val expectedToken = "firebase_id_token_123"
-        coEvery { repository.getFirebaseIdToken() } returns Result.success(expectedToken)
+    fun `invoke should delegate to repository getFirebaseIdToken`() =
+        runTest {
+            // Arrange
+            val expectedToken = "firebase_id_token_123"
+            coEvery { repository.getFirebaseIdToken() } returns Result.success(expectedToken)
 
-        // Act
-        val result = useCase()
+            // Act
+            val result = useCase()
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedToken, result.getOrNull())
-        coVerify(exactly = 1) { repository.getFirebaseIdToken() }
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedToken, result.getOrNull())
+            coVerify(exactly = 1) { repository.getFirebaseIdToken() }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val expectedException = Exception("Token error")
-        coEvery { repository.getFirebaseIdToken() } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val expectedException = Exception("Token error")
+            coEvery { repository.getFirebaseIdToken() } returns Result.failure(expectedException)
 
-        // Act
-        val result = useCase()
+            // Act
+            val result = useCase()
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.getFirebaseIdToken() }
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.getFirebaseIdToken() }
+        }
 }

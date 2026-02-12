@@ -10,7 +10,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class DeleteLoanDraftUseCaseTest {
-
     @MockK
     private lateinit var repository: ILoanDraftRepository
 
@@ -23,15 +22,16 @@ class DeleteLoanDraftUseCaseTest {
     }
 
     @Test
-    fun `invoke should delete draft`() = runTest {
-        // Arrange
-        val draftId = "draft_123"
-        coEvery { repository.deleteDraft(draftId) } just Runs
+    fun `invoke should delete draft`() =
+        runTest {
+            // Arrange
+            val draftId = "draft_123"
+            coEvery { repository.deleteDraft(draftId) } just Runs
 
-        // Act
-        useCase(draftId)
+            // Act
+            useCase(draftId)
 
-        // Assert
-        coVerify { repository.deleteDraft(draftId) }
-    }
+            // Assert
+            coVerify { repository.deleteDraft(draftId) }
+        }
 }

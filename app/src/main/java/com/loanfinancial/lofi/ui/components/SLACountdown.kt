@@ -33,7 +33,7 @@ fun SLACountdown(
     slaDurationHours: Int?,
     modifier: Modifier = Modifier,
     showIcon: Boolean = true,
-    compact: Boolean = false
+    compact: Boolean = false,
 ) {
     var countdownState by remember {
         mutableStateOf(SLACalculator.calculateTimeRemaining(submittedAt, slaDurationHours))
@@ -52,95 +52,102 @@ fun SLACountdown(
         return
     }
 
-    val (backgroundColor, contentColor, timeText, labelText) = when (val state = countdownState) {
-        is SLACountdownState.Active -> {
-            val bgColor = SLACalculator.getSLABackgroundColor(state.percentageRemaining)
-            val fgColor = SLACalculator.getSLAColor(state.percentageRemaining)
-            val label = when {
-                state.isUrgent -> "SLA Expiring Soon"
-                state.isWarning -> "SLA Warning"
-                else -> "SLA Time Remaining"
+    val (backgroundColor, contentColor, timeText, labelText) =
+        when (val state = countdownState) {
+            is SLACountdownState.Active -> {
+                val bgColor = SLACalculator.getSLABackgroundColor(state.percentageRemaining)
+                val fgColor = SLACalculator.getSLAColor(state.percentageRemaining)
+                val label =
+                    when {
+                        state.isUrgent -> "SLA Expiring Soon"
+                        state.isWarning -> "SLA Warning"
+                        else -> "SLA Time Remaining"
+                    }
+                Quadruple(bgColor, fgColor, state.formattedTime, label)
             }
-            Quadruple(bgColor, fgColor, state.formattedTime, label)
+            is SLACountdownState.Expired -> {
+                Quadruple(
+                    Color(0xFFFFEBEE),
+                    Color(0xFFF44336),
+                    "Expired",
+                    "SLA Deadline Passed",
+                )
+            }
+            else -> return
         }
-        is SLACountdownState.Expired -> {
-            Quadruple(
-                Color(0xFFFFEBEE),
-                Color(0xFFF44336),
-                "Expired",
-                "SLA Deadline Passed"
-            )
-        }
-        else -> return
-    }
 
     val animatedBackgroundColor by animateColorAsState(
         targetValue = backgroundColor,
-        label = "SLA Background Color"
+        label = "SLA Background Color",
     )
 
     val animatedContentColor by animateColorAsState(
         targetValue = contentColor,
-        label = "SLA Content Color"
+        label = "SLA Content Color",
     )
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = animatedBackgroundColor
-        ),
-        shape = MaterialTheme.shapes.medium
+        colors =
+            CardDefaults.cardColors(
+                containerColor = animatedBackgroundColor,
+            ),
+        shape = MaterialTheme.shapes.medium,
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(if (compact) 12.dp else 16.dp),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(if (compact) 12.dp else 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 if (showIcon) {
-                    val icon = when (countdownState) {
-                        is SLACountdownState.Active -> {
-                            val state = countdownState as SLACountdownState.Active
-                            when {
-                                state.isUrgent -> Icons.Filled.Warning
-                                state.isWarning -> Icons.Filled.Schedule
-                                else -> Icons.Filled.Timer
+                    val icon =
+                        when (countdownState) {
+                            is SLACountdownState.Active -> {
+                                val state = countdownState as SLACountdownState.Active
+                                when {
+                                    state.isUrgent -> Icons.Filled.Warning
+                                    state.isWarning -> Icons.Filled.Schedule
+                                    else -> Icons.Filled.Timer
+                                }
                             }
+                            is SLACountdownState.Expired -> Icons.Filled.Error
+                            else -> Icons.Filled.Timer
                         }
-                        is SLACountdownState.Expired -> Icons.Filled.Error
-                        else -> Icons.Filled.Timer
-                    }
                     Icon(
                         imageVector = icon,
                         contentDescription = "SLA Timer",
                         tint = animatedContentColor,
-                        modifier = Modifier.size(if (compact) 20.dp else 24.dp)
+                        modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                     )
                 }
 
                 Column {
                     Text(
                         text = labelText,
-                        style = if (compact) {
-                            MaterialTheme.typography.labelSmall
-                        } else {
-                            MaterialTheme.typography.labelMedium
-                        },
-                        color = animatedContentColor.copy(alpha = 0.8f)
+                        style =
+                            if (compact) {
+                                MaterialTheme.typography.labelSmall
+                            } else {
+                                MaterialTheme.typography.labelMedium
+                            },
+                        color = animatedContentColor.copy(alpha = 0.8f),
                     )
                     Text(
                         text = timeText,
-                        style = if (compact) {
-                            MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
-                        } else {
-                            MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        },
-                        color = animatedContentColor
+                        style =
+                            if (compact) {
+                                MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                            } else {
+                                MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            },
+                        color = animatedContentColor,
                     )
                 }
             }
@@ -155,7 +162,7 @@ fun SLACountdown(
                     modifier = Modifier.size(if (compact) 28.dp else 36.dp),
                     color = animatedContentColor,
                     trackColor = animatedContentColor.copy(alpha = 0.2f),
-                    strokeWidth = if (compact) 3.dp else 4.dp
+                    strokeWidth = if (compact) 3.dp else 4.dp,
                 )
             }
         }
@@ -169,14 +176,14 @@ fun SLACountdown(
 fun SLACountdownCompact(
     submittedAt: String?,
     slaDurationHours: Int?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     SLACountdown(
         submittedAt = submittedAt,
         slaDurationHours = slaDurationHours,
         modifier = modifier,
         showIcon = true,
-        compact = true
+        compact = true,
     )
 }
 
@@ -187,7 +194,7 @@ fun SLACountdownCompact(
 fun SLACountdownText(
     submittedAt: String?,
     slaDurationHours: Int?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var countdownState by remember {
         mutableStateOf(SLACalculator.calculateTimeRemaining(submittedAt, slaDurationHours))
@@ -204,26 +211,27 @@ fun SLACountdownText(
         return
     }
 
-    val (text, color) = when (val state = countdownState) {
-        is SLACountdownState.Active -> {
-            Pair(state.formattedTime, SLACalculator.getSLAColor(state.percentageRemaining))
+    val (text, color) =
+        when (val state = countdownState) {
+            is SLACountdownState.Active -> {
+                Pair(state.formattedTime, SLACalculator.getSLAColor(state.percentageRemaining))
+            }
+            is SLACountdownState.Expired -> {
+                Pair("Expired", Color(0xFFF44336))
+            }
+            else -> return
         }
-        is SLACountdownState.Expired -> {
-            Pair("Expired", Color(0xFFF44336))
-        }
-        else -> return
-    }
 
     val animatedColor by animateColorAsState(
         targetValue = color,
-        label = "SLA Text Color"
+        label = "SLA Text Color",
     )
 
     Text(
         text = text,
         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
         color = animatedColor,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -232,5 +240,5 @@ private data class Quadruple<A, B, C, D>(
     val first: A,
     val second: B,
     val third: C,
-    val fourth: D
+    val fourth: D,
 )

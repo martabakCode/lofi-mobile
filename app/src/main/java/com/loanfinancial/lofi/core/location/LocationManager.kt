@@ -18,9 +18,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
-import kotlin.coroutines.resume
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
 
 sealed class LofiLocationResult {
     data class Success(

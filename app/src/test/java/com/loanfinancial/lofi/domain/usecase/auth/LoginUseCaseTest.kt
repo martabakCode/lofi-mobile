@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class LoginUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: LoginUseCase
 
@@ -26,46 +25,51 @@ class LoginUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository login`() = runTest {
-        // Arrange
-        val request = LoginRequest(
-            email = "test@example.com",
-            password = "password123"
-        )
-        val expectedResponse = LoginResponse(
-            accessToken = "token",
-            refreshToken = "refresh",
-            tokenType = "Bearer"
-        )
-        
-        coEvery { repository.login(request) } returns Result.success(expectedResponse)
+    fun `invoke should delegate to repository login`() =
+        runTest {
+            // Arrange
+            val request =
+                LoginRequest(
+                    email = "test@example.com",
+                    password = "password123",
+                )
+            val expectedResponse =
+                LoginResponse(
+                    accessToken = "token",
+                    refreshToken = "refresh",
+                    tokenType = "Bearer",
+                )
 
-        // Act
-        val result = useCase(request)
+            coEvery { repository.login(request) } returns Result.success(expectedResponse)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedResponse, result.getOrNull())
-        coVerify(exactly = 1) { repository.login(request) }
-    }
+            // Act
+            val result = useCase(request)
+
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedResponse, result.getOrNull())
+            coVerify(exactly = 1) { repository.login(request) }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val request = LoginRequest(
-            email = "test@example.com",
-            password = "password123"
-        )
-        val expectedException = Exception("Network error")
-        
-        coEvery { repository.login(request) } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val request =
+                LoginRequest(
+                    email = "test@example.com",
+                    password = "password123",
+                )
+            val expectedException = Exception("Network error")
 
-        // Act
-        val result = useCase(request)
+            coEvery { repository.login(request) } returns Result.failure(expectedException)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.login(request) }
-    }
+            // Act
+            val result = useCase(request)
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.login(request) }
+        }
 }

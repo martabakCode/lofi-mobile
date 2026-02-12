@@ -17,14 +17,12 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class QueueDocumentUploadUseCaseTest {
-
     private lateinit var repository: IDocumentRepository
     private lateinit var context: Context
     private lateinit var useCase: QueueDocumentUploadUseCase
@@ -43,39 +41,41 @@ class QueueDocumentUploadUseCaseTest {
     }
 
     @Test
-    fun `invoke should schedule worker when repository returns success`() = runTest {
-        // Arrange
-        val loanDraftId = "draft_123"
-        val filePath = "/path/file.jpg"
-        val documentType = DocumentType.KTP
-        
-        coEvery { repository.queueDocumentUpload(loanDraftId, filePath, documentType) } returns BaseResult.Success("Success")
-        every { DocumentUploadWorker.scheduleForDraft(any(), any()) } just Runs
+    fun `invoke should schedule worker when repository returns success`() =
+        runTest {
+            // Arrange
+            val loanDraftId = "draft_123"
+            val filePath = "/path/file.jpg"
+            val documentType = DocumentType.KTP
 
-        // Act
-        val result = useCase(loanDraftId, filePath, documentType)
+            coEvery { repository.queueDocumentUpload(loanDraftId, filePath, documentType) } returns BaseResult.Success("Success")
+            every { DocumentUploadWorker.scheduleForDraft(any(), any()) } just Runs
 
-        // Assert
-        assertTrue(result is BaseResult.Success)
-        coVerify(exactly = 1) { repository.queueDocumentUpload(loanDraftId, filePath, documentType) }
-        verify(exactly = 1) { DocumentUploadWorker.scheduleForDraft(context, loanDraftId) }
-    }
+            // Act
+            val result = useCase(loanDraftId, filePath, documentType)
+
+            // Assert
+            assertTrue(result is BaseResult.Success)
+            coVerify(exactly = 1) { repository.queueDocumentUpload(loanDraftId, filePath, documentType) }
+            verify(exactly = 1) { DocumentUploadWorker.scheduleForDraft(context, loanDraftId) }
+        }
 
     @Test
-    fun `invoke should not schedule worker when repository returns error`() = runTest {
-        // Arrange
-        val loanDraftId = "draft_123"
-        val filePath = "/path/file.jpg"
-        val documentType = DocumentType.KTP
-        
-        coEvery { repository.queueDocumentUpload(loanDraftId, filePath, documentType) } returns BaseResult.Error("Failed")
+    fun `invoke should not schedule worker when repository returns error`() =
+        runTest {
+            // Arrange
+            val loanDraftId = "draft_123"
+            val filePath = "/path/file.jpg"
+            val documentType = DocumentType.KTP
 
-        // Act
-        val result = useCase(loanDraftId, filePath, documentType)
+            coEvery { repository.queueDocumentUpload(loanDraftId, filePath, documentType) } returns BaseResult.Error("Failed")
 
-        // Assert
-        assertTrue(result is BaseResult.Error)
-        coVerify(exactly = 1) { repository.queueDocumentUpload(loanDraftId, filePath, documentType) }
-        verify(exactly = 0) { DocumentUploadWorker.scheduleForDraft(any(), any()) }
-    }
+            // Act
+            val result = useCase(loanDraftId, filePath, documentType)
+
+            // Assert
+            assertTrue(result is BaseResult.Error)
+            coVerify(exactly = 1) { repository.queueDocumentUpload(loanDraftId, filePath, documentType) }
+            verify(exactly = 0) { DocumentUploadWorker.scheduleForDraft(any(), any()) }
+        }
 }

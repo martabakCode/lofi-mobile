@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class ChangePinUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: ChangePinUseCase
 
@@ -27,17 +26,18 @@ class ChangePinUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository changePin`() = runTest {
-        // Arrange
-        val request = ChangePinRequest(oldPin = "123456", newPin = "654321")
-        every { repository.changePin(request) } returns flowOf(Resource.Success(Unit))
+    fun `invoke should delegate to repository changePin`() =
+        runTest {
+            // Arrange
+            val request = ChangePinRequest(oldPin = "123456", newPin = "654321")
+            every { repository.changePin(request) } returns flowOf(Resource.Success(Unit))
 
-        // Act & Assert
-        useCase(request).test {
-            assertEquals(Resource.Success(Unit), awaitItem())
-            awaitComplete()
+            // Act & Assert
+            useCase(request).test {
+                assertEquals(Resource.Success(Unit), awaitItem())
+                awaitComplete()
+            }
+
+            verify(exactly = 1) { repository.changePin(request) }
         }
-        
-        verify(exactly = 1) { repository.changePin(request) }
-    }
 }

@@ -33,12 +33,13 @@ class MainActivity : FragmentActivity() {
         askNotificationPermission()
         enableEdgeToEdge()
         // Disable FLAG_SECURE to allow screenshots during development
+
         /*
         window.setFlags(
             android.view.WindowManager.LayoutParams.FLAG_SECURE,
             android.view.WindowManager.LayoutParams.FLAG_SECURE
         )
-        */
+         */
         setContent {
             LofiTheme {
                 Surface(

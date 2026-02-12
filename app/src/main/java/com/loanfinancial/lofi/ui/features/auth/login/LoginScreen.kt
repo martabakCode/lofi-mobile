@@ -1,7 +1,5 @@
 package com.loanfinancial.lofi.ui.features.auth.login
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -16,11 +14,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
-import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.GetCredentialException
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.loanfinancial.lofi.R
@@ -47,23 +45,28 @@ fun LoginScreen(
 
     // Credential Manager
     val credentialManager = remember { CredentialManager.create(context) }
-    
-    fun handleGoogleSignIn() {
-        val googleIdOption = GetGoogleIdOption.Builder()
-            .setFilterByAuthorizedAccounts(false)
-            .setServerClientId(context.getString(R.string.default_web_client_id))
-            .build()
 
-        val request = GetCredentialRequest.Builder()
-            .addCredentialOption(googleIdOption)
-            .build()
+    fun handleGoogleSignIn() {
+        val googleIdOption =
+            GetGoogleIdOption
+                .Builder()
+                .setFilterByAuthorizedAccounts(false)
+                .setServerClientId(context.getString(R.string.default_web_client_id))
+                .build()
+
+        val request =
+            GetCredentialRequest
+                .Builder()
+                .addCredentialOption(googleIdOption)
+                .build()
 
         coroutineScope.launch {
             try {
-                val result = credentialManager.getCredential(
-                    request = request,
-                    context = context
-                )
+                val result =
+                    credentialManager.getCredential(
+                        request = request,
+                        context = context,
+                    )
                 val credential = result.credential
                 if (credential is GoogleIdTokenCredential) {
                     viewModel.onGoogleLogin(credential.idToken)
@@ -78,10 +81,11 @@ fun LoginScreen(
                     snackbarHostState.showSnackbar(context.getString(R.string.error_google_signin_no_token) + " (Type: ${credential.javaClass.simpleName})")
                 }
             } catch (e: GetCredentialException) {
-                val errorMessage = when (e) {
-                    is GetCredentialCancellationException -> context.getString(R.string.error_google_signin_cancelled)
-                    else -> context.getString(R.string.error_google_signin_generic, 0, e.message)
-                }
+                val errorMessage =
+                    when (e) {
+                        is GetCredentialCancellationException -> context.getString(R.string.error_google_signin_cancelled)
+                        else -> context.getString(R.string.error_google_signin_generic, 0, e.message)
+                    }
                 snackbarHostState.showSnackbar(errorMessage)
             }
         }
@@ -142,7 +146,7 @@ fun LoginScreen(
         ) {
             // 🎨 Logo
             LofiLogoMedium(
-                modifier = Modifier.align(Alignment.CenterHorizontally)
+                modifier = Modifier.align(Alignment.CenterHorizontally),
             )
 
             Spacer(modifier = Modifier.height(24.dp))

@@ -1,13 +1,12 @@
 package com.loanfinancial.lofi.data.model.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.loanfinancial.lofi.domain.model.Loan
 import com.loanfinancial.lofi.domain.model.Product
-
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.ForeignKey.Companion.CASCADE
 
 @Entity(
     tableName = "loans",
@@ -16,10 +15,10 @@ import androidx.room.ForeignKey.Companion.CASCADE
             entity = UserEntity::class,
             parentColumns = ["id"],
             childColumns = ["userId"],
-            onDelete = CASCADE
-        )
+            onDelete = CASCADE,
+        ),
     ],
-    indices = [Index("userId")]
+    indices = [Index("userId")],
 )
 data class LoanEntity(
     @PrimaryKey

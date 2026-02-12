@@ -3,7 +3,6 @@ package com.loanfinancial.lofi.ui.features.auth
 import android.content.Context
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
 import com.loanfinancial.lofi.core.biometric.BiometricResult
-import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginUiState
 import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginViewModel
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -65,58 +64,61 @@ class BiometricLoginViewModelTest {
     }
 
     @Test
-    fun `authenticate success should update state`() = runTest {
-        every { biometricAuthenticator.isBiometricAvailable() } returns true
-        every { biometricAuthenticator.isBiometricEnrolled() } returns true
-        coEvery {
-            biometricAuthenticator.authenticate(any(), any(), any(), any())
-        } returns flowOf(BiometricResult.Success)
+    fun `authenticate success should update state`() =
+        runTest {
+            every { biometricAuthenticator.isBiometricAvailable() } returns true
+            every { biometricAuthenticator.isBiometricEnrolled() } returns true
+            coEvery {
+                biometricAuthenticator.authenticate(any(), any(), any(), any())
+            } returns flowOf(BiometricResult.Success)
 
-        viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
+            viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
 
-        viewModel.authenticate()
-        advanceUntilIdle()
+            viewModel.authenticate()
+            advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertTrue(state.biometricSuccess)
-        assertFalse(state.isLoading)
-    }
-
-    @Test
-    fun `authenticate error should update state with error message`() = runTest {
-        every { biometricAuthenticator.isBiometricAvailable() } returns true
-        every { biometricAuthenticator.isBiometricEnrolled() } returns true
-        coEvery {
-            biometricAuthenticator.authenticate(any(), any(), any(), any())
-        } returns flowOf(BiometricResult.Error("Biometric authentication failed"))
-
-        viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
-
-        viewModel.authenticate()
-        advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertEquals("Biometric authentication failed", state.error)
-    }
+            val state = viewModel.uiState.value
+            assertTrue(state.biometricSuccess)
+            assertFalse(state.isLoading)
+        }
 
     @Test
-    fun `authenticate cancelled should reset loading`() = runTest {
-        every { biometricAuthenticator.isBiometricAvailable() } returns true
-        every { biometricAuthenticator.isBiometricEnrolled() } returns true
-        coEvery {
-            biometricAuthenticator.authenticate(any(), any(), any(), any())
-        } returns flowOf(BiometricResult.Cancelled)
+    fun `authenticate error should update state with error message`() =
+        runTest {
+            every { biometricAuthenticator.isBiometricAvailable() } returns true
+            every { biometricAuthenticator.isBiometricEnrolled() } returns true
+            coEvery {
+                biometricAuthenticator.authenticate(any(), any(), any(), any())
+            } returns flowOf(BiometricResult.Error("Biometric authentication failed"))
 
-        viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
+            viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
 
-        viewModel.authenticate()
-        advanceUntilIdle()
+            viewModel.authenticate()
+            advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertFalse(state.biometricSuccess)
-    }
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertEquals("Biometric authentication failed", state.error)
+        }
+
+    @Test
+    fun `authenticate cancelled should reset loading`() =
+        runTest {
+            every { biometricAuthenticator.isBiometricAvailable() } returns true
+            every { biometricAuthenticator.isBiometricEnrolled() } returns true
+            coEvery {
+                biometricAuthenticator.authenticate(any(), any(), any(), any())
+            } returns flowOf(BiometricResult.Cancelled)
+
+            viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
+
+            viewModel.authenticate()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertFalse(state.biometricSuccess)
+        }
 
     @Test
     fun `onBiometricSuccessHandled should reset biometricSuccess`() {

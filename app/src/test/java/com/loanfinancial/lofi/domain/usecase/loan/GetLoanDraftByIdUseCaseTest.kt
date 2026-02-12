@@ -14,7 +14,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetLoanDraftByIdUseCaseTest {
-
     @MockK
     private lateinit var repository: ILoanDraftRepository
 
@@ -27,54 +26,57 @@ class GetLoanDraftByIdUseCaseTest {
     }
 
     @Test
-    fun `invoke should return draft when found`() = runTest {
-        // Arrange
-        val draftId = "draft_123"
-        val draft = createLoanDraft(draftId)
-        coEvery { repository.getDraftById(draftId) } returns draft
+    fun `invoke should return draft when found`() =
+        runTest {
+            // Arrange
+            val draftId = "draft_123"
+            val draft = createLoanDraft(draftId)
+            coEvery { repository.getDraftById(draftId) } returns draft
 
-        // Act
-        val result = useCase(draftId)
+            // Act
+            val result = useCase(draftId)
 
-        // Assert
-        assertNotNull(result)
-        assertEquals(draftId, result?.id)
-        assertEquals(5000000, result?.amount)
-    }
+            // Assert
+            assertNotNull(result)
+            assertEquals(draftId, result?.id)
+            assertEquals(5000000, result?.amount)
+        }
 
     @Test
-    fun `invoke should return null when not found`() = runTest {
-        // Arrange
-        val draftId = "draft_123"
-        coEvery { repository.getDraftById(draftId) } returns null
+    fun `invoke should return null when not found`() =
+        runTest {
+            // Arrange
+            val draftId = "draft_123"
+            coEvery { repository.getDraftById(draftId) } returns null
 
-        // Act
-        val result = useCase(draftId)
+            // Act
+            val result = useCase(draftId)
 
-        // Assert
-        assertNull(result)
-    }
+            // Assert
+            assertNull(result)
+        }
 
-    private fun createLoanDraft(id: String) = LoanDraft(
-        id = id,
-        amount = 5000000,
-        tenor = 12,
-        purpose = "Business",
-        downPayment = null,
-        latitude = null,
-        longitude = null,
-        isBiometricVerified = false,
-        documentPaths = null,
-        interestRate = null,
-        adminFee = null,
-        isAgreementChecked = false,
-        currentStep = DraftStep.BASIC_INFO,
-        status = DraftStatus.DRAFT,
-        isSynced = false,
-        serverLoanId = null,
-        documentUploadStatus = null,
-        uploadQueueIds = null,
-        createdAt = System.currentTimeMillis(),
-        updatedAt = System.currentTimeMillis()
-    )
+    private fun createLoanDraft(id: String) =
+        LoanDraft(
+            id = id,
+            amount = 5000000,
+            tenor = 12,
+            purpose = "Business",
+            downPayment = null,
+            latitude = null,
+            longitude = null,
+            isBiometricVerified = false,
+            documentPaths = null,
+            interestRate = null,
+            adminFee = null,
+            isAgreementChecked = false,
+            currentStep = DraftStep.BASIC_INFO,
+            status = DraftStatus.DRAFT,
+            isSynced = false,
+            serverLoanId = null,
+            documentUploadStatus = null,
+            uploadQueueIds = null,
+            createdAt = System.currentTimeMillis(),
+            updatedAt = System.currentTimeMillis(),
+        )
 }

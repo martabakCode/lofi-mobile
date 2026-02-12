@@ -5,14 +5,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticatorImpl
+import com.loanfinancial.lofi.core.location.LocationFallbackManager
+import com.loanfinancial.lofi.core.location.LocationFallbackManagerImpl
 import com.loanfinancial.lofi.core.location.LocationManager
 import com.loanfinancial.lofi.core.location.NativeLocationManager
 import com.loanfinancial.lofi.core.media.CameraManager
 import com.loanfinancial.lofi.core.media.CameraManagerImpl
 import com.loanfinancial.lofi.core.media.UploadManager
 import com.loanfinancial.lofi.core.media.UploadManagerImpl
-import com.loanfinancial.lofi.core.location.LocationFallbackManager
-import com.loanfinancial.lofi.core.location.LocationFallbackManagerImpl
 import com.loanfinancial.lofi.ui.features.auth.biometric.BiometricLoginViewModel
 import dagger.Binds
 import dagger.Module

@@ -1,11 +1,10 @@
 package com.loanfinancial.lofi.ui.features.auth.biometric
 
 import android.content.Context
-import com.loanfinancial.lofi.R
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.core.biometric.BiometricAuthenticator
 import com.loanfinancial.lofi.core.biometric.BiometricResult
 import kotlinx.coroutines.flow.MutableStateFlow

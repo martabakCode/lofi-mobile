@@ -14,7 +14,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetAuthSourceUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: GetAuthSourceUseCase
 
@@ -25,34 +24,36 @@ class GetAuthSourceUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getAuthSource`() = runTest {
-        // Arrange
-        val expectedResponse = AuthSourceResponse(authSource = "google", googleUser = true)
-        
-        coEvery { repository.getAuthSource() } returns Result.success(expectedResponse)
+    fun `invoke should delegate to repository getAuthSource`() =
+        runTest {
+            // Arrange
+            val expectedResponse = AuthSourceResponse(authSource = "google", googleUser = true)
 
-        // Act
-        val result = useCase()
+            coEvery { repository.getAuthSource() } returns Result.success(expectedResponse)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedResponse, result.getOrNull())
-        coVerify(exactly = 1) { repository.getAuthSource() }
-    }
+            // Act
+            val result = useCase()
+
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedResponse, result.getOrNull())
+            coVerify(exactly = 1) { repository.getAuthSource() }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val expectedException = Exception("Network error")
-        
-        coEvery { repository.getAuthSource() } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val expectedException = Exception("Network error")
 
-        // Act
-        val result = useCase()
+            coEvery { repository.getAuthSource() } returns Result.failure(expectedException)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.getAuthSource() }
-    }
+            // Act
+            val result = useCase()
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.getAuthSource() }
+        }
 }

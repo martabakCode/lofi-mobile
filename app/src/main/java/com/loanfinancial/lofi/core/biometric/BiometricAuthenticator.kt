@@ -4,9 +4,9 @@ import androidx.biometric.BiometricPrompt
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlin.coroutines.resume
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
 
 sealed class BiometricResult {
     data object Success : BiometricResult()

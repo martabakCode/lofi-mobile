@@ -1,16 +1,15 @@
 package com.loanfinancial.lofi.ui.features.dashboard
 
 import androidx.compose.foundation.layout.Box
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,14 +27,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.loanfinancial.lofi.R
-import kotlinx.coroutines.launch
 import com.loanfinancial.lofi.ui.components.LofiTopBar
 import com.loanfinancial.lofi.ui.features.home.HomeScreen
 import com.loanfinancial.lofi.ui.features.loan.LoanHistoryScreen
 import com.loanfinancial.lofi.ui.features.profile.ProfileScreen
 import com.loanfinancial.lofi.ui.features.simulation.LoanSimulationScreen
 import com.loanfinancial.lofi.ui.theme.LofiTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun DashboardScreen(
@@ -126,13 +126,13 @@ fun DashboardScreen(
                     icon = { Icon(if (selectedTab == 2) Icons.AutoMirrored.Filled.List else Icons.AutoMirrored.Outlined.List, null) },
                     label = { Text(stringResource(R.string.history_title), fontSize = 10.sp, fontWeight = if (selectedTab == 2) FontWeight.SemiBold else FontWeight.Normal) },
                     selected = selectedTab == 2,
-                    onClick = { 
+                    onClick = {
                         if (isGuest) {
                             scope.launch {
                                 snackbarHostState.showSnackbar("Login required to view loan history")
                             }
                         } else {
-                            selectedTab = 2 
+                            selectedTab = 2
                         }
                     },
                     colors =
@@ -173,15 +173,15 @@ fun DashboardScreen(
                                 onNavigateToApplyLoan()
                             }
                         },
-                        onMyLoansClick = { 
+                        onMyLoansClick = {
                             if (isGuest) {
                                 scope.launch {
                                     snackbarHostState.showSnackbar("Login required to view your loans")
                                 }
                             } else {
-                                selectedTab = 2 
+                                selectedTab = 2
                             }
-                        }, 
+                        },
                         onCompleteProfileClick = { if (isGuest) onNavigateToLogin() else selectedTab = 3 }, // Switch to Profile
                         onViewDraftsClick = {
                             if (isGuest) {

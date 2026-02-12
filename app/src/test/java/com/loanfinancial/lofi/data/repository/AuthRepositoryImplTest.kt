@@ -23,13 +23,13 @@ class AuthRepositoryImplTest {
 
     @MockK
     private lateinit var dataStoreManager: DataStoreManager
-    
+
     @MockK
     private lateinit var userDao: UserDao
-    
+
     @MockK
     private lateinit var firebaseAuth: FirebaseAuth
-    
+
     @MockK
     private lateinit var pinApi: com.loanfinancial.lofi.data.remote.api.PinApi
 
@@ -57,12 +57,13 @@ class AuthRepositoryImplTest {
                     LoginResponse(
                         success = true,
                         message = "Success",
-                        data = AuthTokenData(
-                            accessToken = accessToken,
-                            refreshToken = refreshToken,
-                            expiresIn = 3600,
-                            tokenType = "Bearer"
-                        ),
+                        data =
+                            AuthTokenData(
+                                accessToken = accessToken,
+                                refreshToken = refreshToken,
+                                expiresIn = 3600,
+                                tokenType = "Bearer",
+                            ),
                     ),
                 )
 

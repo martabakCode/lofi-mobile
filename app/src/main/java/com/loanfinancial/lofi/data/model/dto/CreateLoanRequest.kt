@@ -62,5 +62,5 @@ enum class JobType {
     TNI,
     POLRI,
     PROFESIONAL,
-    LAINNYA
+    LAINNYA,
 }

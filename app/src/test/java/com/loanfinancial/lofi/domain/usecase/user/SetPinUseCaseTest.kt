@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class SetPinUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: SetPinUseCase
 
@@ -27,17 +26,18 @@ class SetPinUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository setPin`() = runTest {
-        // Arrange
-        val request = SetPinRequest(pin = "123456", password = "password")
-        every { repository.setPin(request) } returns flowOf(Resource.Success(Unit))
+    fun `invoke should delegate to repository setPin`() =
+        runTest {
+            // Arrange
+            val request = SetPinRequest(pin = "123456", password = "password")
+            every { repository.setPin(request) } returns flowOf(Resource.Success(Unit))
 
-        // Act & Assert
-        useCase(request).test {
-            assertEquals(Resource.Success(Unit), awaitItem())
-            awaitComplete()
+            // Act & Assert
+            useCase(request).test {
+                assertEquals(Resource.Success(Unit), awaitItem())
+                awaitComplete()
+            }
+
+            verify(exactly = 1) { repository.setPin(request) }
         }
-        
-        verify(exactly = 1) { repository.setPin(request) }
-    }
 }

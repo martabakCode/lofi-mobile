@@ -10,32 +10,39 @@ import retrofit2.http.POST
 interface PinApi {
     @POST("auth/verify-pin")
     suspend fun verifyPin(
-        @Body request: PinVerificationRequest
+        @Body request: PinVerificationRequest,
     ): Response<BaseResponse<PinVerificationResponse>>
 
     @GET("auth/pin-policy")
     suspend fun getPinPolicy(): Response<BaseResponse<PinPolicyResponse>>
 
     @POST("auth/set-pin")
-    suspend fun setPin(@Body request: SetPinRequest): Response<BaseResponse<Unit>>
+    suspend fun setPin(
+        @Body request: SetPinRequest,
+    ): Response<BaseResponse<Unit>>
 
     @GET("auth/has-pin")
     suspend fun hasPin(): Response<BaseResponse<Boolean>>
+
     @GET("users/me/auth-source")
     suspend fun getAuthSource(): Response<BaseResponse<AuthSourceResponse>>
 
     @POST("users/set-google-pin")
-    suspend fun setGooglePin(@Body request: SetGooglePinRequest): Response<BaseResponse<Unit>>
+    suspend fun setGooglePin(
+        @Body request: SetGooglePinRequest,
+    ): Response<BaseResponse<Unit>>
 
     @POST("users/me/google-pin")
-    suspend fun updateGooglePin(@Body request: UpdateGooglePinRequest): Response<BaseResponse<Unit>>
+    suspend fun updateGooglePin(
+        @Body request: UpdateGooglePinRequest,
+    ): Response<BaseResponse<Unit>>
 
     @GET("users/me/pin/status")
     suspend fun getPinStatus(): Response<BaseResponse<PinStatusResponse>>
 }
 
 data class SetPinRequest(
-    @SerializedName("pin") val pin: String
+    @SerializedName("pin") val pin: String,
 )
 
 data class PinVerificationRequest(
@@ -58,19 +65,19 @@ data class PinPolicyResponse(
 )
 
 data class SetGooglePinRequest(
-    @SerializedName("pin") val pin: String
+    @SerializedName("pin") val pin: String,
 )
 
 data class UpdateGooglePinRequest(
     @SerializedName("oldPin") val oldPin: String,
-    @SerializedName("newPin") val newPin: String
+    @SerializedName("newPin") val newPin: String,
 )
 
 data class AuthSourceResponse(
     @SerializedName("authSource") val authSource: String,
-    @SerializedName("googleUser") val googleUser: Boolean
+    @SerializedName("googleUser") val googleUser: Boolean,
 )
 
 data class PinStatusResponse(
-    @SerializedName("pinSet") val pinSet: Boolean
+    @SerializedName("pinSet") val pinSet: Boolean,
 )

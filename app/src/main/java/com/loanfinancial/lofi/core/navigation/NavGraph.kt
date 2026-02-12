@@ -1,5 +1,8 @@
 package com.loanfinancial.lofi.core.navigation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,13 +16,10 @@ import com.loanfinancial.lofi.ui.features.dashboard.DashboardScreen
 import com.loanfinancial.lofi.ui.features.loan.ApplyLoanScreen
 import com.loanfinancial.lofi.ui.features.loan.DocumentUploadScreen
 import com.loanfinancial.lofi.ui.features.loan.LoanDetailScreen
+import com.loanfinancial.lofi.ui.features.loan.LoanFormData
 import com.loanfinancial.lofi.ui.features.loan.LoanPreviewScreen
 import com.loanfinancial.lofi.ui.features.loan.LoanTnCScreen
-import com.loanfinancial.lofi.ui.features.loan.LoanFormData
 import com.loanfinancial.lofi.ui.features.loan.model.toPreviewData
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import com.loanfinancial.lofi.ui.features.notification.NotificationDetailScreen
 import com.loanfinancial.lofi.ui.features.notification.NotificationScreen
 import com.loanfinancial.lofi.ui.features.profile.ChangePasswordScreen
@@ -68,7 +68,7 @@ fun NavGraph() {
                     navController.navigate(Routes.SET_GOOGLE_PIN) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
-                }
+                },
             )
         }
 
@@ -85,7 +85,7 @@ fun NavGraph() {
                     navController.navigate(Routes.DASHBOARD + "?guest=true") {
                         popUpTo(Routes.ONBOARDING) { inclusive = true }
                     }
-                }
+                },
             )
         }
 
@@ -123,11 +123,12 @@ fun NavGraph() {
         composable(Routes.LOGIN) {
             LoginScreen(
                 onLoginClick = { profileCompleted, pinSet, isGoogleLogin ->
-                    val target = when {
-                        !profileCompleted -> Routes.COMPLETE_PROFILE
-                        !pinSet -> if (isGoogleLogin) Routes.SET_GOOGLE_PIN else Routes.setPin(fromProfile = true)
-                        else -> Routes.DASHBOARD
-                    }
+                    val target =
+                        when {
+                            !profileCompleted -> Routes.COMPLETE_PROFILE
+                            !pinSet -> if (isGoogleLogin) Routes.SET_GOOGLE_PIN else Routes.setPin(fromProfile = true)
+                            else -> Routes.DASHBOARD
+                        }
                     navController.navigate(target) {
                         popUpTo(Routes.LOGIN) { inclusive = true }
                     }
@@ -187,17 +188,18 @@ fun NavGraph() {
 
         composable(
             route = Routes.APPLY_LOAN,
-            arguments = listOf(
-                androidx.navigation.navArgument("draftId") {
-                    type = androidx.navigation.NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            )
+            arguments =
+                listOf(
+                    androidx.navigation.navArgument("draftId") {
+                        type = androidx.navigation.NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
         ) { backStackEntry ->
             val applyLoanViewModel: com.loanfinancial.lofi.ui.features.loan.ApplyLoanViewModel = hiltViewModel()
             val draftId = backStackEntry.arguments?.getString("draftId")
-            
+
             ApplyLoanScreen(
                 navigateUp = { navController.navigateUp() },
                 onNavigateToDocumentUpload = {
@@ -211,29 +213,31 @@ fun NavGraph() {
 
         composable(
             route = Routes.DOCUMENT_UPLOAD,
-            arguments = listOf(
-                androidx.navigation.navArgument("draftId") {
-                    type = androidx.navigation.NavType.StringType
-                    nullable = true
-                    defaultValue = null
-                }
-            )
+            arguments =
+                listOf(
+                    androidx.navigation.navArgument("draftId") {
+                        type = androidx.navigation.NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                ),
         ) { backStackEntry ->
             val draftId = backStackEntry.arguments?.getString("draftId")
-            
+
             DocumentUploadScreen(
                 loanId = draftId ?: "",
                 onNavigateToPreview = { navController.navigate(Routes.LOAN_PREVIEW) },
-                onNavigateBack = { navController.navigateUp() }
+                onNavigateBack = { navController.navigateUp() },
             )
         }
 
         composable(Routes.LOAN_PREVIEW) { backStackEntry ->
             // Safely get the back stack entry to prevent crash when navigating away
-            val applyLoanBackStackEntry = runCatching {
-                navController.getBackStackEntry(Routes.APPLY_LOAN_BASE)
-            }.getOrNull()
-            
+            val applyLoanBackStackEntry =
+                runCatching {
+                    navController.getBackStackEntry(Routes.APPLY_LOAN_BASE)
+                }.getOrNull()
+
             if (applyLoanBackStackEntry != null) {
                 val applyLoanViewModel: com.loanfinancial.lofi.ui.features.loan.ApplyLoanViewModel =
                     hiltViewModel(viewModelStoreOwner = applyLoanBackStackEntry)
@@ -257,10 +261,11 @@ fun NavGraph() {
 
         composable(Routes.LOAN_TNC) {
             // Safely get the back stack entry to prevent crash when navigating away
-            val applyLoanBackStackEntry = runCatching {
-                navController.getBackStackEntry(Routes.APPLY_LOAN_BASE)
-            }.getOrNull()
-            
+            val applyLoanBackStackEntry =
+                runCatching {
+                    navController.getBackStackEntry(Routes.APPLY_LOAN_BASE)
+                }.getOrNull()
+
             if (applyLoanBackStackEntry != null) {
                 val applyLoanViewModel: com.loanfinancial.lofi.ui.features.loan.ApplyLoanViewModel =
                     hiltViewModel(viewModelStoreOwner = applyLoanBackStackEntry)
@@ -276,11 +281,12 @@ fun NavGraph() {
                             purpose = formState.purpose,
                             latitude = formState.latitude,
                             longitude = formState.longitude,
-                            documents = formState.documents
-                                .mapKeys { it.key.name }
-                                .mapValues { it.value.filePath ?: "" }
-                                .filterValues { it.isNotEmpty() }
-                        )
+                            documents =
+                                formState.documents
+                                    .mapKeys { it.key.name }
+                                    .mapValues { it.value.filePath ?: "" }
+                                    .filterValues { it.isNotEmpty() },
+                        ),
                     )
                 }
 
@@ -360,16 +366,17 @@ fun NavGraph() {
 
         composable(
             route = Routes.SET_PIN + "?fromProfile={fromProfile}",
-            arguments = listOf(
-                navArgument("fromProfile") {
-                    type = NavType.BoolType
-                    defaultValue = false
-                }
-            )
+            arguments =
+                listOf(
+                    navArgument("fromProfile") {
+                        type = NavType.BoolType
+                        defaultValue = false
+                    },
+                ),
         ) { backStackEntry ->
             val fromProfile = backStackEntry.arguments?.getBoolean("fromProfile") ?: false
             SetPinScreen(
-                onBackClick = { 
+                onBackClick = {
                     if (fromProfile) {
                         // If from profile completion, go back to login
                         navController.navigate(Routes.LOGIN) {
@@ -379,7 +386,7 @@ fun NavGraph() {
                         navController.navigateUp()
                     }
                 },
-                onSuccess = { 
+                onSuccess = {
                     if (fromProfile) {
                         // After setting PIN from profile flow, go to Dashboard
                         navController.navigate(Routes.DASHBOARD) {
@@ -388,17 +395,17 @@ fun NavGraph() {
                     } else {
                         navController.navigateUp()
                     }
-                }
+                },
             )
         }
 
         composable(Routes.DRAFT_LIST) {
             com.loanfinancial.lofi.ui.features.loan.draft.DraftListScreen(
                 navigateUp = { navController.navigateUp() },
-                onDraftClick = { draftId -> navController.navigate(Routes.applyLoan(draftId)) }
+                onDraftClick = { draftId -> navController.navigate(Routes.applyLoan(draftId)) },
             )
         }
-        
+
         composable(Routes.COMPLETE_PROFILE) {
             com.loanfinancial.lofi.ui.features.profile.CompleteProfileScreen(
                 onCompleteSuccess = {
@@ -412,14 +419,14 @@ fun NavGraph() {
                     navController.navigate(Routes.LOGIN) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
-                }
+                },
             )
         }
 
         composable(Routes.SET_GOOGLE_PIN) {
             com.loanfinancial.lofi.ui.features.auth.google.SetGooglePinScreen(
                 onBackClick = { navController.navigateUp() },
-                onSuccess = { 
+                onSuccess = {
                     navController.navigate(Routes.DASHBOARD) {
                         popUpTo(Routes.SPLASH) { inclusive = true }
                     }
@@ -428,14 +435,14 @@ fun NavGraph() {
                     navController.navigate(Routes.CHANGE_GOOGLE_PIN) {
                         popUpTo(Routes.SET_GOOGLE_PIN) { inclusive = true }
                     }
-                }
+                },
             )
         }
 
         composable(Routes.CHANGE_GOOGLE_PIN) {
             com.loanfinancial.lofi.ui.features.auth.google.ChangeGooglePinScreen(
                 onBackClick = { navController.navigateUp() },
-                onSuccess = { navController.navigateUp() }
+                onSuccess = { navController.navigateUp() },
             )
         }
     }

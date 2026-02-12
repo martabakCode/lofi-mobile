@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.core.util.UrlUtil
-import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import com.loanfinancial.lofi.data.model.dto.ChangePinRequest
 import com.loanfinancial.lofi.data.model.dto.SetPinRequest
+import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import com.loanfinancial.lofi.domain.usecase.auth.HasPinUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.LogoutUseCase
 import com.loanfinancial.lofi.domain.usecase.user.ChangePinUseCase
@@ -197,6 +197,7 @@ class ProfileViewModel
                 }
             }
         }
+
         fun setPin(pin: String) {
             viewModelScope.launch {
                 _uiState.update { it.copy(pinActionLoading = true, pinActionError = null, pinActionSuccess = false) }
@@ -214,7 +215,10 @@ class ProfileViewModel
             }
         }
 
-        fun changePin(oldPin: String, newPin: String) {
+        fun changePin(
+            oldPin: String,
+            newPin: String,
+        ) {
             viewModelScope.launch {
                 _uiState.update { it.copy(pinActionLoading = true, pinActionError = null, pinActionSuccess = false) }
                 changePinUseCase(ChangePinRequest(oldPin, newPin)).collect { result ->

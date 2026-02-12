@@ -1,7 +1,5 @@
 package com.loanfinancial.lofi.core.network
 
-import com.loanfinancial.lofi.data.model.dto.RefreshTokenRequest
-import com.loanfinancial.lofi.data.model.dto.RefreshTokenResponse
 import com.loanfinancial.lofi.data.model.dto.ChangePasswordRequest
 import com.loanfinancial.lofi.data.model.dto.ChangePasswordResponse
 import com.loanfinancial.lofi.data.model.dto.GoogleAuthRequest
@@ -9,6 +7,8 @@ import com.loanfinancial.lofi.data.model.dto.GoogleAuthResponse
 import com.loanfinancial.lofi.data.model.dto.LoginRequest
 import com.loanfinancial.lofi.data.model.dto.LoginResponse
 import com.loanfinancial.lofi.data.model.dto.LogoutResponse
+import com.loanfinancial.lofi.data.model.dto.RefreshTokenRequest
+import com.loanfinancial.lofi.data.model.dto.RefreshTokenResponse
 import com.loanfinancial.lofi.data.model.dto.RegisterRequest
 import com.loanfinancial.lofi.data.model.dto.RegisterResponse
 import com.loanfinancial.lofi.data.model.dto.UserResponse

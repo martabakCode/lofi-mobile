@@ -11,5 +11,5 @@ data class PendingLoanSubmission(
     val retryCount: Int,
     val lastRetryTime: Date?,
     val failureReason: String?,
-    val createdAt: Date
+    val createdAt: Date,
 )

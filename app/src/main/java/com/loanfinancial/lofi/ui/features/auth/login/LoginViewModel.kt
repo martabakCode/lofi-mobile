@@ -1,12 +1,10 @@
 package com.loanfinancial.lofi.ui.features.auth.login
 
 import android.content.Context
-import com.loanfinancial.lofi.R
-import dagger.hilt.android.qualifiers.ApplicationContext
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.GoogleAuthProvider
+import com.loanfinancial.lofi.R
 import com.loanfinancial.lofi.core.network.toUserFriendlyMessage
 import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
 import com.loanfinancial.lofi.data.model.dto.GoogleAuthRequest
@@ -18,10 +16,10 @@ import com.loanfinancial.lofi.domain.usecase.auth.GoogleAuthUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.LoginUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -134,7 +132,7 @@ class LoginViewModel
                     // Get profile status directly from login response (avoid race condition with DataStore)
                     val profileCompleted = loginResponse?.data?.profileCompleted ?: false
                     val pinSet = loginResponse?.data?.pinSet ?: false
-                    
+
                     // 2. Fetch User Info to check Role
                     val userResult = getUserUseCase()
 
@@ -143,15 +141,15 @@ class LoginViewModel
                         if (user != null && user.roles.contains("ROLE_CUSTOMER")) {
                             // 3a. Role is valid
                             dataStoreManager.setFirstInstall(false)
-                            
-                            _uiState.update { 
+
+                            _uiState.update {
                                 it.copy(
-                                    isLoading = false, 
+                                    isLoading = false,
                                     isLoginSuccessful = true,
                                     profileCompleted = profileCompleted,
                                     pinSet = pinSet,
-                                    isGoogleLogin = false
-                                ) 
+                                    isGoogleLogin = false,
+                                )
                             }
                         } else {
                             // 3b. Role invalid - Logout and show error
@@ -233,7 +231,7 @@ class LoginViewModel
                         val firebaseIdToken = tokenResult.getOrThrow()
 
                         val fcmToken = fcmTokenManager.getToken()
-                        
+
                         val request =
                             GoogleAuthRequest(
                                 idToken = firebaseIdToken,
@@ -250,7 +248,7 @@ class LoginViewModel
                             // Get profile status directly from Google auth response (avoid race condition)
                             val profileCompleted = googleResponse?.data?.profileCompleted ?: false
                             val pinSet = googleResponse?.data?.pinSet ?: false
-                            
+
                             // 4. Step: Fetch User Info to check Role
                             val userResult = getUserUseCase()
 
@@ -258,15 +256,15 @@ class LoginViewModel
                                 val user = userResult.getOrNull()?.data
                                 if (user != null && user.roles.contains("ROLE_CUSTOMER")) {
                                     dataStoreManager.setFirstInstall(false)
-                                    
-                                    _uiState.update { 
+
+                                    _uiState.update {
                                         it.copy(
-                                            isLoading = false, 
+                                            isLoading = false,
                                             isLoginSuccessful = true,
                                             profileCompleted = profileCompleted,
                                             pinSet = pinSet,
-                                            isGoogleLogin = true
-                                        ) 
+                                            isGoogleLogin = true,
+                                        )
                                     }
                                 } else {
                                     authRepository.logout()
@@ -318,6 +316,4 @@ class LoginViewModel
                 }
             }
         }
-
-
     }

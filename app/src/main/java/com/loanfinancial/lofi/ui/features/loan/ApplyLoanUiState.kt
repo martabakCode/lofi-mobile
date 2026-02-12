@@ -10,17 +10,25 @@ sealed class ApplyLoanUiState {
     data object Loading : ApplyLoanUiState()
 
     data object BiometricAuthenticating : ApplyLoanUiState()
+
     data object AutoCapturingBiometric : ApplyLoanUiState()
 
     data object PinRequired : ApplyLoanUiState()
-    data class PinError(val message: String) : ApplyLoanUiState()
-    data class PinLocked(val message: String) : ApplyLoanUiState()
+
+    data class PinError(
+        val message: String,
+    ) : ApplyLoanUiState()
+
+    data class PinLocked(
+        val message: String,
+    ) : ApplyLoanUiState()
 
     data object CapturingLocation : ApplyLoanUiState()
+
     data object AutoCapturingLocation : ApplyLoanUiState()
-    
+
     data class ProfileIncomplete(
-        val missingFields: List<String> = emptyList()
+        val missingFields: List<String> = emptyList(),
     ) : ApplyLoanUiState()
 
     data object PinNotSet : ApplyLoanUiState()
@@ -64,7 +72,6 @@ data class ApplyLoanFormState(
     val tenor: String = "",
     val purpose: String = "",
     val downPayment: String = "",
-    
     // Employment Info
     val jobType: String = "",
     val companyName: String = "",
@@ -75,19 +82,16 @@ data class ApplyLoanFormState(
     val declaredIncome: String = "",
     val additionalIncome: String = "",
     val npwpNumber: String = "",
-    
     // Emergency Contact
     val emergencyContactName: String = "",
     val emergencyContactRelation: String = "",
     val emergencyContactPhone: String = "",
     val emergencyContactAddress: String = "",
-    
     // Bank Info
     val bankName: String = "",
     val bankBranch: String = "",
     val accountNumber: String = "",
     val accountHolderName: String = "",
-
     val documents: Map<DocumentType, DocumentUploadState> = emptyMap(),
     val latitude: Double? = null,
     val longitude: Double? = null,
@@ -115,18 +119,18 @@ data class ApplyLoanFormState(
         if (amount.isBlank()) errors["amount"] = "Amount is required"
         if (tenor.isBlank()) errors["tenor"] = "Tenor is required"
         if (purpose.isBlank()) errors["purpose"] = "Purpose is required"
-        
+
         if (currentStep >= 2) {
             if (jobType.isBlank()) errors["jobType"] = "Job Type is required"
             if (companyName.isBlank()) errors["companyName"] = "Company Name is required"
             if (declaredIncome.isBlank()) errors["declaredIncome"] = "Income is required"
         }
-        
+
         if (currentStep >= 3) {
             if (emergencyContactName.isBlank()) errors["emergencyContactName"] = "Name is required"
             if (emergencyContactPhone.isBlank()) errors["emergencyContactPhone"] = "Phone is required"
         }
-        
+
         if (currentStep >= 4) {
             if (bankName.isBlank()) errors["bankName"] = "Bank Name is required"
             if (accountNumber.isBlank()) errors["accountNumber"] = "Account Number is required"

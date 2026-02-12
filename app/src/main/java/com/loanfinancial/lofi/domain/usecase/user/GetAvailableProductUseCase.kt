@@ -6,8 +6,10 @@ import com.loanfinancial.lofi.domain.repository.IProductRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-class GetAvailableProductUseCase @Inject constructor(
-    private val repository: IProductRepository,
-) {
-    operator fun invoke(): Flow<Resource<AvailableProductDto>> = repository.getAvailableProduct()
-}
+class GetAvailableProductUseCase
+    @Inject
+    constructor(
+        private val repository: IProductRepository,
+    ) {
+        operator fun invoke(): Flow<Resource<AvailableProductDto>> = repository.getAvailableProduct()
+    }

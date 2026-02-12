@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GoogleAuthUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: GoogleAuthUseCase
 
@@ -27,46 +26,50 @@ class GoogleAuthUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository googleAuth`() = runTest {
-        // Arrange
-        val request = GoogleAuthRequest(idToken = "google-id-token")
-        val expectedTokenData = AuthTokenData(
-            accessToken = "access",
-            refreshToken = "refresh",
-            expiresIn = 3600,
-            tokenType = "Bearer"
-        )
-        val expectedResponse = GoogleAuthResponse(
-            success = true,
-            message = "Success",
-            data = expectedTokenData
-        )
-        
-        coEvery { repository.googleAuth(request) } returns Result.success(expectedResponse)
+    fun `invoke should delegate to repository googleAuth`() =
+        runTest {
+            // Arrange
+            val request = GoogleAuthRequest(idToken = "google-id-token")
+            val expectedTokenData =
+                AuthTokenData(
+                    accessToken = "access",
+                    refreshToken = "refresh",
+                    expiresIn = 3600,
+                    tokenType = "Bearer",
+                )
+            val expectedResponse =
+                GoogleAuthResponse(
+                    success = true,
+                    message = "Success",
+                    data = expectedTokenData,
+                )
 
-        // Act
-        val result = useCase(request)
+            coEvery { repository.googleAuth(request) } returns Result.success(expectedResponse)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedResponse, result.getOrNull())
-        coVerify(exactly = 1) { repository.googleAuth(request) }
-    }
+            // Act
+            val result = useCase(request)
+
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedResponse, result.getOrNull())
+            coVerify(exactly = 1) { repository.googleAuth(request) }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val request = GoogleAuthRequest(idToken = "google-id-token")
-        val expectedException = Exception("Auth failed")
-        
-        coEvery { repository.googleAuth(request) } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val request = GoogleAuthRequest(idToken = "google-id-token")
+            val expectedException = Exception("Auth failed")
 
-        // Act
-        val result = useCase(request)
+            coEvery { repository.googleAuth(request) } returns Result.failure(expectedException)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.googleAuth(request) }
-    }
+            // Act
+            val result = useCase(request)
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.googleAuth(request) }
+        }
 }

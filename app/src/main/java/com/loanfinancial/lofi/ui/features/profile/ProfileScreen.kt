@@ -387,15 +387,16 @@ fun ProfileScreen(
                     )
                     HorizontalDivider(modifier = Modifier.padding(start = 56.dp), color = MaterialTheme.colorScheme.outlineVariant)
                 }
-                
+
                 ProfileOptionItem(
                     icon = Icons.Default.LockOpen,
                     title = if (uiState.hasPin) "PIN Management" else "Set PIN",
-                    onClick = if (uiState.isGoogleUser) {
-                        if (uiState.hasPin) onChangeGooglePinClick else onSetGooglePinClick
-                    } else {
-                        onSetPinClick
-                    },
+                    onClick =
+                        if (uiState.isGoogleUser) {
+                            if (uiState.hasPin) onChangeGooglePinClick else onSetGooglePinClick
+                        } else {
+                            onSetPinClick
+                        },
                 )
             }
 

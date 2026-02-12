@@ -21,31 +21,35 @@ interface PendingDocumentUploadDao {
     suspend fun getAllPending(): List<PendingDocumentUploadEntity>
 
     @Query("UPDATE pending_document_uploads SET status = :status, updatedAt = :updatedAt WHERE id = :id")
-    suspend fun updateStatus(id: String, status: String, updatedAt: Long = System.currentTimeMillis())
+    suspend fun updateStatus(
+        id: String,
+        status: String,
+        updatedAt: Long = System.currentTimeMillis(),
+    )
 
     @Query("UPDATE pending_document_uploads SET documentId = :documentId, objectKey = :objectKey, status = 'COMPLETED', updatedAt = :updatedAt WHERE id = :id")
     suspend fun updateCompleted(
-        id: String, 
-        documentId: String, 
-        objectKey: String, 
-        updatedAt: Long = System.currentTimeMillis()
+        id: String,
+        documentId: String,
+        objectKey: String,
+        updatedAt: Long = System.currentTimeMillis(),
     )
 
     @Query("UPDATE pending_document_uploads SET retryCount = :retryCount, lastRetryTime = :lastRetryTime, failureReason = :reason, status = 'FAILED', updatedAt = :updatedAt WHERE id = :id")
     suspend fun updateFailed(
-        id: String, 
-        retryCount: Int, 
-        reason: String, 
-        lastRetryTime: Long = System.currentTimeMillis(), 
-        updatedAt: Long = System.currentTimeMillis()
+        id: String,
+        retryCount: Int,
+        reason: String,
+        lastRetryTime: Long = System.currentTimeMillis(),
+        updatedAt: Long = System.currentTimeMillis(),
     )
 
     @Query("UPDATE pending_document_uploads SET retryCount = :retryCount, lastRetryTime = :lastRetryTime, updatedAt = :updatedAt WHERE id = :id")
     suspend fun updateRetry(
-        id: String, 
-        retryCount: Int, 
-        lastRetryTime: Long = System.currentTimeMillis(), 
-        updatedAt: Long = System.currentTimeMillis()
+        id: String,
+        retryCount: Int,
+        lastRetryTime: Long = System.currentTimeMillis(),
+        updatedAt: Long = System.currentTimeMillis(),
     )
 
     @Query("SELECT * FROM pending_document_uploads WHERE status = 'COMPLETED' AND updatedAt < :timestamp AND cleanupScheduled = 0")

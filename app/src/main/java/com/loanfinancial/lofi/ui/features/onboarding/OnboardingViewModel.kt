@@ -8,13 +8,14 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class OnboardingViewModel @Inject constructor(
-    val dataStoreManager: DataStoreManager
-) : ViewModel() {
-
-    fun completeOnboarding() {
-        viewModelScope.launch {
-            dataStoreManager.setFirstInstall(false)
+class OnboardingViewModel
+    @Inject
+    constructor(
+        val dataStoreManager: DataStoreManager,
+    ) : ViewModel() {
+        fun completeOnboarding() {
+            viewModelScope.launch {
+                dataStoreManager.setFirstInstall(false)
+            }
         }
     }
-}

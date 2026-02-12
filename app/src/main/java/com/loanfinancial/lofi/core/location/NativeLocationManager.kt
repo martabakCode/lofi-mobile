@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
-import android.location.LocationManager as AndroidLocationManager
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -16,6 +15,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
+import android.location.LocationManager as AndroidLocationManager
 
 /**
  * Native Android LocationManager implementation that does NOT require Google Play Services.
@@ -27,47 +27,47 @@ class NativeLocationManager
     constructor(
         @ApplicationContext private val context: Context,
     ) : com.loanfinancial.lofi.core.location.LocationManager {
-    private val locationManager: AndroidLocationManager by lazy {
-        context.getSystemService(Context.LOCATION_SERVICE) as AndroidLocationManager
-    }
+        private val locationManager: AndroidLocationManager by lazy {
+            context.getSystemService(Context.LOCATION_SERVICE) as AndroidLocationManager
+        }
 
-    override fun hasLocationPermission(): Boolean =
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ) == PackageManager.PERMISSION_GRANTED ||
+        override fun hasLocationPermission(): Boolean =
             ContextCompat.checkSelfPermission(
                 context,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            ) == PackageManager.PERMISSION_GRANTED
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ) == PackageManager.PERMISSION_GRANTED
 
-    /**
-     * Check if GPS provider is available
-     */
-    fun isGpsProviderEnabled(): Boolean =
-        locationManager.isProviderEnabled(AndroidLocationManager.GPS_PROVIDER)
+        /**
+         * Check if GPS provider is available
+         */
+        fun isGpsProviderEnabled(): Boolean =
+            locationManager.isProviderEnabled(AndroidLocationManager.GPS_PROVIDER)
 
-    /**
-     * Check if Network provider is available
-     */
-    fun isNetworkProviderEnabled(): Boolean =
-        locationManager.isProviderEnabled(AndroidLocationManager.NETWORK_PROVIDER)
+        /**
+         * Check if Network provider is available
+         */
+        fun isNetworkProviderEnabled(): Boolean =
+            locationManager.isProviderEnabled(AndroidLocationManager.NETWORK_PROVIDER)
 
-    /**
-     * Check if any location provider is available
-     */
-    fun isLocationEnabled(): Boolean =
-        isGpsProviderEnabled() || isNetworkProviderEnabled()
+        /**
+         * Check if any location provider is available
+         */
+        fun isLocationEnabled(): Boolean =
+            isGpsProviderEnabled() || isNetworkProviderEnabled()
 
-    /**
-     * Get the best available provider (GPS preferred, fallback to Network)
-     */
-    private fun getBestProvider(): String? =
-        when {
-            isGpsProviderEnabled() -> AndroidLocationManager.GPS_PROVIDER
-            isNetworkProviderEnabled() -> AndroidLocationManager.NETWORK_PROVIDER
-            else -> null
-        }
+        /**
+         * Get the best available provider (GPS preferred, fallback to Network)
+         */
+        private fun getBestProvider(): String? =
+            when {
+                isGpsProviderEnabled() -> AndroidLocationManager.GPS_PROVIDER
+                isNetworkProviderEnabled() -> AndroidLocationManager.NETWORK_PROVIDER
+                else -> null
+            }
 
         override suspend fun getCurrentLocation(): LofiLocationResult {
             if (!hasLocationPermission()) {
@@ -160,88 +160,88 @@ class NativeLocationManager
             }
         }
 
-    override suspend fun getLastKnownLocation(): LofiLocationResult {
-        if (!hasLocationPermission()) {
-            return LofiLocationResult.PermissionDenied
-        }
+        override suspend fun getLastKnownLocation(): LofiLocationResult {
+            if (!hasLocationPermission()) {
+                return LofiLocationResult.PermissionDenied
+            }
 
-        return try {
-            // Try GPS first, then Network
-            val location: Location? =
-                try {
-                    locationManager.getLastKnownLocation(AndroidLocationManager.GPS_PROVIDER)
-                } catch (e: SecurityException) {
-                    null
-                }
-                    ?: try {
-                        locationManager.getLastKnownLocation(AndroidLocationManager.NETWORK_PROVIDER)
+            return try {
+                // Try GPS first, then Network
+                val location: Location? =
+                    try {
+                        locationManager.getLastKnownLocation(AndroidLocationManager.GPS_PROVIDER)
                     } catch (e: SecurityException) {
                         null
                     }
+                        ?: try {
+                            locationManager.getLastKnownLocation(AndroidLocationManager.NETWORK_PROVIDER)
+                        } catch (e: SecurityException) {
+                            null
+                        }
 
-            location?.let {
-                LofiLocationResult.Success(it.latitude, it.longitude)
-            } ?: LofiLocationResult.Error("No last known location available")
-        } catch (e: Exception) {
-            LofiLocationResult.Error(e.message ?: "Unknown error occurred")
+                location?.let {
+                    LofiLocationResult.Success(it.latitude, it.longitude)
+                } ?: LofiLocationResult.Error("No last known location available")
+            } catch (e: Exception) {
+                LofiLocationResult.Error(e.message ?: "Unknown error occurred")
+            }
         }
-    }
 
-    override fun requestLocationUpdates(): Flow<LofiLocationResult> =
-        callbackFlow {
-            if (!hasLocationPermission()) {
-                trySend(LofiLocationResult.PermissionDenied)
-                close()
-                return@callbackFlow
-            }
+        override fun requestLocationUpdates(): Flow<LofiLocationResult> =
+            callbackFlow {
+                if (!hasLocationPermission()) {
+                    trySend(LofiLocationResult.PermissionDenied)
+                    close()
+                    return@callbackFlow
+                }
 
-            if (!isLocationEnabled()) {
-                trySend(LofiLocationResult.LocationDisabled)
-                close()
-                return@callbackFlow
-            }
+                if (!isLocationEnabled()) {
+                    trySend(LofiLocationResult.LocationDisabled)
+                    close()
+                    return@callbackFlow
+                }
 
-            val providers = mutableListOf<String>()
-            if (isGpsProviderEnabled()) providers.add(AndroidLocationManager.GPS_PROVIDER)
-            if (isNetworkProviderEnabled()) providers.add(AndroidLocationManager.NETWORK_PROVIDER)
+                val providers = mutableListOf<String>()
+                if (isGpsProviderEnabled()) providers.add(AndroidLocationManager.GPS_PROVIDER)
+                if (isNetworkProviderEnabled()) providers.add(AndroidLocationManager.NETWORK_PROVIDER)
 
-            if (providers.isEmpty()) {
-                trySend(LofiLocationResult.Error("No location provider available"))
-                close()
-                return@callbackFlow
-            }
+                if (providers.isEmpty()) {
+                    trySend(LofiLocationResult.Error("No location provider available"))
+                    close()
+                    return@callbackFlow
+                }
 
-            val locationListener =
-                object : LocationListener {
-                    override fun onLocationChanged(location: Location) {
-                        trySend(
-                            LofiLocationResult.Success(location.latitude, location.longitude),
-                        )
+                val locationListener =
+                    object : LocationListener {
+                        override fun onLocationChanged(location: Location) {
+                            trySend(
+                                LofiLocationResult.Success(location.latitude, location.longitude),
+                            )
+                        }
+
+                        override fun onProviderEnabled(provider: String) {}
+
+                        override fun onProviderDisabled(provider: String) {}
                     }
 
-                    override fun onProviderEnabled(provider: String) {}
-
-                    override fun onProviderDisabled(provider: String) {}
+                try {
+                    providers.forEach { provider ->
+                        locationManager.requestLocationUpdates(
+                            provider,
+                            10000L, // 10 seconds
+                            10f, // 10 meters
+                            locationListener,
+                            Looper.getMainLooper(),
+                        )
+                    }
+                } catch (e: SecurityException) {
+                    trySend(LofiLocationResult.PermissionDenied)
+                    close()
+                    return@callbackFlow
                 }
 
-            try {
-                providers.forEach { provider ->
-                    locationManager.requestLocationUpdates(
-                        provider,
-                        10000L, // 10 seconds
-                        10f, // 10 meters
-                        locationListener,
-                        Looper.getMainLooper(),
-                    )
+                awaitClose {
+                    locationManager.removeUpdates(locationListener)
                 }
-            } catch (e: SecurityException) {
-                trySend(LofiLocationResult.PermissionDenied)
-                close()
-                return@callbackFlow
             }
-
-            awaitClose {
-                locationManager.removeUpdates(locationListener)
-            }
-        }
-}
+    }

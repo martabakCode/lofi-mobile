@@ -25,61 +25,66 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun PinDot(isFilled: Boolean) {
     Box(
-        modifier = Modifier
-            .size(16.dp)
-            .clip(CircleShape)
-            .background(
-                if (isFilled) MaterialTheme.colorScheme.primary 
-                else Color.Transparent
-            )
-            .border(
-                width = 2.dp,
-                color = if (isFilled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
-                shape = CircleShape
-            )
+        modifier =
+            Modifier
+                .size(16.dp)
+                .clip(CircleShape)
+                .background(
+                    if (isFilled) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        Color.Transparent
+                    },
+                ).border(
+                    width = 2.dp,
+                    color = if (isFilled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                    shape = CircleShape,
+                ),
     )
 }
 
 @Composable
 fun NumericKeypad(
     onInput: (String) -> Unit,
-    onDeleteClick: () -> Unit
+    onDeleteClick: () -> Unit,
 ) {
-    val numbers = listOf(
-        listOf("1", "2", "3"),
-        listOf("4", "5", "6"),
-        listOf("7", "8", "9"),
-        listOf("", "0", "Delete")
-    )
-    
+    val numbers =
+        listOf(
+            listOf("1", "2", "3"),
+            listOf("4", "5", "6"),
+            listOf("7", "8", "9"),
+            listOf("", "0", "Delete"),
+        )
+
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         numbers.forEach { row ->
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 row.forEach { item ->
                     Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .aspectRatio(2f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(enabled = item.isNotEmpty()) {
-                                if (item == "Delete") onDeleteClick() else onInput(item)
-                            },
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .aspectRatio(2f)
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable(enabled = item.isNotEmpty()) {
+                                    if (item == "Delete") onDeleteClick() else onInput(item)
+                                },
+                        contentAlignment = Alignment.Center,
                     ) {
                         if (item.isNotEmpty()) {
                             Text(
                                 text = item,
                                 style = MaterialTheme.typography.headlineSmall,
                                 fontWeight = FontWeight.Medium,
-                                color = if (item == "Delete") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                color = if (item == "Delete") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
                             )
                         }
                     }

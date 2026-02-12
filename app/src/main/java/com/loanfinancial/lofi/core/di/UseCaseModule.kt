@@ -4,16 +4,14 @@ import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import com.loanfinancial.lofi.domain.repository.ILoanDraftRepository
 import com.loanfinancial.lofi.domain.repository.ILoanRepository
 import com.loanfinancial.lofi.domain.repository.INotificationRepository
+import com.loanfinancial.lofi.domain.repository.IProductRepository
 import com.loanfinancial.lofi.domain.usecase.auth.GetFirebaseIdTokenUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.GoogleAuthUseCase
+import com.loanfinancial.lofi.domain.usecase.auth.HasPinUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.LoginUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.RegisterUseCase
-import com.loanfinancial.lofi.domain.usecase.auth.HasPinUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.SetPinUseCase
 import com.loanfinancial.lofi.domain.usecase.auth.VerifyPinUseCase
-import com.loanfinancial.lofi.domain.repository.IProductRepository
-import com.loanfinancial.lofi.domain.usecase.user.GetAvailableProductUseCase
-import com.loanfinancial.lofi.domain.usecase.user.GetProductsUseCase
 import com.loanfinancial.lofi.domain.usecase.loan.CreateLoanUseCase
 import com.loanfinancial.lofi.domain.usecase.loan.DeleteAllDraftsUseCase
 import com.loanfinancial.lofi.domain.usecase.loan.DeleteLoanDraftUseCase
@@ -23,6 +21,8 @@ import com.loanfinancial.lofi.domain.usecase.loan.GetLoanDraftByIdUseCase
 import com.loanfinancial.lofi.domain.usecase.loan.SaveLoanDraftUseCase
 import com.loanfinancial.lofi.domain.usecase.loan.SubmitLoanUseCase
 import com.loanfinancial.lofi.domain.usecase.notification.GetNotificationsUseCase
+import com.loanfinancial.lofi.domain.usecase.user.GetAvailableProductUseCase
+import com.loanfinancial.lofi.domain.usecase.user.GetProductsUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserUseCase
 import dagger.Module
 import dagger.Provides
@@ -91,7 +91,10 @@ object UseCaseModule {
 
     @Provides
     @Singleton
-    fun provideSaveLoanDraftUseCase(repository: ILoanDraftRepository, deleteAllDraftsUseCase: DeleteAllDraftsUseCase): SaveLoanDraftUseCase = SaveLoanDraftUseCase(repository, deleteAllDraftsUseCase)
+    fun provideSaveLoanDraftUseCase(
+        repository: ILoanDraftRepository,
+        deleteAllDraftsUseCase: DeleteAllDraftsUseCase,
+    ): SaveLoanDraftUseCase = SaveLoanDraftUseCase(repository, deleteAllDraftsUseCase)
 
     @Provides
     @Singleton

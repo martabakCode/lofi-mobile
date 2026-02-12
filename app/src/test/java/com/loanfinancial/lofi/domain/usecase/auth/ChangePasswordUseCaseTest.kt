@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class ChangePasswordUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: ChangePasswordUseCase
 
@@ -26,44 +25,48 @@ class ChangePasswordUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository changePassword`() = runTest {
-        // Arrange
-        val request = ChangePasswordRequest(
-            currentPassword = "oldPassword",
-            newPassword = "newPassword",
-            newPasswordConfirmation = "newPassword"
-        )
-        val expectedResponse = ChangePasswordResponse(message = "Password changed successfully")
-        
-        coEvery { repository.changePassword(request) } returns Result.success(expectedResponse)
+    fun `invoke should delegate to repository changePassword`() =
+        runTest {
+            // Arrange
+            val request =
+                ChangePasswordRequest(
+                    currentPassword = "oldPassword",
+                    newPassword = "newPassword",
+                    newPasswordConfirmation = "newPassword",
+                )
+            val expectedResponse = ChangePasswordResponse(message = "Password changed successfully")
 
-        // Act
-        val result = useCase(request)
+            coEvery { repository.changePassword(request) } returns Result.success(expectedResponse)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedResponse, result.getOrNull())
-        coVerify(exactly = 1) { repository.changePassword(request) }
-    }
+            // Act
+            val result = useCase(request)
+
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedResponse, result.getOrNull())
+            coVerify(exactly = 1) { repository.changePassword(request) }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val request = ChangePasswordRequest(
-            currentPassword = "oldPassword",
-            newPassword = "newPassword",
-            newPasswordConfirmation = "newPassword"
-        )
-        val expectedException = Exception("Password mismatch")
-        
-        coEvery { repository.changePassword(request) } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val request =
+                ChangePasswordRequest(
+                    currentPassword = "oldPassword",
+                    newPassword = "newPassword",
+                    newPasswordConfirmation = "newPassword",
+                )
+            val expectedException = Exception("Password mismatch")
 
-        // Act
-        val result = useCase(request)
+            coEvery { repository.changePassword(request) } returns Result.failure(expectedException)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.changePassword(request) }
-    }
+            // Act
+            val result = useCase(request)
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.changePassword(request) }
+        }
 }

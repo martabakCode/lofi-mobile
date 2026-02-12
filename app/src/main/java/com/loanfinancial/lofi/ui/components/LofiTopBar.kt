@@ -51,7 +51,7 @@ fun LofiTopBar(
             } else if (showLogo) {
                 // Show small logo on the left when not navigating back
                 LofiLogoSmall(
-                    modifier = Modifier.padding(start = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp),
                 )
             }
         },

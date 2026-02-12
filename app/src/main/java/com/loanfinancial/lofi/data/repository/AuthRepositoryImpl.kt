@@ -9,13 +9,13 @@ import com.loanfinancial.lofi.data.local.dao.UserDao
 import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
 import com.loanfinancial.lofi.data.model.dto.*
 import com.loanfinancial.lofi.data.model.entity.UserEntity
-import com.loanfinancial.lofi.domain.model.User
-import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import com.loanfinancial.lofi.data.remote.api.AuthSourceResponse
 import com.loanfinancial.lofi.data.remote.api.PinApi
 import com.loanfinancial.lofi.data.remote.api.PinStatusResponse
 import com.loanfinancial.lofi.data.remote.api.SetGooglePinRequest
 import com.loanfinancial.lofi.data.remote.api.UpdateGooglePinRequest
+import com.loanfinancial.lofi.domain.model.User
+import com.loanfinancial.lofi.domain.repository.IAuthRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -44,7 +44,7 @@ class AuthRepositoryImpl
                             dataStoreManager.saveAuthTokens(body.data.accessToken, body.data.refreshToken)
                             dataStoreManager.saveProfileStatus(
                                 pinSet = body.data.pinSet,
-                                profileCompleted = body.data.profileCompleted
+                                profileCompleted = body.data.profileCompleted,
                             )
                             Result.success(body)
                         } else {
@@ -79,14 +79,14 @@ class AuthRepositoryImpl
                                     roles = data.roles,
                                 )
                             userDao.insertUser(newUser)
-                            
+
                             // Save user info to DataStore for GetMyLoansUseCase
                             dataStoreManager.saveUserInfo(
                                 userId = data.id,
                                 email = data.email,
                                 name = data.username,
                             )
-                            
+
                             Result.success(body)
                         } else {
                             Result.failure(Exception(body.message))
@@ -110,7 +110,7 @@ class AuthRepositoryImpl
                             dataStoreManager.saveAuthTokens(body.data.accessToken, body.data.refreshToken)
                             dataStoreManager.saveProfileStatus(
                                 pinSet = body.data.pinSet,
-                                profileCompleted = body.data.profileCompleted
+                                profileCompleted = body.data.profileCompleted,
                             )
                             Result.success(body)
                         } else {
@@ -187,7 +187,7 @@ class AuthRepositoryImpl
                             dataStoreManager.saveAuthTokens(body.data.accessToken, body.data.refreshToken)
                             dataStoreManager.saveProfileStatus(
                                 pinSet = body.data.pinSet,
-                                profileCompleted = body.data.profileCompleted
+                                profileCompleted = body.data.profileCompleted,
                             )
                             Result.success(body)
                         } else {
@@ -202,9 +202,12 @@ class AuthRepositoryImpl
                     Log.e("AuthRepositoryImpl", "Google auth exception: ${e.javaClass.simpleName} - ${e.message}")
                     when (e) {
                         is ConnectException -> {
-                            Log.e("AuthRepositoryImpl", "CONNECT EXCEPTION: Server at 10.10.90.218:8080 is unreachable. " +
-                                "Possible causes: 1) Server is not running, 2) Firewall blocking port 8080, " +
-                                "3) Device is on different network than server")
+                            Log.e(
+                                "AuthRepositoryImpl",
+                                "CONNECT EXCEPTION: Server at 10.10.90.218:8080 is unreachable. " +
+                                    "Possible causes: 1) Server is not running, 2) Firewall blocking port 8080, " +
+                                    "3) Device is on different network than server",
+                            )
                         }
                         is java.net.SocketTimeoutException -> {
                             Log.e("AuthRepositoryImpl", "SOCKET TIMEOUT: Server is not responding in time")
@@ -259,7 +262,11 @@ class AuthRepositoryImpl
         override suspend fun setPin(pin: String): Result<Unit> =
             withContext(Dispatchers.IO) {
                 try {
-                    val response = pinApi.setPin(com.loanfinancial.lofi.data.remote.api.SetPinRequest(pin))
+                    val response =
+                        pinApi.setPin(
+                            com.loanfinancial.lofi.data.remote.api
+                                .SetPinRequest(pin),
+                        )
                     if (response.isSuccessful && response.body() != null) {
                         val body = response.body()!!
                         if (body.success) {
@@ -275,10 +282,17 @@ class AuthRepositoryImpl
                 }
             }
 
-        override suspend fun verifyPin(pin: String, purpose: String): Result<com.loanfinancial.lofi.data.remote.api.PinVerificationResponse> =
+        override suspend fun verifyPin(
+            pin: String,
+            purpose: String,
+        ): Result<com.loanfinancial.lofi.data.remote.api.PinVerificationResponse> =
             withContext(Dispatchers.IO) {
                 try {
-                    val response = pinApi.verifyPin(com.loanfinancial.lofi.data.remote.api.PinVerificationRequest(pin, purpose))
+                    val response =
+                        pinApi.verifyPin(
+                            com.loanfinancial.lofi.data.remote.api
+                                .PinVerificationRequest(pin, purpose),
+                        )
                     if (response.isSuccessful && response.body() != null) {
                         val body = response.body()!!
                         if (body.success && body.data != null) {
@@ -320,20 +334,22 @@ class AuthRepositoryImpl
                     } else {
                         val errorBody = response.errorBody()?.string()
                         val baseMessage = response.body()?.message ?: errorBody ?: "Failed to set Google PIN"
-                        val errorMessage = when (response.code()) {
-                            500 -> "Server error. Please try again later or contact support."
-                            400 -> {
-                                // Check if PIN is already set
-                                if (baseMessage.contains("already set", ignoreCase = true) ||
-                                    baseMessage.contains("update PIN", ignoreCase = true)) {
-                                    "PIN is already set. Use update PIN endpoint"
-                                } else {
-                                    "Invalid request. Please check your PIN."
+                        val errorMessage =
+                            when (response.code()) {
+                                500 -> "Server error. Please try again later or contact support."
+                                400 -> {
+                                    // Check if PIN is already set
+                                    if (baseMessage.contains("already set", ignoreCase = true) ||
+                                        baseMessage.contains("update PIN", ignoreCase = true)
+                                    ) {
+                                        "PIN is already set. Use update PIN endpoint"
+                                    } else {
+                                        "Invalid request. Please check your PIN."
+                                    }
                                 }
+                                401 -> "Session expired. Please login again."
+                                else -> baseMessage
                             }
-                            401 -> "Session expired. Please login again."
-                            else -> baseMessage
-                        }
                         Result.failure(Exception(errorMessage))
                     }
                 } catch (e: Exception) {
@@ -341,7 +357,10 @@ class AuthRepositoryImpl
                 }
             }
 
-        override suspend fun updateGooglePin(oldPin: String, newPin: String): Result<Unit> =
+        override suspend fun updateGooglePin(
+            oldPin: String,
+            newPin: String,
+        ): Result<Unit> =
             withContext(Dispatchers.IO) {
                 try {
                     val response = pinApi.updateGooglePin(UpdateGooglePinRequest(oldPin, newPin))

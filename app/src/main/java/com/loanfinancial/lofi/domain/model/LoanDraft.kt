@@ -12,7 +12,6 @@ data class LoanDraft(
     val latitude: Double?,
     val longitude: Double?,
     val isBiometricVerified: Boolean,
-    
     // Employment Info
     val jobType: String? = null,
     val companyName: String? = null,
@@ -23,19 +22,16 @@ data class LoanDraft(
     val declaredIncome: Long? = null,
     val additionalIncome: Long? = null,
     val npwpNumber: String? = null,
-
     // Emergency Contact
     val emergencyContactName: String? = null,
     val emergencyContactRelation: String? = null,
     val emergencyContactPhone: String? = null,
     val emergencyContactAddress: String? = null,
-
     // Bank Info
     val bankName: String? = null,
     val bankBranch: String? = null,
     val accountNumber: String? = null,
     val accountHolderName: String? = null,
-
     val documentPaths: Map<String, String>?,
     val interestRate: Double?,
     val adminFee: Double?,
@@ -47,7 +43,7 @@ data class LoanDraft(
     val documentUploadStatus: Map<String, String>? = null,
     val uploadQueueIds: List<String>? = null,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
 )
 
 enum class DraftStep {
@@ -58,13 +54,13 @@ enum class DraftStep {
     DOCUMENTS,
     PREVIEW,
     TNC,
-    COMPLETED
+    COMPLETED,
 }
 
 enum class DraftStatus {
-    DRAFT,        // Initial state
-    IN_PROGRESS,  // User is actively working on it
-    COMPLETED,    // All steps done, ready to submit
-    SYNCED,       // Successfully submitted to server
-    FAILED        // Submission failed after retries
+    DRAFT, // Initial state
+    IN_PROGRESS, // User is actively working on it
+    COMPLETED, // All steps done, ready to submit
+    SYNCED, // Successfully submitted to server
+    FAILED, // Submission failed after retries
 }

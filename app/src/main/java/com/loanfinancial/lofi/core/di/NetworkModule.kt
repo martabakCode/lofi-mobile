@@ -8,11 +8,11 @@ import com.chuckerteam.chucker.api.RetentionManager
 import com.loanfinancial.lofi.BuildConfig
 import com.loanfinancial.lofi.core.network.ApiService
 import com.loanfinancial.lofi.core.network.AuthInterceptor
+import com.loanfinancial.lofi.data.remote.api.DocumentApi
 import com.loanfinancial.lofi.data.remote.api.LoanApi
 import com.loanfinancial.lofi.data.remote.api.LoanProductApi
 import com.loanfinancial.lofi.data.remote.api.NotificationApi
 import com.loanfinancial.lofi.data.remote.api.UserApi
-import com.loanfinancial.lofi.data.remote.api.DocumentApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -68,9 +68,11 @@ object NetworkModule {
         chuckerInterceptor: ChuckerInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
     ): OkHttpClient {
-        val certificatePinner = CertificatePinner.Builder()
-            // .add("api.yourdomain.com", "sha256/your_certificate_pin_here")
-            .build()
+        val certificatePinner =
+            CertificatePinner
+                .Builder()
+                // .add("api.yourdomain.com", "sha256/your_certificate_pin_here")
+                .build()
 
         return OkHttpClient
             .Builder()
@@ -121,15 +123,16 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun providePinApi(retrofit: Retrofit): com.loanfinancial.lofi.data.remote.api.PinApi = 
+    fun providePinApi(retrofit: Retrofit): com.loanfinancial.lofi.data.remote.api.PinApi =
         retrofit.create(com.loanfinancial.lofi.data.remote.api.PinApi::class.java)
 
     @Provides
     @Singleton
     fun provideNetworkManager(
-        @ApplicationContext context: Context
-    ): com.loanfinancial.lofi.core.network.NetworkManager = 
-        com.loanfinancial.lofi.core.network.NetworkManagerImpl(context)
+        @ApplicationContext context: Context,
+    ): com.loanfinancial.lofi.core.network.NetworkManager =
+        com.loanfinancial.lofi.core.network
+            .NetworkManagerImpl(context)
 
     @Provides
     @Singleton
@@ -137,10 +140,10 @@ object NetworkModule {
         networkManager: com.loanfinancial.lofi.core.network.NetworkManager,
         loanSubmissionManager: com.loanfinancial.lofi.domain.manager.LoanSubmissionManager,
         notificationRepository: com.loanfinancial.lofi.domain.repository.INotificationRepository,
-    ): com.loanfinancial.lofi.core.network.NetworkSyncTriggerManager = 
+    ): com.loanfinancial.lofi.core.network.NetworkSyncTriggerManager =
         com.loanfinancial.lofi.core.network.NetworkSyncTriggerManagerImpl(
             networkManager,
             loanSubmissionManager,
-            notificationRepository
+            notificationRepository,
         )
 }

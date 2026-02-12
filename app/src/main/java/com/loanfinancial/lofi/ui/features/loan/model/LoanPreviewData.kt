@@ -97,20 +97,20 @@ data class DocumentPreviewInfo(
 /**
  * Convert from ApplyLoanFormState to LoanPreviewData
  */
-fun com.loanfinancial.lofi.ui.features.loan.ApplyLoanFormState.toPreviewData(): LoanPreviewData {
-    return LoanPreviewData(
+fun com.loanfinancial.lofi.ui.features.loan.ApplyLoanFormState.toPreviewData(): LoanPreviewData =
+    LoanPreviewData(
         amount = amount,
         tenor = tenor,
         purpose = purpose,
-        documents = documents.mapValues { entry ->
-            DocumentPreviewInfo(
-                documentType = entry.key,
-                fileName = entry.value.filePath?.substringAfterLast("/"),
-                isUploaded = entry.value.isUploaded,
-            )
-        },
+        documents =
+            documents.mapValues { entry ->
+                DocumentPreviewInfo(
+                    documentType = entry.key,
+                    fileName = entry.value.filePath?.substringAfterLast("/"),
+                    isUploaded = entry.value.isUploaded,
+                )
+            },
         latitude = latitude,
         longitude = longitude,
         isBiometricVerified = isBiometricVerified,
     )
-}

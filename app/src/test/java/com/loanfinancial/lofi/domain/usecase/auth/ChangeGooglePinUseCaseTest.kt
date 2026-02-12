@@ -13,7 +13,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class ChangeGooglePinUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: ChangeGooglePinUseCase
 
@@ -24,36 +23,38 @@ class ChangeGooglePinUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository updateGooglePin`() = runTest {
-        // Arrange
-        val oldPin = "123456"
-        val newPin = "654321"
-        
-        coEvery { repository.updateGooglePin(oldPin, newPin) } returns Result.success(Unit)
+    fun `invoke should delegate to repository updateGooglePin`() =
+        runTest {
+            // Arrange
+            val oldPin = "123456"
+            val newPin = "654321"
 
-        // Act
-        val result = useCase(oldPin, newPin)
+            coEvery { repository.updateGooglePin(oldPin, newPin) } returns Result.success(Unit)
 
-        // Assert
-        assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { repository.updateGooglePin(oldPin, newPin) }
-    }
+            // Act
+            val result = useCase(oldPin, newPin)
+
+            // Assert
+            assertTrue(result.isSuccess)
+            coVerify(exactly = 1) { repository.updateGooglePin(oldPin, newPin) }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val oldPin = "123456"
-        val newPin = "654321"
-        val expectedException = Exception("Network error")
-        
-        coEvery { repository.updateGooglePin(oldPin, newPin) } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val oldPin = "123456"
+            val newPin = "654321"
+            val expectedException = Exception("Network error")
 
-        // Act
-        val result = useCase(oldPin, newPin)
+            coEvery { repository.updateGooglePin(oldPin, newPin) } returns Result.failure(expectedException)
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.updateGooglePin(oldPin, newPin) }
-    }
+            // Act
+            val result = useCase(oldPin, newPin)
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.updateGooglePin(oldPin, newPin) }
+        }
 }

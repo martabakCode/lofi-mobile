@@ -12,8 +12,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class LoanHistoryUiState(
     val loans: List<Loan> = emptyList(),
@@ -25,14 +25,12 @@ data class LoanHistoryUiState(
     val isLoadingMore: Boolean = false,
 )
 
-
-
 @HiltViewModel
 class LoanHistoryViewModel
     @Inject
     constructor(
         private val getMyLoansUseCase: GetMyLoansUseCase,
-        private val loanSubmissionManager: com.loanfinancial.lofi.domain.manager.LoanSubmissionManager
+        private val loanSubmissionManager: com.loanfinancial.lofi.domain.manager.LoanSubmissionManager,
     ) : ViewModel() {
         private val _uiState = MutableStateFlow(LoanHistoryUiState())
         val uiState: StateFlow<LoanHistoryUiState> = _uiState.asStateFlow()
@@ -46,7 +44,8 @@ class LoanHistoryViewModel
         }
 
         private fun observePendingSubmissions() {
-            loanSubmissionManager.getPendingSubmissions()
+            loanSubmissionManager
+                .getPendingSubmissions()
                 .onEach { submissions ->
                     currentPendingLoans = submissions.map { it.toLoan() }
                     updateUiState()
@@ -57,17 +56,18 @@ class LoanHistoryViewModel
             _uiState.update { it.copy(loans = currentPendingLoans + currentRemoteLoans) }
         }
 
-        private fun com.loanfinancial.lofi.domain.model.PendingLoanSubmission.toLoan(): Loan {
-            return Loan(
+        private fun com.loanfinancial.lofi.domain.model.PendingLoanSubmission.toLoan(): Loan =
+            Loan(
                 id = loanId,
-                customerName = "", // Not available in pending submission properly, or needed? 
-                // Wait, PendingLoanSubmission doesn't have customerName. PendingLoanSubmissionEntity has. 
+                customerName = "", // Not available in pending submission properly, or needed?
+                // Wait, PendingLoanSubmission doesn't have customerName. PendingLoanSubmissionEntity has.
                 // I should probably add customerName to PendingLoanSubmission domain model or just ignore it for list item.
-                product = com.loanfinancial.lofi.domain.model.Product(
-                    productCode = "", // Not in domain model
-                    productName = productName,
-                    interestRate = 0.0, // Not in domain model
-                ),
+                product =
+                    com.loanfinancial.lofi.domain.model.Product(
+                        productCode = "", // Not in domain model
+                        productName = productName,
+                        interestRate = 0.0, // Not in domain model
+                    ),
                 loanAmount = loanAmount,
                 tenor = tenor,
                 loanStatus = status.name,
@@ -77,18 +77,18 @@ class LoanHistoryViewModel
                 approvedAt = null,
                 rejectedAt = null,
                 disbursedAt = null,
-                loanStatusDisplay = when(status) {
-                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.PENDING -> "Menunggu Jaringan"
-                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.SUBMITTING -> "Mengirim..."
-                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.SUCCESS -> "Terkirim"
-                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.FAILED -> "Gagal"
-                    com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.CANCELLED -> "Dibatalkan"
-                },
+                loanStatusDisplay =
+                    when (status) {
+                        com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.PENDING -> "Menunggu Jaringan"
+                        com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.SUBMITTING -> "Mengirim..."
+                        com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.SUCCESS -> "Terkirim"
+                        com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.FAILED -> "Gagal"
+                        com.loanfinancial.lofi.domain.model.PendingSubmissionStatus.CANCELLED -> "Dibatalkan"
+                    },
                 slaDurationHours = null,
                 pendingStatus = status,
-                failureReason = failureReason
+                failureReason = failureReason,
             )
-        }
 
         fun loadHistory(isRefreshing: Boolean = false) {
             if (isRefreshing) {

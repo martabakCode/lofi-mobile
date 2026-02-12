@@ -19,12 +19,13 @@ class GetMyLoansUseCase
             page: Int = 0,
             size: Int = 10,
             sort: String = "createdAt",
-        ): Flow<Resource<List<Loan>>> = flow {
-            val userId = dataStoreManager.getUserId()
-            if (userId != null) {
-                emitAll(repository.getMyLoans(userId, page, size, sort))
-            } else {
-                emit(Resource.Error("User not logged in"))
+        ): Flow<Resource<List<Loan>>> =
+            flow {
+                val userId = dataStoreManager.getUserId()
+                if (userId != null) {
+                    emitAll(repository.getMyLoans(userId, page, size, sort))
+                } else {
+                    emit(Resource.Error("User not logged in"))
+                }
             }
-        }
     }

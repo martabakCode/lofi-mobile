@@ -17,7 +17,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class CreateLoanUseCaseTest {
-
     @MockK
     private lateinit var repository: ILoanRepository
 
@@ -30,69 +29,76 @@ class CreateLoanUseCaseTest {
     }
 
     @Test
-    fun `invoke should call repository createLoan`() = runTest {
-        // Arrange
-        val request = CreateLoanRequest(
-            loanAmount = 5000000,
-            tenor = 12,
-            purpose = "Business",
-            longitude = 106.8456,
-            latitude = -6.2088
-        )
-        
-        val loan = Loan(
-            id = "loan_123",
-            customerName = "Test Customer",
-            product = Product("CASH_LOAN", "Pinjaman Tunai", 0.05),
-            loanAmount = 5000000,
-            tenor = 12,
-            loanStatus = "DRAFT",
-            currentStage = "SUBMISSION",
-            submittedAt = null,
-            reviewedAt = null,
-            approvedAt = null,
-            rejectedAt = null,
-            disbursedAt = null,
-            loanStatusDisplay = "Draft",
-            slaDurationHours = 24
-        )
-        
-        every { repository.createLoan(request) } returns flowOf(
-            Resource.Loading,
-            Resource.Success(loan)
-        )
+    fun `invoke should call repository createLoan`() =
+        runTest {
+            // Arrange
+            val request =
+                CreateLoanRequest(
+                    loanAmount = 5000000,
+                    tenor = 12,
+                    purpose = "Business",
+                    longitude = 106.8456,
+                    latitude = -6.2088,
+                )
 
-        // Act & Assert
-        useCase(request).test {
-            assertEquals(Resource.Loading, awaitItem())
-            val success = awaitItem() as Resource.Success
-            assertEquals("loan_123", success.data?.id)
-            awaitComplete()
+            val loan =
+                Loan(
+                    id = "loan_123",
+                    customerName = "Test Customer",
+                    product = Product("CASH_LOAN", "Pinjaman Tunai", 0.05),
+                    loanAmount = 5000000,
+                    tenor = 12,
+                    loanStatus = "DRAFT",
+                    currentStage = "SUBMISSION",
+                    submittedAt = null,
+                    reviewedAt = null,
+                    approvedAt = null,
+                    rejectedAt = null,
+                    disbursedAt = null,
+                    loanStatusDisplay = "Draft",
+                    slaDurationHours = 24,
+                )
+
+            every { repository.createLoan(request) } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Success(loan),
+                )
+
+            // Act & Assert
+            useCase(request).test {
+                assertEquals(Resource.Loading, awaitItem())
+                val success = awaitItem() as Resource.Success
+                assertEquals("loan_123", success.data?.id)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun `invoke should propagate error from repository`() = runTest {
-        // Arrange
-        val request = CreateLoanRequest(
-            loanAmount = 5000000,
-            tenor = 12,
-            purpose = "Business",
-            longitude = 106.8456,
-            latitude = -6.2088
-        )
-        
-        every { repository.createLoan(request) } returns flowOf(
-            Resource.Loading,
-            Resource.Error("Network error")
-        )
+    fun `invoke should propagate error from repository`() =
+        runTest {
+            // Arrange
+            val request =
+                CreateLoanRequest(
+                    loanAmount = 5000000,
+                    tenor = 12,
+                    purpose = "Business",
+                    longitude = 106.8456,
+                    latitude = -6.2088,
+                )
 
-        // Act & Assert
-        useCase(request).test {
-            assertEquals(Resource.Loading, awaitItem())
-            val error = awaitItem() as Resource.Error
-            assertEquals("Network error", error.message)
-            awaitComplete()
+            every { repository.createLoan(request) } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Error("Network error"),
+                )
+
+            // Act & Assert
+            useCase(request).test {
+                assertEquals(Resource.Loading, awaitItem())
+                val error = awaitItem() as Resource.Error
+                assertEquals("Network error", error.message)
+                awaitComplete()
+            }
         }
-    }
 }

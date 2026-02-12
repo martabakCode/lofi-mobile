@@ -15,7 +15,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class ValidateLoanSubmissionUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: ValidateLoanSubmissionUseCase
 
@@ -27,9 +26,9 @@ class ValidateLoanSubmissionUseCaseTest {
 
     private fun createUserData(
         isProfileCompleted: Boolean = true,
-        isPinSet: Boolean = true
-    ): UserUpdateData {
-        return UserUpdateData(
+        isPinSet: Boolean = true,
+    ): UserUpdateData =
+        UserUpdateData(
             id = "user123",
             fullName = "John Doe",
             email = "john@example.com",
@@ -39,62 +38,67 @@ class ValidateLoanSubmissionUseCaseTest {
             biodata = null,
             product = null,
             pinSet = isPinSet,
-            profileCompleted = isProfileCompleted
+            profileCompleted = isProfileCompleted,
         )
-    }
 
     @Test
-    fun `invoke should return success when profile is valid`() = runTest {
-        // Arrange
-        val userData = createUserData(isProfileCompleted = true, isPinSet = true)
-        
-        every { repository.getUserProfile() } returns flowOf(
-            Resource.Loading,
-            Resource.Success(userData)
-        )
+    fun `invoke should return success when profile is valid`() =
+        runTest {
+            // Arrange
+            val userData = createUserData(isProfileCompleted = true, isPinSet = true)
 
-        // Act
-        val result = useCase()
+            every { repository.getUserProfile() } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Success(userData),
+                )
 
-        // Assert
-        assertTrue(result.isSuccess)
-        val eligibility = result.getOrNull()
-        assertEquals(true, eligibility?.isProfileComplete)
-        assertEquals(true, eligibility?.isPinSet)
-    }
+            // Act
+            val result = useCase()
 
-    @Test
-    fun `invoke should return correct flags when profile is incomplete`() = runTest {
-        // Arrange
-        val userData = createUserData(isProfileCompleted = false, isPinSet = false)
-        
-        every { repository.getUserProfile() } returns flowOf(
-            Resource.Success(userData)
-        )
-
-        // Act
-        val result = useCase()
-
-        // Assert
-        assertTrue(result.isSuccess)
-        val eligibility = result.getOrNull()
-        assertEquals(false, eligibility?.isProfileComplete)
-        assertEquals(false, eligibility?.isPinSet)
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            val eligibility = result.getOrNull()
+            assertEquals(true, eligibility?.isProfileComplete)
+            assertEquals(true, eligibility?.isPinSet)
+        }
 
     @Test
-    fun `invoke should return failure when repository returns error`() = runTest {
-        // Arrange
-        every { repository.getUserProfile() } returns flowOf(
-            Resource.Loading,
-            Resource.Error(message = "Network error")
-        )
+    fun `invoke should return correct flags when profile is incomplete`() =
+        runTest {
+            // Arrange
+            val userData = createUserData(isProfileCompleted = false, isPinSet = false)
 
-        // Act
-        val result = useCase()
+            every { repository.getUserProfile() } returns
+                flowOf(
+                    Resource.Success(userData),
+                )
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals("Network error", result.exceptionOrNull()?.message)
-    }
+            // Act
+            val result = useCase()
+
+            // Assert
+            assertTrue(result.isSuccess)
+            val eligibility = result.getOrNull()
+            assertEquals(false, eligibility?.isProfileComplete)
+            assertEquals(false, eligibility?.isPinSet)
+        }
+
+    @Test
+    fun `invoke should return failure when repository returns error`() =
+        runTest {
+            // Arrange
+            every { repository.getUserProfile() } returns
+                flowOf(
+                    Resource.Loading,
+                    Resource.Error(message = "Network error"),
+                )
+
+            // Act
+            val result = useCase()
+
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals("Network error", result.exceptionOrNull()?.message)
+        }
 }

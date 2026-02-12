@@ -21,16 +21,16 @@ import com.loanfinancial.lofi.R
 fun LofiLogo(
     modifier: Modifier = Modifier,
     size: Dp = 80.dp,
-    alignment: Alignment = Alignment.Center
+    alignment: Alignment = Alignment.Center,
 ) {
     Box(
         modifier = modifier,
-        contentAlignment = alignment
+        contentAlignment = alignment,
     ) {
         Image(
             painter = painterResource(id = R.drawable.ic_logo),
             contentDescription = "LoFi Logo",
-            modifier = Modifier.size(size)
+            modifier = Modifier.size(size),
         )
     }
 }
@@ -40,11 +40,11 @@ fun LofiLogo(
  */
 @Composable
 fun LofiLogoSmall(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LofiLogo(
         modifier = modifier,
-        size = 32.dp
+        size = 32.dp,
     )
 }
 
@@ -53,11 +53,11 @@ fun LofiLogoSmall(
  */
 @Composable
 fun LofiLogoLarge(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LofiLogo(
         modifier = modifier,
-        size = 120.dp
+        size = 120.dp,
     )
 }
 
@@ -66,10 +66,10 @@ fun LofiLogoLarge(
  */
 @Composable
 fun LofiLogoMedium(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LofiLogo(
         modifier = modifier,
-        size = 64.dp
+        size = 64.dp,
     )
 }

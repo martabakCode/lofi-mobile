@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface IProductRepository {
     fun getProducts(): Flow<Resource<List<ProductDto>>>
+
     fun getAvailableProduct(): Flow<Resource<AvailableProductDto>>
 }

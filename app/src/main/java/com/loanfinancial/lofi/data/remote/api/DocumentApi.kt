@@ -16,13 +16,13 @@ import retrofit2.http.Url
 interface DocumentApi {
     @POST("documents/presign-upload")
     suspend fun requestPresignUpload(
-        @Body request: PresignUploadRequest
+        @Body request: PresignUploadRequest,
     ): Response<BaseResponse<PresignUploadResponse>>
 
     @PUT
     suspend fun uploadToPresignedUrl(
         @Url uploadUrl: String,
-        @Body file: RequestBody
+        @Body file: RequestBody,
     ): Response<Unit>
 
     @GET("documents/{id}/download")

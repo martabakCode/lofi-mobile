@@ -11,7 +11,6 @@ import javax.inject.Inject
 class LogoutUseCase
     @Inject
     constructor(
-
         private val repository: IAuthRepository,
         private val loanDao: LoanDao,
         private val documentUploadDao: PendingDocumentUploadDao,

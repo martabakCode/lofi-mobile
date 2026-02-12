@@ -12,12 +12,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
-import kotlin.coroutines.resume
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.coroutines.resume
 
 sealed class CameraResult {
     data class Success(
@@ -57,16 +57,17 @@ enum class DocumentType {
     ;
 
     val backendName: String
-        get() = when (this) {
-            KTP -> "KTP"
-            KK -> "KK"
-            NPWP -> "NPWP"
-            PAYSLIP -> "PAYSLIP"
-            PROOFOFRESIDENCE -> "PROOFOFRESIDENCE"
-            BANK_STATEMENT -> "BANK_STATEMENT"
-            PROFILE_PICTURE -> "PROFILE_PICTURE"
-            OTHER -> "OTHER"
-        }
+        get() =
+            when (this) {
+                KTP -> "KTP"
+                KK -> "KK"
+                NPWP -> "NPWP"
+                PAYSLIP -> "PAYSLIP"
+                PROOFOFRESIDENCE -> "PROOFOFRESIDENCE"
+                BANK_STATEMENT -> "BANK_STATEMENT"
+                PROFILE_PICTURE -> "PROFILE_PICTURE"
+                OTHER -> "OTHER"
+            }
 }
 
 interface CameraManager {

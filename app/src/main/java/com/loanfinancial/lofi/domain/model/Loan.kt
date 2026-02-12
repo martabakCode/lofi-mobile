@@ -35,7 +35,7 @@ data class Loan(
      */
     fun getLoanSteps(): List<LoanStep> {
         val steps = mutableListOf<LoanStep>()
-        
+
         // Step 1: Submitted
         steps.add(
             LoanStep(
@@ -43,10 +43,10 @@ data class Loan(
                 label = "Pengajuan Dikirim",
                 date = submittedAt,
                 isCompleted = submittedAt != null,
-                isCurrent = loanStatus == "SUBMITTED" || loanStatus == "DRAFT"
-            )
+                isCurrent = loanStatus == "SUBMITTED" || loanStatus == "DRAFT",
+            ),
         )
-        
+
         // Step 2: Review
         steps.add(
             LoanStep(
@@ -54,10 +54,10 @@ data class Loan(
                 label = "Sedang Ditinjau",
                 date = reviewedAt,
                 isCompleted = reviewedAt != null || approvedAt != null || disbursedAt != null,
-                isCurrent = loanStatus == "REVIEWED" || loanStatus == "IN_REVIEW"
-            )
+                isCurrent = loanStatus == "REVIEWED" || loanStatus == "IN_REVIEW",
+            ),
         )
-        
+
         // Step 3: Approval
         steps.add(
             LoanStep(
@@ -65,10 +65,10 @@ data class Loan(
                 label = if (rejectedAt != null) "Pengajuan Ditolak" else "Pengajuan Disetujui",
                 date = approvedAt ?: rejectedAt,
                 isCompleted = approvedAt != null || rejectedAt != null,
-                isCurrent = loanStatus == "APPROVED" || loanStatus == "REJECTED"
-            )
+                isCurrent = loanStatus == "APPROVED" || loanStatus == "REJECTED",
+            ),
         )
-        
+
         // Step 4: Disbursement (only if approved)
         if (approvedAt != null || disbursedAt != null) {
             steps.add(
@@ -77,11 +77,11 @@ data class Loan(
                     label = "Dana Dicairkan",
                     date = disbursedAt,
                     isCompleted = disbursedAt != null,
-                    isCurrent = loanStatus == "DISBURSED"
-                )
+                    isCurrent = loanStatus == "DISBURSED",
+                ),
             )
         }
-        
+
         return steps
     }
 }
@@ -133,7 +133,9 @@ fun String?.formatLoanDate(): String? {
     return try {
         // Try parsing ISO 8601 format
         val inputFormatter = java.time.format.DateTimeFormatter.ISO_DATE_TIME
-        val outputFormatter = java.time.format.DateTimeFormatter.ofPattern("dd MMMM yyyy, HH:mm")
+        val outputFormatter =
+            java.time.format.DateTimeFormatter
+                .ofPattern("dd MMMM yyyy, HH:mm")
         val dateTime = java.time.LocalDateTime.parse(this, inputFormatter)
         dateTime.format(outputFormatter)
     } catch (e: Exception) {

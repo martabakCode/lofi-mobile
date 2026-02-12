@@ -102,7 +102,6 @@ fun ApplyLoanScreen(
             }
         }
 
-
     // Camera Permission Launcher
     val cameraPermissionLauncher =
         rememberLauncherForActivityResult(
@@ -122,7 +121,6 @@ fun ApplyLoanScreen(
             }
         }
 
-
     // Handle AutoCapturingBiometric state
     androidx.compose.runtime.LaunchedEffect(uiState) {
         if (uiState is ApplyLoanUiState.AutoCapturingBiometric) {
@@ -136,8 +134,8 @@ fun ApplyLoanScreen(
                         viewModel.onBiometricResult(result)
                     }
             } else {
-                 // Fallback or error if authenticator is not available (e.g. not an Activity context)
-                 // For now, we rely on the implementation being correct.
+                // Fallback or error if authenticator is not available (e.g. not an Activity context)
+                // For now, we rely on the implementation being correct.
             }
         }
     }
@@ -195,7 +193,7 @@ fun ApplyLoanScreen(
         formState.currentStep,
         formState.bankName,
         formState.accountNumber,
-        formState.isBiometricVerified
+        formState.isBiometricVerified,
     ) {
         if (formState.currentStep == 4 &&
             formState.bankName.isNotBlank() &&
@@ -231,19 +229,20 @@ fun ApplyLoanScreen(
             showErrorDialog = state.error
         }
         is ApplyLoanUiState.ValidationError -> {
-            showErrorDialog = com.loanfinancial.lofi.core.common.result.ErrorType.UnknownError(
-                state.errors.values.joinToString("\n")
-            )
+            showErrorDialog =
+                com.loanfinancial.lofi.core.common.result.ErrorType.UnknownError(
+                    state.errors.values.joinToString("\n"),
+                )
         }
         is ApplyLoanUiState.Success -> {
             showSuccessDialog = true
         }
         is ApplyLoanUiState.DraftLoaded -> {
-             androidx.compose.runtime.LaunchedEffect(Unit) {
-                 kotlinx.coroutines.delay(1000)
-                 viewModel.onEvent(ApplyLoanUiEvent.RetryClicked)
-             }
-             LoadingState(message = "Draft loaded successfully")
+            androidx.compose.runtime.LaunchedEffect(Unit) {
+                kotlinx.coroutines.delay(1000)
+                viewModel.onEvent(ApplyLoanUiEvent.RetryClicked)
+            }
+            LoadingState(message = "Draft loaded successfully")
         }
         is ApplyLoanUiState.DraftSaved -> {
             if (state.showDialog) {
@@ -315,7 +314,7 @@ fun ApplyLoanScreen(
         if (uiState is ApplyLoanUiState.ReadyForDocumentUpload) {
             onNavigateToDocumentUpload?.invoke()
             // resetting state to avoid loop if we pop back
-             viewModel.onEvent(ApplyLoanUiEvent.RetryClicked) 
+            viewModel.onEvent(ApplyLoanUiEvent.RetryClicked)
         }
     }
 
@@ -343,32 +342,32 @@ fun ApplyLoanScreen(
                     BasicInfoSection(
                         formState = formState,
                         onEvent = wrappedOnEvent,
-                        enabled = uiState !is ApplyLoanUiState.Loading
+                        enabled = uiState !is ApplyLoanUiState.Loading,
                     )
                 }
                 2 -> {
                     EmploymentInfoSection(
                         formState = formState,
                         onEvent = wrappedOnEvent,
-                        enabled = uiState !is ApplyLoanUiState.Loading
+                        enabled = uiState !is ApplyLoanUiState.Loading,
                     )
                 }
                 3 -> {
                     EmergencyContactSection(
                         formState = formState,
                         onEvent = wrappedOnEvent,
-                        enabled = uiState !is ApplyLoanUiState.Loading
+                        enabled = uiState !is ApplyLoanUiState.Loading,
                     )
                 }
                 4 -> {
                     BankInfoSection(
                         formState = formState,
                         onEvent = wrappedOnEvent,
-                        enabled = uiState !is ApplyLoanUiState.Loading
+                        enabled = uiState !is ApplyLoanUiState.Loading,
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     // Biometric and Location sections are hidden
 
                     /*
@@ -385,7 +384,7 @@ fun ApplyLoanScreen(
                         onCaptureClick = { wrappedOnEvent(ApplyLoanUiEvent.CaptureLocation) },
                         enabled = uiState !is ApplyLoanUiState.Loading,
                     )
-                    */
+                     */
                 }
             }
 
@@ -424,7 +423,7 @@ fun ApplyLoanScreen(
                 else -> {
                     StepNavigationButtons(
                         currentStep = formState.currentStep,
-                        onNextClick = { 
+                        onNextClick = {
                             if (formState.currentStep < 4) {
                                 wrappedOnEvent(ApplyLoanUiEvent.NextStepClicked)
                             } else {
@@ -435,7 +434,7 @@ fun ApplyLoanScreen(
                                 }
                             }
                         },
-                        onBackClick = { 
+                        onBackClick = {
                             if (formState.currentStep > 1) {
                                 wrappedOnEvent(ApplyLoanUiEvent.PreviousStepClicked)
                             } else {
@@ -444,7 +443,14 @@ fun ApplyLoanScreen(
                         },
                         onSaveDraftClick = { wrappedOnEvent(ApplyLoanUiEvent.SaveAsDraftClicked) },
                         isNextEnabled = true, // Validation happens inside next step handler
-                        submitButtonText = if (formState.currentStep < 4) "Lanjut" else if (onNavigateToDocumentUpload != null) "Upload Dokumen" else "Submit Application"
+                        submitButtonText =
+                            if (formState.currentStep < 4) {
+                                "Lanjut"
+                            } else if (onNavigateToDocumentUpload != null) {
+                                "Upload Dokumen"
+                            } else {
+                                "Submit Application"
+                            },
                     )
                 }
             }
@@ -524,7 +530,7 @@ private fun BasicInfoSection(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text("Loan Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-        
+
         LofiTextField(
             value = formState.amount,
             onValueChange = { onEvent(ApplyLoanUiEvent.AmountChanged(it)) },
@@ -547,7 +553,7 @@ private fun BasicInfoSection(
             label = "Purpose",
             enabled = enabled,
         )
-        
+
         LofiTextField(
             value = formState.downPayment,
             onValueChange = { onEvent(ApplyLoanUiEvent.DownPaymentChanged(it)) },
@@ -687,7 +693,7 @@ private fun StepNavigationButtons(
     onBackClick: () -> Unit,
     onSaveDraftClick: () -> Unit,
     isNextEnabled: Boolean,
-    submitButtonText: String
+    submitButtonText: String,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -702,7 +708,7 @@ private fun StepNavigationButtons(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             OutlinedButton(
                 onClick = onBackClick,

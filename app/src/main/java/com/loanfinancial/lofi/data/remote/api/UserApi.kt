@@ -34,11 +34,11 @@ interface UserApi {
 
     @POST("users/set-pin")
     suspend fun setPin(
-        @Body request: SetPinRequest
+        @Body request: SetPinRequest,
     ): Response<BaseResponse<Any>>
 
     @PUT("users/me/pin")
     suspend fun changePin(
-        @Body request: ChangePinRequest
+        @Body request: ChangePinRequest,
     ): Response<BaseResponse<Any>>
 }

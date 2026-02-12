@@ -1,12 +1,11 @@
 package com.loanfinancial.lofi.data.model.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.UUID
-
-import androidx.room.ForeignKey
-import androidx.room.Index
-import androidx.room.ForeignKey.Companion.CASCADE
 
 @Entity(
     tableName = "pending_document_uploads",
@@ -15,10 +14,10 @@ import androidx.room.ForeignKey.Companion.CASCADE
             entity = UserEntity::class,
             parentColumns = ["id"],
             childColumns = ["userId"],
-            onDelete = CASCADE
-        )
+            onDelete = CASCADE,
+        ),
     ],
-    indices = [Index("userId")]
+    indices = [Index("userId")],
 )
 data class PendingDocumentUploadEntity(
     @PrimaryKey
@@ -42,13 +41,13 @@ data class PendingDocumentUploadEntity(
     val originalFileSize: Long = 0,
     val compressedFileSize: Long = 0,
     val isCompressed: Boolean = false,
-    val cleanupScheduled: Boolean = false
+    val cleanupScheduled: Boolean = false,
 )
 
 enum class DocumentUploadStatus {
-    PENDING,      // Waiting to be uploaded
-    UPLOADING,    // Currently uploading
-    COMPLETED,    // Successfully uploaded to S3
-    FAILED,       // Failed after max retries
-    CANCELLED     // User cancelled
+    PENDING, // Waiting to be uploaded
+    UPLOADING, // Currently uploading
+    COMPLETED, // Successfully uploaded to S3
+    FAILED, // Failed after max retries
+    CANCELLED, // User cancelled
 }

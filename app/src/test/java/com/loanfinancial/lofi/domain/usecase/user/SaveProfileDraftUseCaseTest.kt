@@ -14,7 +14,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class SaveProfileDraftUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: SaveProfileDraftUseCase
 
@@ -25,15 +24,16 @@ class SaveProfileDraftUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository saveProfileDraft`() = runTest {
-        // Arrange
-        val draft = ProfileDraftEntity(userId = "user_123", fullName = "John")
-        coEvery { repository.saveProfileDraft(draft) } just Runs
+    fun `invoke should delegate to repository saveProfileDraft`() =
+        runTest {
+            // Arrange
+            val draft = ProfileDraftEntity(userId = "user_123", fullName = "John")
+            coEvery { repository.saveProfileDraft(draft) } just Runs
 
-        // Act
-        useCase(draft)
+            // Act
+            useCase(draft)
 
-        // Assert
-        coVerify(exactly = 1) { repository.saveProfileDraft(draft) }
-    }
+            // Assert
+            coVerify(exactly = 1) { repository.saveProfileDraft(draft) }
+        }
 }

@@ -16,7 +16,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetUserProfileUseCaseTest {
-
     private lateinit var repository: IUserRepository
     private lateinit var useCase: GetUserProfileUseCase
 
@@ -27,19 +26,20 @@ class GetUserProfileUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getUserProfile`() = runTest {
-        // Arrange
-        val expectedData = mockk<UserUpdateData>(relaxed = true)
-        
-        every { repository.getUserProfile() } returns flowOf(Resource.Success(expectedData))
+    fun `invoke should delegate to repository getUserProfile`() =
+        runTest {
+            // Arrange
+            val expectedData = mockk<UserUpdateData>(relaxed = true)
 
-        // Act & Assert
-        useCase().test {
-            val result = awaitItem()
-            assertEquals(Resource.Success(expectedData), result)
-            awaitComplete()
+            every { repository.getUserProfile() } returns flowOf(Resource.Success(expectedData))
+
+            // Act & Assert
+            useCase().test {
+                val result = awaitItem()
+                assertEquals(Resource.Success(expectedData), result)
+                awaitComplete()
+            }
+
+            verify(exactly = 1) { repository.getUserProfile() }
         }
-        
-        verify(exactly = 1) { repository.getUserProfile() }
-    }
 }

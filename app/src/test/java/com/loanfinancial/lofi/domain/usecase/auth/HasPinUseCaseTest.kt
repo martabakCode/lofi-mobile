@@ -13,7 +13,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class HasPinUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: HasPinUseCase
 
@@ -24,31 +23,33 @@ class HasPinUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository hasPin`() = runTest {
-        // Arrange
-        coEvery { repository.hasPin() } returns Result.success(true)
+    fun `invoke should delegate to repository hasPin`() =
+        runTest {
+            // Arrange
+            coEvery { repository.hasPin() } returns Result.success(true)
 
-        // Act
-        val result = useCase()
+            // Act
+            val result = useCase()
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(true, result.getOrNull())
-        coVerify(exactly = 1) { repository.hasPin() }
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(true, result.getOrNull())
+            coVerify(exactly = 1) { repository.hasPin() }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val expectedException = Exception("Network error")
-        coEvery { repository.hasPin() } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val expectedException = Exception("Network error")
+            coEvery { repository.hasPin() } returns Result.failure(expectedException)
 
-        // Act
-        val result = useCase()
+            // Act
+            val result = useCase()
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.hasPin() }
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.hasPin() }
+        }
 }

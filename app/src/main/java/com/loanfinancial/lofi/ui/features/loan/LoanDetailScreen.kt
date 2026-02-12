@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -167,9 +166,10 @@ private fun LoanDetailContent(
         // Loan Progress Steps
         Card(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-            ),
+            colors =
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                ),
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 Text(
@@ -318,87 +318,95 @@ private fun LoanStepTracker(steps: List<LoanStep>) {
         steps.forEachIndexed { index, step ->
             LoanStepItem(
                 step = step,
-                isLast = index == steps.size - 1
+                isLast = index == steps.size - 1,
             )
         }
     }
 }
 
 @Composable
-private fun LoanStepItem(step: LoanStep, isLast: Boolean) {
+private fun LoanStepItem(
+    step: LoanStep,
+    isLast: Boolean,
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         // Timeline column with icon and line
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(32.dp)
+            modifier = Modifier.width(32.dp),
         ) {
             // Step icon
             StepIcon(step = step)
-            
+
             // Connector line (if not last)
             if (!isLast) {
                 Box(
-                    modifier = Modifier
-                        .width(2.dp)
-                        .height(40.dp)
-                        .background(
-                            if (step.isCompleted) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
-                                MaterialTheme.colorScheme.outlineVariant
-                        )
+                    modifier =
+                        Modifier
+                            .width(2.dp)
+                            .height(40.dp)
+                            .background(
+                                if (step.isCompleted) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.outlineVariant
+                                },
+                            ),
                 )
             }
         }
-        
+
         // Step content
         Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(bottom = if (isLast) 0.dp else 16.dp)
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .padding(bottom = if (isLast) 0.dp else 16.dp),
         ) {
             Text(
                 text = step.label,
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = if (step.isCurrent) FontWeight.Bold else FontWeight.Normal
-                ),
-                color = when {
-                    step.isCompleted || step.isCurrent -> MaterialTheme.colorScheme.onSurface
-                    else -> MaterialTheme.colorScheme.onSurfaceVariant
-                }
+                style =
+                    MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = if (step.isCurrent) FontWeight.Bold else FontWeight.Normal,
+                    ),
+                color =
+                    when {
+                        step.isCompleted || step.isCurrent -> MaterialTheme.colorScheme.onSurface
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
             )
-            
+
             // Show date if available
             step.date?.formatLoanDate()?.let { formattedDate ->
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.CalendarToday,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                     Text(
                         text = formattedDate,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 }
             }
-            
+
             // Show pending/waiting text if no date and not completed
             if (step.date == null && !step.isCompleted) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = if (step.isCurrent) "Sedang diproses..." else "Menunggu...",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
@@ -407,42 +415,47 @@ private fun LoanStepItem(step: LoanStep, isLast: Boolean) {
 
 @Composable
 private fun StepIcon(step: LoanStep) {
-    val backgroundColor = when {
-        step.isCompleted -> MaterialTheme.colorScheme.primary
-        step.isCurrent -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.outlineVariant
-    }
-    
-    val iconColor = when {
-        step.isCompleted -> MaterialTheme.colorScheme.onPrimary
-        step.isCurrent -> MaterialTheme.colorScheme.primary
-        else -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    
-    val icon = when {
-        step.status == "SUBMITTED" -> Icons.Default.Send
-        step.status == "REVIEWED" -> Icons.Default.Search
-        step.status == "APPROVED" -> 
-            if (step.date != null && step.label.contains("Ditolak")) 
-                Icons.Default.Cancel 
-            else 
-                Icons.Default.CheckCircle
-        step.status == "DISBURSED" -> Icons.Default.AccountBalanceWallet
-        else -> Icons.Default.RadioButtonUnchecked
-    }
-    
+    val backgroundColor =
+        when {
+            step.isCompleted -> MaterialTheme.colorScheme.primary
+            step.isCurrent -> MaterialTheme.colorScheme.primaryContainer
+            else -> MaterialTheme.colorScheme.outlineVariant
+        }
+
+    val iconColor =
+        when {
+            step.isCompleted -> MaterialTheme.colorScheme.onPrimary
+            step.isCurrent -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.onSurfaceVariant
+        }
+
+    val icon =
+        when {
+            step.status == "SUBMITTED" -> Icons.Default.Send
+            step.status == "REVIEWED" -> Icons.Default.Search
+            step.status == "APPROVED" ->
+                if (step.date != null && step.label.contains("Ditolak")) {
+                    Icons.Default.Cancel
+                } else {
+                    Icons.Default.CheckCircle
+                }
+            step.status == "DISBURSED" -> Icons.Default.AccountBalanceWallet
+            else -> Icons.Default.RadioButtonUnchecked
+        }
+
     Box(
-        modifier = Modifier
-            .size(32.dp)
-            .clip(CircleShape)
-            .background(backgroundColor),
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(backgroundColor),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = step.label,
             tint = iconColor,
-            modifier = Modifier.size(18.dp)
+            modifier = Modifier.size(18.dp),
         )
     }
 }

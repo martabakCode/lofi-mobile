@@ -185,7 +185,6 @@ fun HomeScreenContent(
                 }
             }
 
-
             // 🚀 Quick Actions
             if (!isGuest) {
                 item {
@@ -218,7 +217,7 @@ fun HomeScreenContent(
                 item {
                     androidx.compose.foundation.lazy.LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        contentPadding = PaddingValues(bottom = 8.dp)
+                        contentPadding = PaddingValues(bottom = 8.dp),
                     ) {
                         items(uiState.products) { product ->
                             ProductCard(product = product, onClick = onApplyLoanClick)
@@ -235,7 +234,7 @@ fun HomeScreenContent(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     )
                 }
-    
+
                 if (uiState.isLoading) {
                     item {
                         Box(modifier = Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
@@ -305,28 +304,30 @@ fun LoanItem(loan: Loan) {
 @Composable
 fun ProductCard(
     product: com.loanfinancial.lofi.data.model.dto.ProductDto,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Box(
-        modifier = Modifier
-            .width(160.dp)
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable { onClick() }
-            .padding(16.dp)
+        modifier =
+            Modifier
+                .width(160.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surface)
+                .clickable { onClick() }
+                .padding(16.dp),
     ) {
         Column {
             Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
                     text = product.productCode.take(1),
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
             Spacer(modifier = Modifier.height(12.dp))
@@ -334,19 +335,19 @@ fun ProductCard(
                 text = product.productName,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.Bold,
-                maxLines = 1
+                maxLines = 1,
             )
             Text(
                 text = "Up to Rp ${String.format("%,.0f", product.maxLoanAmount ?: 0.0)}",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "${product.interestRate}% Interest",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }

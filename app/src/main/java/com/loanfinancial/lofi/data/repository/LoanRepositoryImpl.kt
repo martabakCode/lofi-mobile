@@ -13,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -52,10 +51,11 @@ class LoanRepositoryImpl
 
                 // Step 3: Continuous emission from local DB (source of truth)
                 emitAll(
-                    localDataSource.getLoansByUser(userId)
+                    localDataSource
+                        .getLoansByUser(userId)
                         .map { entities ->
                             Resource.Success(entities.map { it.toDomain() })
-                        }
+                        },
                 )
             }.distinctUntilChanged()
 

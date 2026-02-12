@@ -66,10 +66,11 @@ class HomeViewModel
             viewModelScope.launch {
                 val hasCompleted = dataStoreManager.hasCompletedFirstSessionFlow.first()
                 val isProfileCompleted = dataStoreManager.isProfileCompletedFlow.first()
-                _uiState.value = _uiState.value.copy(
-                    hasCompletedFirstSession = true,
-                    isProfileCompleted = isProfileCompleted
-                )
+                _uiState.value =
+                    _uiState.value.copy(
+                        hasCompletedFirstSession = true,
+                        isProfileCompleted = isProfileCompleted,
+                    )
                 if (!hasCompleted) {
                     dataStoreManager.setHasCompletedFirstSession(true)
                 }
@@ -88,83 +89,87 @@ class HomeViewModel
 
         private fun fetchUserProfile() {
             profileJob?.cancel()
-            profileJob = getUserProfileUseCase()
-                .onEach { result ->
-                    when (result) {
-                        is Resource.Success<UserUpdateData> -> {
-                            _uiState.value = _uiState.value.copy(userProfile = result.data)
+            profileJob =
+                getUserProfileUseCase()
+                    .onEach { result ->
+                        when (result) {
+                            is Resource.Success<UserUpdateData> -> {
+                                _uiState.value = _uiState.value.copy(userProfile = result.data)
+                            }
+                            is Resource.Error -> {
+                                // Optionally handle error
+                            }
+                            is Resource.Loading -> {
+                                // handled by pull refresh or initial load
+                            }
                         }
-                        is Resource.Error -> {
-                            // Optionally handle error
-                        }
-                        is Resource.Loading -> {
-                            // handled by pull refresh or initial load
-                        }
-                    }
-                }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope)
         }
 
         fun fetchLoans(isRefreshing: Boolean = false) {
             loansJob?.cancel()
-            loansJob = getMyLoansUseCase()
-                .onEach { result ->
-                    when (result) {
-                        is Resource.Loading -> {
-                            if (isRefreshing) {
-                                _uiState.value = _uiState.value.copy(isRefreshing = true)
-                            } else {
-                                _uiState.value = _uiState.value.copy(isLoading = true)
+            loansJob =
+                getMyLoansUseCase()
+                    .onEach { result ->
+                        when (result) {
+                            is Resource.Loading -> {
+                                if (isRefreshing) {
+                                    _uiState.value = _uiState.value.copy(isRefreshing = true)
+                                } else {
+                                    _uiState.value = _uiState.value.copy(isLoading = true)
+                                }
+                            }
+                            is Resource.Success<List<Loan>> -> {
+                                _uiState.value =
+                                    _uiState.value.copy(
+                                        isLoading = false,
+                                        isRefreshing = false,
+                                        loans = result.data,
+                                        error = null,
+                                    )
+                            }
+                            is Resource.Error -> {
+                                _uiState.value =
+                                    _uiState.value.copy(
+                                        isLoading = false,
+                                        isRefreshing = false,
+                                        error = result.message,
+                                    )
                             }
                         }
-                        is Resource.Success<List<Loan>> -> {
-                            _uiState.value =
-                                _uiState.value.copy(
-                                    isLoading = false,
-                                    isRefreshing = false,
-                                    loans = result.data,
-                                    error = null,
-                                )
-                        }
-                        is Resource.Error -> {
-                            _uiState.value =
-                                _uiState.value.copy(
-                                    isLoading = false,
-                                    isRefreshing = false,
-                                    error = result.message,
-                                )
-                        }
-                    }
-                }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope)
         }
 
         private fun fetchProducts() {
             productsJob?.cancel()
-            productsJob = getProductsUseCase()
-                .onEach { result ->
-                    when (result) {
-                        is Resource.Success<List<com.loanfinancial.lofi.data.model.dto.ProductDto>> -> {
-                            _uiState.update { it.copy(products = result.data) }
+            productsJob =
+                getProductsUseCase()
+                    .onEach { result ->
+                        when (result) {
+                            is Resource.Success<List<com.loanfinancial.lofi.data.model.dto.ProductDto>> -> {
+                                _uiState.update { it.copy(products = result.data) }
+                            }
+                            else -> {}
                         }
-                        else -> {}
-                    }
-                }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope)
         }
 
         private fun fetchAvailableProduct() {
             availableProductJob?.cancel()
-            availableProductJob = getAvailableProductUseCase()
-                .onEach { result ->
-                    when (result) {
-                        is Resource.Success<AvailableProductDto> -> {
-                            _uiState.update { it.copy(availableProduct = result.data) }
+            availableProductJob =
+                getAvailableProductUseCase()
+                    .onEach { result ->
+                        when (result) {
+                            is Resource.Success<AvailableProductDto> -> {
+                                _uiState.update { it.copy(availableProduct = result.data) }
+                            }
+                            is Resource.Error -> {
+                                // Optionally handle error
+                            }
+                            is Resource.Loading -> {
+                                // handled by pull refresh or initial load
+                            }
                         }
-                        is Resource.Error -> {
-                            // Optionally handle error
-                        }
-                        is Resource.Loading -> {
-                            // handled by pull refresh or initial load
-                        }
-                    }
-                }.launchIn(viewModelScope)
+                    }.launchIn(viewModelScope)
         }
     }

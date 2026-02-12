@@ -7,19 +7,19 @@ import com.loanfinancial.lofi.data.remote.datasource.LoanRemoteDataSourceImpl
 import com.loanfinancial.lofi.data.remote.datasource.NotificationRemoteDataSource
 import com.loanfinancial.lofi.data.remote.datasource.NotificationRemoteDataSourceImpl
 import com.loanfinancial.lofi.data.repository.AuthRepositoryImpl
+import com.loanfinancial.lofi.data.repository.DocumentRepositoryImpl
 import com.loanfinancial.lofi.data.repository.LoanRepositoryImpl
 import com.loanfinancial.lofi.data.repository.NotificationRepositoryImpl
 import com.loanfinancial.lofi.data.repository.ProductRepositoryImpl
 import com.loanfinancial.lofi.data.repository.RegionRepositoryImpl
 import com.loanfinancial.lofi.data.repository.UserRepositoryImpl
 import com.loanfinancial.lofi.domain.repository.IAuthRepository
+import com.loanfinancial.lofi.domain.repository.IDocumentRepository
 import com.loanfinancial.lofi.domain.repository.ILoanRepository
 import com.loanfinancial.lofi.domain.repository.INotificationRepository
 import com.loanfinancial.lofi.domain.repository.IProductRepository
 import com.loanfinancial.lofi.domain.repository.IRegionRepository
 import com.loanfinancial.lofi.domain.repository.IUserRepository
-import com.loanfinancial.lofi.data.repository.DocumentRepositoryImpl
-import com.loanfinancial.lofi.domain.repository.IDocumentRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -86,18 +86,18 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindDocumentRepository(
-        impl: DocumentRepositoryImpl
+        impl: DocumentRepositoryImpl,
     ): IDocumentRepository
 
     @Binds
     @Singleton
     abstract fun bindLoanSubmissionManager(
-        impl: com.loanfinancial.lofi.data.manager.LoanSubmissionManagerImpl
+        impl: com.loanfinancial.lofi.data.manager.LoanSubmissionManagerImpl,
     ): com.loanfinancial.lofi.domain.manager.LoanSubmissionManager
 
     @Binds
     @Singleton
     abstract fun bindLoanDraftRepository(
-        impl: com.loanfinancial.lofi.data.repository.LoanDraftRepositoryImpl
+        impl: com.loanfinancial.lofi.data.repository.LoanDraftRepositoryImpl,
     ): com.loanfinancial.lofi.domain.repository.ILoanDraftRepository
 }

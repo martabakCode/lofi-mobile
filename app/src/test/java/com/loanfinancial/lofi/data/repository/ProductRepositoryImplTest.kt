@@ -9,7 +9,6 @@ import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -34,18 +33,19 @@ class ProductRepositoryImplTest {
     @Test
     fun `getProducts returns products from API`() =
         runTest {
-            val products = listOf(
-                ProductDto(
-                    id = "prod1",
-                    name = "Personal Loan",
-                    description = "Personal loan description",
-                    minAmount = 1000000.0,
-                    maxAmount = 50000000.0,
-                    minTenure = 6,
-                    maxTenure = 48,
-                    interestRate = 0.12
+            val products =
+                listOf(
+                    ProductDto(
+                        id = "prod1",
+                        name = "Personal Loan",
+                        description = "Personal loan description",
+                        minAmount = 1000000.0,
+                        maxAmount = 50000000.0,
+                        minTenure = 6,
+                        maxTenure = 48,
+                        interestRate = 0.12,
+                    ),
                 )
-            )
 
             coEvery { productApi.getProducts() } returns Response.success(products)
             coEvery { productDao.insertProducts(any()) } just runs
@@ -59,18 +59,19 @@ class ProductRepositoryImplTest {
     @Test
     fun `getProducts caches to local database`() =
         runTest {
-            val products = listOf(
-                ProductDto(
-                    id = "prod1",
-                    name = "Personal Loan",
-                    description = "Description",
-                    minAmount = 1000000.0,
-                    maxAmount = 50000000.0,
-                    minTenure = 6,
-                    maxTenure = 48,
-                    interestRate = 0.12
+            val products =
+                listOf(
+                    ProductDto(
+                        id = "prod1",
+                        name = "Personal Loan",
+                        description = "Description",
+                        minAmount = 1000000.0,
+                        maxAmount = 50000000.0,
+                        minTenure = 6,
+                        maxTenure = 48,
+                        interestRate = 0.12,
+                    ),
                 )
-            )
 
             coEvery { productApi.getProducts() } returns Response.success(products)
             coEvery { productDao.insertProducts(any()) } just runs
@@ -83,16 +84,17 @@ class ProductRepositoryImplTest {
     @Test
     fun `getAvailableProducts returns eligible products`() =
         runTest {
-            val availableProducts = listOf(
-                AvailableProductDto(
-                    productId = "prod1",
-                    productName = "Personal Loan",
-                    maxLoanAmount = 25000000.0,
-                    maxTenure = 36,
-                    interestRate = 0.10,
-                    eligibleAmount = 15000000.0
+            val availableProducts =
+                listOf(
+                    AvailableProductDto(
+                        productId = "prod1",
+                        productName = "Personal Loan",
+                        maxLoanAmount = 25000000.0,
+                        maxTenure = 36,
+                        interestRate = 0.10,
+                        eligibleAmount = 15000000.0,
+                    ),
                 )
-            )
 
             coEvery { productApi.getAvailableProducts("user123") } returns Response.success(availableProducts)
 
@@ -105,20 +107,21 @@ class ProductRepositoryImplTest {
     @Test
     fun `getCachedProducts returns from database`() =
         runTest {
-            val entities = listOf(
-                ProductEntity(
-                    id = "prod1",
-                    name = "Cached Loan",
-                    description = "Cached description",
-                    minAmount = 1000000.0,
-                    maxAmount = 50000000.0,
-                    minTenure = 6,
-                    maxTenure = 48,
-                    interestRate = 0.12,
-                    iconUrl = null,
-                    color = "#FF0000"
+            val entities =
+                listOf(
+                    ProductEntity(
+                        id = "prod1",
+                        name = "Cached Loan",
+                        description = "Cached description",
+                        minAmount = 1000000.0,
+                        maxAmount = 50000000.0,
+                        minTenure = 6,
+                        maxTenure = 48,
+                        interestRate = 0.12,
+                        iconUrl = null,
+                        color = "#FF0000",
+                    ),
                 )
-            )
 
             coEvery { productDao.getAllProducts() } returns entities
 

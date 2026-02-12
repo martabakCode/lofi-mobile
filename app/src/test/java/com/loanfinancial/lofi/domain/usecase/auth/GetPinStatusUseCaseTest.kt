@@ -14,7 +14,6 @@ import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class GetPinStatusUseCaseTest {
-
     private lateinit var repository: IAuthRepository
     private lateinit var useCase: GetPinStatusUseCase
 
@@ -25,32 +24,34 @@ class GetPinStatusUseCaseTest {
     }
 
     @Test
-    fun `invoke should delegate to repository getPinStatus`() = runTest {
-        // Arrange
-        val expectedResponse = PinStatusResponse(pinSet = true)
-        coEvery { repository.getPinStatus() } returns Result.success(expectedResponse)
+    fun `invoke should delegate to repository getPinStatus`() =
+        runTest {
+            // Arrange
+            val expectedResponse = PinStatusResponse(pinSet = true)
+            coEvery { repository.getPinStatus() } returns Result.success(expectedResponse)
 
-        // Act
-        val result = useCase()
+            // Act
+            val result = useCase()
 
-        // Assert
-        assertTrue(result.isSuccess)
-        assertEquals(expectedResponse, result.getOrNull())
-        coVerify(exactly = 1) { repository.getPinStatus() }
-    }
+            // Assert
+            assertTrue(result.isSuccess)
+            assertEquals(expectedResponse, result.getOrNull())
+            coVerify(exactly = 1) { repository.getPinStatus() }
+        }
 
     @Test
-    fun `invoke should return error when repository fails`() = runTest {
-        // Arrange
-        val expectedException = Exception("Network error")
-        coEvery { repository.getPinStatus() } returns Result.failure(expectedException)
+    fun `invoke should return error when repository fails`() =
+        runTest {
+            // Arrange
+            val expectedException = Exception("Network error")
+            coEvery { repository.getPinStatus() } returns Result.failure(expectedException)
 
-        // Act
-        val result = useCase()
+            // Act
+            val result = useCase()
 
-        // Assert
-        assertTrue(result.isFailure)
-        assertEquals(expectedException, result.exceptionOrNull())
-        coVerify(exactly = 1) { repository.getPinStatus() }
-    }
+            // Assert
+            assertTrue(result.isFailure)
+            assertEquals(expectedException, result.exceptionOrNull())
+            coVerify(exactly = 1) { repository.getPinStatus() }
+        }
 }

@@ -1,10 +1,7 @@
 package com.loanfinancial.lofi.ui.features.profile
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import com.loanfinancial.lofi.data.model.dto.ChangePasswordRequest
 import com.loanfinancial.lofi.domain.usecase.auth.ChangePasswordUseCase
-import com.loanfinancial.lofi.ui.features.profile.ChangePasswordUiState
-import com.loanfinancial.lofi.ui.features.profile.ChangePasswordViewModel
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -113,55 +110,58 @@ class ChangePasswordViewModelTest {
     }
 
     @Test
-    fun `submit with valid data should call use case`() = runTest {
-        coEvery {
-            changePasswordUseCase(any())
-        } returns Result.success(Unit)
+    fun `submit with valid data should call use case`() =
+        runTest {
+            coEvery {
+                changePasswordUseCase(any())
+            } returns Result.success(Unit)
 
-        viewModel.onOldPasswordChange("oldPassword123")
-        viewModel.onNewPasswordChange("newPassword123")
-        viewModel.onConfirmPasswordChange("newPassword123")
+            viewModel.onOldPasswordChange("oldPassword123")
+            viewModel.onNewPasswordChange("newPassword123")
+            viewModel.onConfirmPasswordChange("newPassword123")
 
-        viewModel.submit()
-        advanceUntilIdle()
+            viewModel.submit()
+            advanceUntilIdle()
 
-        coVerify { changePasswordUseCase(any()) }
-    }
-
-    @Test
-    fun `submit success should update isSuccess state`() = runTest {
-        coEvery {
-            changePasswordUseCase(any())
-        } returns Result.success(Unit)
-
-        viewModel.onOldPasswordChange("oldPassword123")
-        viewModel.onNewPasswordChange("newPassword123")
-        viewModel.onConfirmPasswordChange("newPassword123")
-
-        viewModel.submit()
-        advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertTrue(state.isSuccess)
-        assertFalse(state.isLoading)
-    }
+            coVerify { changePasswordUseCase(any()) }
+        }
 
     @Test
-    fun `submit failure should update error state`() = runTest {
-        coEvery {
-            changePasswordUseCase(any())
-        } returns Result.failure(Exception("Current password is incorrect"))
+    fun `submit success should update isSuccess state`() =
+        runTest {
+            coEvery {
+                changePasswordUseCase(any())
+            } returns Result.success(Unit)
 
-        viewModel.onOldPasswordChange("oldPassword123")
-        viewModel.onNewPasswordChange("newPassword123")
-        viewModel.onConfirmPasswordChange("newPassword123")
+            viewModel.onOldPasswordChange("oldPassword123")
+            viewModel.onNewPasswordChange("newPassword123")
+            viewModel.onConfirmPasswordChange("newPassword123")
 
-        viewModel.submit()
-        advanceUntilIdle()
+            viewModel.submit()
+            advanceUntilIdle()
 
-        val state = viewModel.uiState.value
-        assertFalse(state.isLoading)
-        assertFalse(state.isSuccess)
-        assertNotNull(state.error)
-    }
+            val state = viewModel.uiState.value
+            assertTrue(state.isSuccess)
+            assertFalse(state.isLoading)
+        }
+
+    @Test
+    fun `submit failure should update error state`() =
+        runTest {
+            coEvery {
+                changePasswordUseCase(any())
+            } returns Result.failure(Exception("Current password is incorrect"))
+
+            viewModel.onOldPasswordChange("oldPassword123")
+            viewModel.onNewPasswordChange("newPassword123")
+            viewModel.onConfirmPasswordChange("newPassword123")
+
+            viewModel.submit()
+            advanceUntilIdle()
+
+            val state = viewModel.uiState.value
+            assertFalse(state.isLoading)
+            assertFalse(state.isSuccess)
+            assertNotNull(state.error)
+        }
 }

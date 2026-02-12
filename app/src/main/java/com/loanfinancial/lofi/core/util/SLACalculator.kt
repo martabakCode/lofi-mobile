@@ -15,10 +15,11 @@ sealed class SLACountdownState {
         val percentageRemaining: Float,
         val formattedTime: String,
         val isUrgent: Boolean,
-        val isWarning: Boolean
+        val isWarning: Boolean,
     ) : SLACountdownState()
 
     data object Expired : SLACountdownState()
+
     data object NoSLA : SLACountdownState()
 }
 
@@ -26,7 +27,6 @@ sealed class SLACountdownState {
  * Utility object for calculating SLA countdown times and formatting
  */
 object SLACalculator {
-
     private val dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME
 
     /**
@@ -38,7 +38,7 @@ object SLACalculator {
      */
     fun calculateTimeRemaining(
         submittedAt: String?,
-        slaDurationHours: Int?
+        slaDurationHours: Int?,
     ): SLACountdownState {
         if (submittedAt == null || slaDurationHours == null || slaDurationHours <= 0) {
             return SLACountdownState.NoSLA
@@ -57,18 +57,19 @@ object SLACalculator {
                 val remainingMs = remainingDuration.toMillis()
                 val totalMs = totalDuration.toMillis()
 
-                val percentageRemaining = if (totalMs > 0) {
-                    remainingMs.toFloat() / totalMs.toFloat()
-                } else {
-                    0f
-                }
+                val percentageRemaining =
+                    if (totalMs > 0) {
+                        remainingMs.toFloat() / totalMs.toFloat()
+                    } else {
+                        0f
+                    }
 
                 SLACountdownState.Active(
                     timeRemainingMs = remainingMs,
                     percentageRemaining = percentageRemaining,
                     formattedTime = formatDuration(remainingMs),
                     isUrgent = percentageRemaining < 0.1f,
-                    isWarning = percentageRemaining < 0.25f
+                    isWarning = percentageRemaining < 0.25f,
                 )
             }
         } catch (e: DateTimeParseException) {
@@ -114,14 +115,13 @@ object SLACalculator {
      * @param percentageRemaining Float between 0.0 and 1.0
      * @return Color appropriate for the urgency level
      */
-    fun getSLAColor(percentageRemaining: Float): Color {
-        return when {
+    fun getSLAColor(percentageRemaining: Float): Color =
+        when {
             percentageRemaining > 0.5f -> Color(0xFF4CAF50) // Green - Safe
             percentageRemaining > 0.25f -> Color(0xFFFFC107) // Yellow - Warning
-            percentageRemaining > 0.1f -> Color(0xFFFF9800)  // Orange - Urgent
-            else -> Color(0xFFF44336)                        // Red - Critical/Expired
+            percentageRemaining > 0.1f -> Color(0xFFFF9800) // Orange - Urgent
+            else -> Color(0xFFF44336) // Red - Critical/Expired
         }
-    }
 
     /**
      * Gets the container/background color for SLA display
@@ -129,14 +129,13 @@ object SLACalculator {
      * @param percentageRemaining Float between 0.0 and 1.0
      * @return Color with alpha for background
      */
-    fun getSLABackgroundColor(percentageRemaining: Float): Color {
-        return when {
+    fun getSLABackgroundColor(percentageRemaining: Float): Color =
+        when {
             percentageRemaining > 0.5f -> Color(0xFFE8F5E9) // Light Green
             percentageRemaining > 0.25f -> Color(0xFFFFF8E1) // Light Yellow
-            percentageRemaining > 0.1f -> Color(0xFFFFF3E0)  // Light Orange
-            else -> Color(0xFFFFEBEE)                        // Light Red
+            percentageRemaining > 0.1f -> Color(0xFFFFF3E0) // Light Orange
+            else -> Color(0xFFFFEBEE) // Light Red
         }
-    }
 
     /**
      * Alternative formatter that shows only the most significant time unit
