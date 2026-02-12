@@ -1,11 +1,11 @@
 package com.loanfinancial.lofi.data.repository
 
-import com.loanfinancial.lofi.core.network.BaseResponse
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.ProfileDraftDao
 import com.loanfinancial.lofi.data.local.dao.UserDao
 import com.loanfinancial.lofi.data.model.dto.UserUpdateData
 import com.loanfinancial.lofi.data.model.dto.UserUpdateRequest
+import com.loanfinancial.lofi.data.model.dto.UserUpdateResponse
 import com.loanfinancial.lofi.data.model.entity.UserProfileEntity
 import com.loanfinancial.lofi.data.remote.api.UserApi
 import io.mockk.*
@@ -75,14 +75,14 @@ class UserRepositoryImplTest {
                     pinSet = true,
                     profileCompleted = true,
                 )
-            val baseResponse =
-                BaseResponse(
+            val updateResponse =
+                UserUpdateResponse(
                     success = true,
                     message = "Success",
                     data = updateData,
                 )
 
-            coEvery { userApi.updateProfile(request) } returns Response.success(baseResponse)
+            coEvery { userApi.updateProfile(request) } returns Response.success(updateResponse)
 
             // Act
             val results = repository.updateProfile(request).toList()
@@ -111,15 +111,15 @@ class UserRepositoryImplTest {
                     pinSet = true,
                     profileCompleted = true,
                 )
-            val baseResponse =
-                BaseResponse(
+            val updateResponse =
+                UserUpdateResponse(
                     success = true,
                     message = "Success",
                     data = updateData,
                 )
 
             coEvery { userDao.getUserProfile() } returns flowOf(localProfile)
-            coEvery { userApi.getUserProfile() } returns Response.success(baseResponse)
+            coEvery { userApi.getUserProfile() } returns Response.success(updateResponse)
             coEvery { userDao.clearUserProfile() } just Runs
             coEvery { userDao.insertUserProfile(any()) } just Runs
 

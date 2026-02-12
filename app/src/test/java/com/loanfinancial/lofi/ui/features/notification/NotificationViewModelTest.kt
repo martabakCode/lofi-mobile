@@ -4,11 +4,15 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.model.dto.NotificationResponse
 import com.loanfinancial.lofi.domain.usecase.notification.GetNotificationsUseCase
-import io.mockk.*
+import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.*
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -29,7 +33,7 @@ class NotificationViewModelTest {
 
     @Before
     fun setup() {
-        MockKAnnotations.init(this)
+        io.mockk.MockKAnnotations.init(this)
         Dispatchers.setMain(testDispatcher)
     }
 
@@ -39,129 +43,136 @@ class NotificationViewModelTest {
     }
 
     @Test
-    fun `initial state should be Loading`() {
-        every { getNotificationsUseCase() } returns flowOf(Resource.Loading())
+    fun `initial state should be Loading`() =
+        runTest {
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Loading)
 
-        viewModel = NotificationViewModel(getNotificationsUseCase)
+            viewModel = NotificationViewModel(getNotificationsUseCase)
 
-        val state = viewModel.uiState.value
-        assertTrue(state is UiState.Loading)
-    }
-
-    @Test
-    fun `fetchNotifications success should update state with notifications`() {
-        val notifications =
-            listOf(
-                NotificationResponse(
-                    id = "1",
-                    title = "Test Notification",
-                    body = "This is a test",
-                    userId = "user1",
-                    type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
-                    referenceId = null,
-                    isRead = false,
-                    createdAt = "2024-01-01",
-                    link = null,
-                ),
-            )
-
-        every { getNotificationsUseCase() } returns flowOf(Resource.Success(notifications))
-
-        viewModel = NotificationViewModel(getNotificationsUseCase)
-        advanceUntilIdle()
-
-        val state = viewModel.uiState.value
-        assertTrue(state is UiState.Success)
-        assertEquals(1, (state as UiState.Success).data.size)
-    }
+            val state = viewModel.uiState.value
+            assertTrue(state is UiState.Loading)
+        }
 
     @Test
-    fun `fetchNotifications error should update state with error message`() {
-        every { getNotificationsUseCase() } returns flowOf(Resource.Error("Failed to load notifications"))
+    fun `fetchNotifications success should update state with notifications`() =
+        runTest {
+            val notifications =
+                listOf(
+                    NotificationResponse(
+                        id = "1",
+                        title = "Test Notification",
+                        body = "This is a test",
+                        userId = "user1",
+                        type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
+                        referenceId = null,
+                        isRead = false,
+                        createdAt = "2024-01-01",
+                        link = null,
+                    ),
+                )
 
-        viewModel = NotificationViewModel(getNotificationsUseCase)
-        advanceUntilIdle()
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Success(notifications))
 
-        val state = viewModel.uiState.value
-        assertTrue(state is UiState.Error)
-        assertEquals("Failed to load notifications", (state as UiState.Error).message)
-    }
+            viewModel = NotificationViewModel(getNotificationsUseCase)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-    @Test
-    fun `getNotification should return notification when found`() {
-        val notifications =
-            listOf(
-                NotificationResponse(
-                    id = "1",
-                    title = "Test Notification",
-                    body = "This is a test",
-                    userId = "user1",
-                    type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
-                    referenceId = null,
-                    isRead = false,
-                    createdAt = "2024-01-01",
-                    link = null,
-                ),
-            )
-
-        every { getNotificationsUseCase() } returns flowOf(Resource.Success(notifications))
-
-        viewModel = NotificationViewModel(getNotificationsUseCase)
-        advanceUntilIdle()
-
-        val result = viewModel.getNotification("1")
-
-        assertNotNull(result)
-        assertEquals("Test Notification", result?.title)
-    }
+            val state = viewModel.uiState.value
+            assertTrue(state is UiState.Success)
+            assertEquals(1, (state as UiState.Success).data.size)
+        }
 
     @Test
-    fun `getNotification should return null when not found`() {
-        val notifications =
-            listOf(
-                NotificationResponse(
-                    id = "1",
-                    title = "Test Notification",
-                    body = "This is a test",
-                    userId = "user1",
-                    type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
-                    referenceId = null,
-                    isRead = false,
-                    createdAt = "2024-01-01",
-                    link = null,
-                ),
-            )
+    fun `fetchNotifications error should update state with error message`() =
+        runTest {
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Error("Failed to load notifications"))
 
-        every { getNotificationsUseCase() } returns flowOf(Resource.Success(notifications))
+            viewModel = NotificationViewModel(getNotificationsUseCase)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        viewModel = NotificationViewModel(getNotificationsUseCase)
-        advanceUntilIdle()
-
-        val result = viewModel.getNotification("999")
-
-        assertNull(result)
-    }
+            val state = viewModel.uiState.value
+            assertTrue(state is UiState.Error)
+            assertEquals("Failed to load notifications", (state as UiState.Error).message)
+        }
 
     @Test
-    fun `getNotification should return null when state is Loading`() {
-        every { getNotificationsUseCase() } returns flowOf(Resource.Loading())
+    fun `getNotification should return notification when found`() =
+        runTest {
+            val notifications =
+                listOf(
+                    NotificationResponse(
+                        id = "1",
+                        title = "Test Notification",
+                        body = "This is a test",
+                        userId = "user1",
+                        type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
+                        referenceId = null,
+                        isRead = false,
+                        createdAt = "2024-01-01",
+                        link = null,
+                    ),
+                )
 
-        viewModel = NotificationViewModel(getNotificationsUseCase)
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Success(notifications))
 
-        val result = viewModel.getNotification("1")
+            viewModel = NotificationViewModel(getNotificationsUseCase)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        assertNull(result)
-    }
+            val result = viewModel.getNotification("1")
+
+            assertNotNull(result)
+            assertEquals("Test Notification", result?.title)
+        }
 
     @Test
-    fun `getNotification should return null when state is Error`() {
-        every { getNotificationsUseCase() } returns flowOf(Resource.Error("Error"))
+    fun `getNotification should return null when not found`() =
+        runTest {
+            val notifications =
+                listOf(
+                    NotificationResponse(
+                        id = "1",
+                        title = "Test Notification",
+                        body = "This is a test",
+                        userId = "user1",
+                        type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
+                        referenceId = null,
+                        isRead = false,
+                        createdAt = "2024-01-01",
+                        link = null,
+                    ),
+                )
 
-        viewModel = NotificationViewModel(getNotificationsUseCase)
-        advanceUntilIdle()
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Success(notifications))
 
-        val result = viewModel.getNotification("1")
+            viewModel = NotificationViewModel(getNotificationsUseCase)
+            testDispatcher.scheduler.advanceUntilIdle()
 
-        assertNull(result)
-    }
+            val result = viewModel.getNotification("999")
+
+            assertNull(result)
+        }
+
+    @Test
+    fun `getNotification should return null when state is Loading`() =
+        runTest {
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Loading)
+
+            viewModel = NotificationViewModel(getNotificationsUseCase)
+
+            val result = viewModel.getNotification("1")
+
+            assertNull(result)
+        }
+
+    @Test
+    fun `getNotification should return null when state is Error`() =
+        runTest {
+            coEvery { getNotificationsUseCase.invoke() } returns flowOf(Resource.Error("Error"))
+
+            viewModel = NotificationViewModel(getNotificationsUseCase)
+            testDispatcher.scheduler.advanceUntilIdle()
+
+            val result = viewModel.getNotification("1")
+
+            assertNull(result)
+        }
 }

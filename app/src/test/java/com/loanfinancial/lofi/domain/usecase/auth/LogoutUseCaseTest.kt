@@ -48,7 +48,7 @@ class LogoutUseCaseTest {
         runTest {
             // Arrange
             val userId = "user_123"
-            val expectedResponse = LogoutResponse(message = "Logged out successfully")
+            val expectedResponse = LogoutResponse(success = true, message = "Logged out successfully")
 
             coEvery { dataStoreManager.getUserId() } returns userId
             coEvery { repository.logout() } returns Result.success(expectedResponse)
@@ -71,7 +71,7 @@ class LogoutUseCaseTest {
     fun `invoke should not clear local data but call logout when userId is null`() =
         runTest {
             // Arrange
-            val expectedResponse = LogoutResponse(message = "Logged out successfully")
+            val expectedResponse = LogoutResponse(success = true, message = "Logged out successfully")
 
             coEvery { dataStoreManager.getUserId() } returns null
             coEvery { repository.logout() } returns Result.success(expectedResponse)

@@ -2,6 +2,7 @@ package com.loanfinancial.lofi.data.repository
 
 import com.loanfinancial.lofi.core.common.result.BaseResult
 import com.loanfinancial.lofi.core.media.DocumentType
+import com.loanfinancial.lofi.core.network.BaseResponse
 import com.loanfinancial.lofi.data.local.dao.PendingDocumentUploadDao
 import com.loanfinancial.lofi.data.model.dto.PresignUploadResponse
 import com.loanfinancial.lofi.data.model.entity.DocumentUploadStatus

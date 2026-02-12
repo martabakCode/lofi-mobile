@@ -1,8 +1,10 @@
 package com.loanfinancial.lofi.ui.features.profile
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.loanfinancial.lofi.data.model.dto.ChangePasswordResponse
 import com.loanfinancial.lofi.domain.usecase.auth.ChangePasswordUseCase
 import io.mockk.*
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -114,14 +116,14 @@ class ChangePasswordViewModelTest {
         runTest {
             coEvery {
                 changePasswordUseCase(any())
-            } returns Result.success(Unit)
+            } returns Result.success(ChangePasswordResponse(success = true, message = "Password changed successfully"))
 
             viewModel.onOldPasswordChange("oldPassword123")
             viewModel.onNewPasswordChange("newPassword123")
             viewModel.onConfirmPasswordChange("newPassword123")
 
             viewModel.submit()
-            advanceUntilIdle()
+            testDispatcher.scheduler.advanceUntilIdle()
 
             coVerify { changePasswordUseCase(any()) }
         }
@@ -131,14 +133,14 @@ class ChangePasswordViewModelTest {
         runTest {
             coEvery {
                 changePasswordUseCase(any())
-            } returns Result.success(Unit)
+            } returns Result.success(ChangePasswordResponse(success = true, message = "Password changed successfully"))
 
             viewModel.onOldPasswordChange("oldPassword123")
             viewModel.onNewPasswordChange("newPassword123")
             viewModel.onConfirmPasswordChange("newPassword123")
 
             viewModel.submit()
-            advanceUntilIdle()
+            testDispatcher.scheduler.advanceUntilIdle()
 
             val state = viewModel.uiState.value
             assertTrue(state.isSuccess)
@@ -157,7 +159,7 @@ class ChangePasswordViewModelTest {
             viewModel.onConfirmPasswordChange("newPassword123")
 
             viewModel.submit()
-            advanceUntilIdle()
+            testDispatcher.scheduler.advanceUntilIdle()
 
             val state = viewModel.uiState.value
             assertFalse(state.isLoading)

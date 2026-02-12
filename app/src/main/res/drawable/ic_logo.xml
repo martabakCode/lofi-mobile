@@ -1,24 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="120dp"
-    android:height="120dp"
-    android:viewportWidth="120"
-    android:viewportHeight="120">
-    
-    <!-- Background circle (optional, for better visibility) -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M60,60m-55,0a55,55 0,1 1,110 0a55,55 0,1 1,-110 0"
-        android:fillAlpha="0.0"/>
-    
-    <!-- Cyan accent square (top-left part) -->
-    <path
-        android:fillColor="#4DD0E1"
-        android:pathData="M15,35 L45,35 L45,65 L15,65 Z"/>
-    
-    <!-- Orange vertical bar (main L shape) -->
-    <path
-        android:fillColor="#FF9800"
-        android:pathData="M40,15 L70,15 L70,85 L100,85 L100,105 L40,105 Z"/>
-    
+    android:width="216dp"
+    android:height="233dp"
+    android:viewportWidth="216"
+    android:viewportHeight="233">
+  <path
+      android:pathData="M169.58,201.58H107.92V186.17H92.5V170.75H77.08V93.67V62.83V32H107.92V170.75H154V149.08H169.58H185V186.17H169.58V201.58Z"
+      android:fillColor="#FF8500"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="M61.67,93.67V109.08H30.83V78.25H61.67V62.83H74V93.67H61.67Z"
+      android:fillColor="#3FD8D4"/>
 </vector>
