@@ -133,8 +133,9 @@ fun HomeScreenContent(
                                     style = MaterialTheme.typography.titleSmall,
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
+                                val displayedAvailable = availableProduct.productLimit - availableProduct.approvedLoanAmount
                                 Text(
-                                    text = "Rp ${String.format("%,.0f", availableProduct.availableAmount)}",
+                                    text = "Rp ${String.format("%,.0f", displayedAvailable)}",
                                     fontSize = 32.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White,
@@ -192,7 +193,9 @@ fun HomeScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        HomeActionButton(stringResource(R.string.apply_loan), Modifier.weight(1f), onClick = onApplyLoanClick)
+                        val availableProduct = uiState.availableProduct
+                        val canApply = (availableProduct?.productLimit ?: 0.0) - (availableProduct?.approvedLoanAmount ?: 0.0) >= 100000.0 // Min amount check? Let's say > 0.
+                        HomeActionButton(stringResource(R.string.apply_loan), Modifier.weight(1f), enabled = canApply, onClick = onApplyLoanClick)
                         HomeActionButton(stringResource(R.string.my_loans), Modifier.weight(1f), onClick = onMyLoansClick)
                     }
                     Spacer(modifier = Modifier.height(12.dp))
@@ -215,12 +218,14 @@ fun HomeScreenContent(
                     )
                 }
                 item {
+                    val availableProduct = uiState.availableProduct
+                    val canApply = (availableProduct?.productLimit ?: 0.0) - (availableProduct?.approvedLoanAmount ?: 0.0) >= 100000.0
                     androidx.compose.foundation.lazy.LazyRow(
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         contentPadding = PaddingValues(bottom = 8.dp),
                     ) {
                         items(uiState.products) { product ->
-                            ProductCard(product = product, onClick = onApplyLoanClick)
+                            ProductCard(product = product, enabled = canApply, onClick = onApplyLoanClick)
                         }
                     }
                 }
@@ -305,14 +310,15 @@ fun LoanItem(loan: Loan) {
 fun ProductCard(
     product: com.loanfinancial.lofi.data.model.dto.ProductDto,
     onClick: () -> Unit,
+    enabled: Boolean = true,
 ) {
     Box(
         modifier =
             Modifier
                 .width(160.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .clickable { onClick() }
+                .background(if (enabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant)
+                .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
                 .padding(16.dp),
     ) {
         Column {
@@ -357,21 +363,22 @@ fun ProductCard(
 fun HomeActionButton(
     title: String,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
     Box(
         modifier =
             modifier
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .clickable { onClick() }
+                .background(if (enabled) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant)
+                .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
                 .padding(vertical = 16.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             text = title,
             style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
-            color = MaterialTheme.colorScheme.primary,
+            color = if (enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

@@ -61,6 +61,10 @@ class HomeViewModelTest {
         every { getProductsUseCase() } returns flowOf(Resource.Success(emptyList()))
         every { getAvailableProductUseCase() } returns flowOf(Resource.Loading)
         every { loanSubmissionManager.getPendingSubmissions() } returns flowOf(emptyList())
+        every { dataStoreManager.hasCompletedFirstSessionFlow } returns flowOf(false)
+        every { dataStoreManager.isProfileCompletedFlow } returns flowOf(false)
+        every { dataStoreManager.setHasCompletedFirstSession(any()) } returns Unit
+        every { getMyLoansUseCase() } returns flowOf(Resource.Loading)
     }
 
     @After
@@ -108,7 +112,7 @@ class HomeViewModelTest {
                     ),
                 )
 
-            every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Success(loans))
+            every { getMyLoansUseCase() } returns flowOf(Resource.Success(loans))
 
             viewModel =
                 HomeViewModel(
@@ -127,7 +131,7 @@ class HomeViewModelTest {
     @Test
     fun `fetchLoans should update uiState with error`() =
         runTest {
-            every { getMyLoansUseCase(any(), any(), any()) } returns flowOf(Resource.Error("Network error"))
+            every { getMyLoansUseCase() } returns flowOf(Resource.Error("Network error"))
 
             viewModel =
                 HomeViewModel(

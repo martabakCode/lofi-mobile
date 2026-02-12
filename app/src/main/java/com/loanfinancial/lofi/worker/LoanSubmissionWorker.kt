@@ -1,7 +1,7 @@
 package com.loanfinancial.lofi.worker
 
 import android.content.Context
-import android.util.Log
+import com.loanfinancial.lofi.core.util.Logger
 import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -121,11 +121,11 @@ LoanSubmissionWorker
         override suspend fun doWork(): Result {
             val inputLoanId =
                 inputData.getString(KEY_LOAN_ID) ?: run {
-                    Log.e(TAG, "No loanId provided in inputData")
+                    Logger.e(TAG, "No loanId provided in inputData")
                     return Result.failure()
                 }
 
-            Log.d(TAG, "Starting work for loanId: $inputLoanId")
+            Logger.d(TAG, "Starting work for loanId: $inputLoanId")
 
             // Update status to SUBMITTING
             pendingSubmissionDao.updateSubmissionStatus(
@@ -137,28 +137,28 @@ LoanSubmissionWorker
 
             return try {
                 val submission = pendingSubmissionDao.getById(inputLoanId)
-                Log.d(TAG, "Retrieved submission: loanId=${submission.loanId}, serverLoanId=${submission.serverLoanId}, pendingStatus=${submission.pendingStatus}")
+                Logger.d(TAG, "Retrieved submission: loanId=${submission.loanId}, serverLoanId=${submission.serverLoanId}, pendingStatus=${submission.pendingStatus}")
 
                 // 1. Create loan on server if not exists
                 val targetLoanId =
                     if (submission.serverLoanId.isNullOrEmpty()) {
-                        Log.d(TAG, "No serverLoanId found, creating loan on server...")
+                        Logger.d(TAG, "No serverLoanId found, creating loan on server...")
                         createLoanOnServer(submission)
                     } else {
-                        Log.d(TAG, "Using existing serverLoanId: ${submission.serverLoanId}")
+                        Logger.d(TAG, "Using existing serverLoanId: ${submission.serverLoanId}")
                         submission.serverLoanId
                     }
 
                 // 2. Upload documents using the SERVER ID
-                Log.d(TAG, "Uploading documents for targetLoanId: $targetLoanId")
+                Logger.d(TAG, "Uploading documents for targetLoanId: $targetLoanId")
                 uploadDocuments(submission, targetLoanId)
 
                 // 3. Wait a moment for server to process documents before submitting
-                Log.d(TAG, "Waiting for server to process documents...")
+                Logger.d(TAG, "Waiting for server to process documents...")
                 kotlinx.coroutines.delay(2000)
 
                 // 4. Submit loan using the SERVER ID (only if loan is in DRAFT status)
-                Log.d(TAG, "Checking loan status before submit for targetLoanId: $targetLoanId")
+                Logger.d(TAG, "Checking loan status before submit for targetLoanId: $targetLoanId")
 
                 // First, get the loan details to check its status
                 val loanDetail =
@@ -176,7 +176,7 @@ LoanSubmissionWorker
                     }
 
                 if (shouldSubmit) {
-                    Log.d(TAG, "Submitting loan with targetLoanId: $targetLoanId")
+                    Logger.d(TAG, "Submitting loan with targetLoanId: $targetLoanId")
                     val result =
                         loanRepository
                             .submitLoan(targetLoanId)
@@ -184,7 +184,7 @@ LoanSubmissionWorker
                             .first()
 
                     if (result is Resource.Success) {
-                        Log.d(TAG, "Loan submission successful for loanId: $inputLoanId")
+                        Logger.d(TAG, "Loan submission successful for loanId: $inputLoanId")
                         // Success - update status and notify
                         pendingSubmissionDao.updateSubmissionStatus(
                             loanId = inputLoanId,
@@ -196,12 +196,12 @@ LoanSubmissionWorker
                         Result.success()
                     } else {
                         val message = if (result is Resource.Error) result.message else "Unknown error"
-                        Log.e(TAG, "Loan submission failed: $message")
+                        Logger.e(TAG, "Loan submission failed: $message")
                         handleFailure(inputLoanId, message)
                     }
                 } else {
                     // Loan is already submitted, update status to SUCCESS
-                    Log.d(TAG, "Loan is already submitted, marking as SUCCESS for loanId: $inputLoanId")
+                    Logger.d(TAG, "Loan is already submitted, marking as SUCCESS for loanId: $inputLoanId")
                     pendingSubmissionDao.updateSubmissionStatus(
                         loanId = inputLoanId,
                         status = "SUCCESS",
@@ -212,13 +212,13 @@ LoanSubmissionWorker
                     Result.success()
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Exception during loan submission: ${e.message}", e)
+                Logger.e(TAG, "Exception during loan submission: ${e.message}", e)
                 handleFailure(inputLoanId, e.message)
             }
         }
 
         private suspend fun createLoanOnServer(submission: PendingLoanSubmissionEntity): String {
-            Log.d(TAG, "Creating loan on server with amount=${submission.loanAmount}, tenor=${submission.tenor}")
+            Logger.d(TAG, "Creating loan on server with amount=${submission.loanAmount}, tenor=${submission.tenor}")
 
             // Round coordinates to 6 decimal places to avoid DB arithmetic overflow
             val roundedLongitude = round((submission.longitude ?: 0.0) * 1_000_000) / 1_000_000
@@ -239,19 +239,19 @@ LoanSubmissionWorker
                     .filter { it !is Resource.Loading }
                     .first()
 
-            Log.d(TAG, "createLoan result: ${result::class.simpleName}")
+            Logger.d(TAG, "createLoan result: ${result::class.simpleName}")
 
             if (result is Resource.Success && result.data?.id != null) {
                 val serverId = result.data.id
-                Log.d(TAG, "Loan created successfully on server with ID: $serverId")
+                Logger.d(TAG, "Loan created successfully on server with ID: $serverId")
                 // Update entity with server ID so we don't recreate on retry
                 val updated = submission.copy(serverLoanId = serverId)
                 pendingSubmissionDao.update(updated)
-                Log.d(TAG, "Updated submission with serverLoanId: $serverId")
+                Logger.d(TAG, "Updated submission with serverLoanId: $serverId")
                 return serverId
             } else {
                 val msg = if (result is Resource.Error) result.message else "Failed to create loan on server"
-                Log.e(TAG, "Failed to create loan on server: $msg")
+                Logger.e(TAG, "Failed to create loan on server: $msg")
                 throw Exception(msg)
             }
         }
@@ -260,56 +260,56 @@ LoanSubmissionWorker
             submission: PendingLoanSubmissionEntity,
             targetLoanId: String,
         ) {
-            Log.d(TAG, "Checking document uploads for targetLoanId: $targetLoanId")
+            Logger.d(TAG, "Checking document uploads for targetLoanId: $targetLoanId")
 
             // Check uploads for targetLoanId
             val pendingUploads = documentRepository.getPendingUploads(targetLoanId)
-            Log.d(TAG, "Found ${pendingUploads.size} pending uploads for targetLoanId: $targetLoanId")
+            Logger.d(TAG, "Found ${pendingUploads.size} pending uploads for targetLoanId: $targetLoanId")
 
             if (pendingUploads.isEmpty()) {
-                Log.d(TAG, "No pending uploads found, checking documentPaths...")
+                Logger.d(TAG, "No pending uploads found, checking documentPaths...")
                 val type = object : TypeToken<Map<String, String>>() {}.type
                 val documents: Map<String, String> =
                     try {
                         Gson().fromJson(submission.documentPaths, type)
                     } catch (e: Exception) {
-                        Log.e(TAG, "Failed to parse documentPaths JSON: ${e.message}")
+                        Logger.e(TAG, "Failed to parse documentPaths JSON: ${e.message}")
                         emptyMap()
                     }
 
-                Log.d(TAG, "Parsed ${documents.size} documents from documentPaths")
+                Logger.d(TAG, "Parsed ${documents.size} documents from documentPaths")
 
                 if (documents.isNotEmpty()) {
                     documents.forEach { (typeStr, path) ->
-                        Log.d(TAG, "Processing document: type=$typeStr, path=$path")
+                        Logger.d(TAG, "Processing document: type=$typeStr, path=$path")
                         val docType =
                             try {
                                 DocumentType.valueOf(typeStr)
                             } catch (e: IllegalArgumentException) {
-                                Log.w(TAG, "Unknown document type: $typeStr")
+                                Logger.w(TAG, "Unknown document type: $typeStr")
                                 return@forEach
                             }
                         // Queue upload for the TARGET ID (Server ID)
                         val result = documentRepository.queueDocumentUpload(targetLoanId, path, docType)
-                        Log.d(TAG, "Queue document upload result: ${result::class.simpleName}")
+                        Logger.d(TAG, "Queue document upload result: ${result::class.simpleName}")
                     }
                     DocumentUploadWorker.scheduleForDraft(applicationContext, targetLoanId)
-                    Log.d(TAG, "Scheduled DocumentUploadWorker for targetLoanId: $targetLoanId")
+                    Logger.d(TAG, "Scheduled DocumentUploadWorker for targetLoanId: $targetLoanId")
                     throw Exception("Documents queued for upload. Waiting for completion.")
                 }
-                Log.d(TAG, "No documents to upload")
+                Logger.d(TAG, "No documents to upload")
                 return
             }
 
             val allUploaded = pendingUploads.all { it.status == com.loanfinancial.lofi.data.model.entity.DocumentUploadStatus.COMPLETED.name }
-            Log.d(TAG, "All documents uploaded: $allUploaded")
+            Logger.d(TAG, "All documents uploaded: $allUploaded")
 
             if (!allUploaded) {
                 val failedCount = pendingUploads.count { it.status == com.loanfinancial.lofi.data.model.entity.DocumentUploadStatus.FAILED.name }
                 val completedCount = pendingUploads.count { it.status == com.loanfinancial.lofi.data.model.entity.DocumentUploadStatus.COMPLETED.name }
                 val pendingCount = pendingUploads.count { it.status == com.loanfinancial.lofi.data.model.entity.DocumentUploadStatus.PENDING.name }
 
-                Log.d(TAG, "Document upload status: completed=$completedCount, failed=$failedCount, pending=$pendingCount")
+                Logger.d(TAG, "Document upload status: completed=$completedCount, failed=$failedCount, pending=$pendingCount")
 
                 if (failedCount > 0) {
                     DocumentUploadWorker.scheduleForDraft(applicationContext, targetLoanId)
@@ -318,22 +318,40 @@ LoanSubmissionWorker
                 throw Exception("Waiting for documents: $completedCount/${pendingUploads.size} uploaded. $failedCount failed.")
             }
 
-            Log.d(TAG, "All documents are uploaded successfully")
+            Logger.d(TAG, "All documents are uploaded successfully")
         }
 
         private suspend fun handleFailure(
             loanId: String,
             reason: String?,
         ): Result {
-            Log.e(TAG, "Handling failure for loanId: $loanId, reason: $reason")
+            Logger.e(TAG, "Handling failure for loanId: $loanId, reason: $reason")
+
+            // Check if error is non-retriable (4xx Client Error or validation error)
+            val isNonRetriable = reason?.let {
+                it.contains("400") || 
+                it.contains("401") || 
+                it.contains("403") || 
+                it.contains("422") ||
+                it.contains("bad request", ignoreCase = true) ||
+                it.contains("validation failed", ignoreCase = true)
+            } == true
+
+            if (isNonRetriable) {
+                Logger.e(TAG, "Non-retriable error encountered. Deleting submission and notifying user.")
+                // Delete the submission as it cannot be retried automatically
+                pendingSubmissionDao.delete(loanId)
+                notificationManager.showFailureNotification(loanId, reason)
+                return Result.failure()
+            }
 
             val submission = pendingSubmissionDao.getById(loanId)
             val newRetryCount = submission.retryCount + 1
-            Log.d(TAG, "Current retry count: ${submission.retryCount}, new retry count: $newRetryCount, max: $MAX_RETRY_COUNT")
+            Logger.d(TAG, "Current retry count: ${submission.retryCount}, new retry count: $newRetryCount, max: $MAX_RETRY_COUNT")
 
             return if (newRetryCount >= MAX_RETRY_COUNT) {
                 // Max retries reached - mark as failed
-                Log.e(TAG, "Max retry count reached. Marking as FAILED.")
+                Logger.e(TAG, "Max retry count reached. Marking as FAILED.")
                 pendingSubmissionDao.updateSubmissionStatus(
                     loanId = loanId,
                     status = "FAILED",
@@ -345,7 +363,7 @@ LoanSubmissionWorker
                 Result.failure()
             } else {
                 // Schedule retry
-                Log.d(TAG, "Scheduling retry for loanId: $loanId in $RETRY_INTERVAL_HOURS hours")
+                Logger.d(TAG, "Scheduling retry for loanId: $loanId in $RETRY_INTERVAL_HOURS hours")
                 pendingSubmissionDao.updateSubmissionStatus(
                     loanId = loanId,
                     status = "PENDING",

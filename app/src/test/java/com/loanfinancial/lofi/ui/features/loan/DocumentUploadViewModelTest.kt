@@ -5,6 +5,7 @@ import com.loanfinancial.lofi.core.media.CameraManager
 import com.loanfinancial.lofi.domain.repository.IDocumentRepository
 import com.loanfinancial.lofi.domain.usecase.document.QueueDocumentUploadUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

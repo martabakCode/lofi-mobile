@@ -6,6 +6,7 @@ import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
 import com.loanfinancial.lofi.data.model.entity.PendingLoanSubmissionEntity
 import com.loanfinancial.lofi.domain.model.LoanSubmissionData
 import com.loanfinancial.lofi.domain.model.PendingSubmissionStatus
+import com.loanfinancial.lofi.worker.LoanSubmissionWorker
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,7 +33,15 @@ class LoanSubmissionManagerImplTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this, relaxed = true)
+        mockkObject(LoanSubmissionWorker)
+        every { LoanSubmissionWorker.schedule(any(), any()) } just Runs
+        every { LoanSubmissionWorker.scheduleImmediate(any(), any()) } just Runs
         manager = LoanSubmissionManagerImpl(context, pendingSubmissionDao, dataStoreManager)
+    }
+
+    @After
+    fun tearDown() {
+        unmockkObject(LoanSubmissionWorker)
     }
 
     @Test

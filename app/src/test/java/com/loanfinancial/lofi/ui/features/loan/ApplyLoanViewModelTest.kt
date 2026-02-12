@@ -17,6 +17,7 @@ import com.loanfinancial.lofi.domain.usecase.loan.SaveLoanDraftUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserProfileUseCase
 import com.loanfinancial.lofi.domain.usecase.user.ValidateLoanSubmissionUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

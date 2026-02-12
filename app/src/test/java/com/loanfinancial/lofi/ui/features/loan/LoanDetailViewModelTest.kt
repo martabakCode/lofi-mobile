@@ -6,6 +6,7 @@ import com.loanfinancial.lofi.domain.model.Product
 import com.loanfinancial.lofi.domain.usecase.loan.GetLoanDetailUseCase
 import com.loanfinancial.lofi.domain.usecase.loan.SubmitLoanUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

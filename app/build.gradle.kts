@@ -14,6 +14,11 @@ android {
     namespace = "com.loanfinancial.lofi"
     compileSdk = 36
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        // unitTests.includeAndroidResources = true // Could also be useful but requires Robolectric usually
+    }
+
     defaultConfig {
         applicationId = "com.loanfinancial.lofi"
         minSdk = 24
