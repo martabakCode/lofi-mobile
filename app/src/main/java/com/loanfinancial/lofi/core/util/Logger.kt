@@ -3,7 +3,10 @@ package com.loanfinancial.lofi.core.util
 import android.util.Log
 
 object Logger {
-    fun d(tag: String, msg: String) {
+    fun d(
+        tag: String,
+        msg: String,
+    ) {
         try {
             Log.d(tag, msg)
         } catch (e: RuntimeException) {
@@ -12,7 +15,10 @@ object Logger {
         }
     }
 
-    fun e(tag: String, msg: String) {
+    fun e(
+        tag: String,
+        msg: String,
+    ) {
         try {
             Log.e(tag, msg)
         } catch (e: RuntimeException) {
@@ -20,7 +26,11 @@ object Logger {
         }
     }
 
-    fun e(tag: String, msg: String, tr: Throwable?) {
+    fun e(
+        tag: String,
+        msg: String,
+        tr: Throwable?,
+    ) {
         try {
             Log.e(tag, msg, tr)
         } catch (e: RuntimeException) {
@@ -28,12 +38,15 @@ object Logger {
             tr?.printStackTrace()
         }
     }
-    
-    fun w(tag: String, msg: String) {
+
+    fun w(
+        tag: String,
+        msg: String,
+    ) {
         try {
             Log.w(tag, msg)
         } catch (e: RuntimeException) {
-             println("WARN: $tag: $msg")
+            println("WARN: $tag: $msg")
         }
     }
 }

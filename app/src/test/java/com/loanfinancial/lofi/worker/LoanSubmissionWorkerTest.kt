@@ -20,12 +20,6 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runTest
-import org.junit.Assert.*
-import org.junit.Before
-import org.junit.Test
 
 @ExperimentalCoroutinesApi
 class LoanSubmissionWorkerTest {
@@ -76,7 +70,6 @@ class LoanSubmissionWorkerTest {
         unmockkObject(Logger)
     }
 
-
     @Test
     fun `doWork should return failure when no loanId provided`() =
         runTest {
@@ -106,17 +99,17 @@ class LoanSubmissionWorkerTest {
             // Mock 4-arg update (SUBMITTING and SUCCESS)
             coEvery { pendingSubmissionDao.updateSubmissionStatus(any(), any(), any(), any()) } just Runs
             coEvery { pendingSubmissionDao.getById("test_loan_id") } returns pendingSubmission
-            
+
             // Mock createLoan to return success
             coEvery { loanRepository.createLoan(any()) } returns flowOf(Resource.Success(createdLoan))
             // Mock document upload check
             coEvery { documentRepository.getPendingUploads("server_loan_123") } returns emptyList()
             // Mock getLoanDetail before submit
             coEvery { loanRepository.getLoanDetail("server_loan_123") } returns flowOf(Resource.Success(createdLoan))
-            
+
             coEvery { loanRepository.submitLoan("server_loan_123") } returns flowOf(Resource.Success(submittedLoan))
             coEvery { notificationManager.showSuccessNotification("test_loan_id") } just Runs
-            
+
             val result = worker.doWork()
             assertEquals(ListenableWorker.Result.success(), result)
         }
@@ -125,15 +118,15 @@ class LoanSubmissionWorkerTest {
     fun `doWork should delete submission on non-retriable error`() =
         runTest {
             val pendingSubmission = createPendingSubmission()
-            
+
             coEvery { params.inputData.getString(LoanSubmissionWorker.KEY_LOAN_ID) } returns "test_loan_id"
             // Mock 4-arg update (SUBMITTING)
             coEvery { pendingSubmissionDao.updateSubmissionStatus(any(), any(), any(), any()) } just Runs
             coEvery { pendingSubmissionDao.getById("test_loan_id") } returns pendingSubmission
-            
+
             // Mock createLoan to return 400 Error
             coEvery { loanRepository.createLoan(any()) } returns flowOf(Resource.Error("Network Error: 400"))
-            
+
             // Expect deletion and notification
             coEvery { pendingSubmissionDao.delete("test_loan_id") } just Runs
             coEvery { notificationManager.showFailureNotification("test_loan_id", any()) } just Runs

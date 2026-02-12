@@ -1,7 +1,6 @@
 package com.loanfinancial.lofi.worker
 
 import android.content.Context
-import com.loanfinancial.lofi.core.util.Logger
 import androidx.hilt.work.HiltWorker
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
@@ -16,6 +15,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.loanfinancial.lofi.core.media.DocumentType
 import com.loanfinancial.lofi.core.notification.LoanSubmissionNotificationManager
+import com.loanfinancial.lofi.core.util.Logger
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.PendingLoanSubmissionDao
 import com.loanfinancial.lofi.data.model.entity.PendingLoanSubmissionEntity
@@ -328,14 +328,15 @@ LoanSubmissionWorker
             Logger.e(TAG, "Handling failure for loanId: $loanId, reason: $reason")
 
             // Check if error is non-retriable (4xx Client Error or validation error)
-            val isNonRetriable = reason?.let {
-                it.contains("400") || 
-                it.contains("401") || 
-                it.contains("403") || 
-                it.contains("422") ||
-                it.contains("bad request", ignoreCase = true) ||
-                it.contains("validation failed", ignoreCase = true)
-            } == true
+            val isNonRetriable =
+                reason?.let {
+                    it.contains("400") ||
+                        it.contains("401") ||
+                        it.contains("403") ||
+                        it.contains("422") ||
+                        it.contains("bad request", ignoreCase = true) ||
+                        it.contains("validation failed", ignoreCase = true)
+                } == true
 
             if (isNonRetriable) {
                 Logger.e(TAG, "Non-retriable error encountered. Deleting submission and notifying user.")
