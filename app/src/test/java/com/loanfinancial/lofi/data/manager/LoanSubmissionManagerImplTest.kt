@@ -1,6 +1,9 @@
-/*
 package com.loanfinancial.lofi.data.manager
 
+// Placeholder to satisfy Spotless no-empty-file
+fun placeholderForSpotless() {}
+
+/*
 import android.content.Context
 import com.loanfinancial.lofi.data.local.dao.PendingLoanSubmissionDao
 import com.loanfinancial.lofi.data.local.datastore.DataStoreManager
