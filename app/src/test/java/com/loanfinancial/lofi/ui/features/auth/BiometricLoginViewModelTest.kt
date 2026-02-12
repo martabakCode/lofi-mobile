@@ -89,7 +89,7 @@ class BiometricLoginViewModelTest {
             every { biometricAuthenticator.isBiometricEnrolled() } returns true
             coEvery {
                 biometricAuthenticator.authenticate(any(), any(), any(), any())
-            } returns flowOf(BiometricResult.Error("Biometric authentication failed"))
+            } returns flowOf(BiometricResult.Error(1, "Biometric authentication failed"))
 
             viewModel = BiometricLoginViewModel(biometricAuthenticator, context)
 

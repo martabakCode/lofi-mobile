@@ -1,26 +1,30 @@
 package com.loanfinancial.lofi.data.repository
 
+import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.RegionDao
-import com.loanfinancial.lofi.data.model.entity.CityEntity
+import com.loanfinancial.lofi.data.local.database.AppDatabase
 import com.loanfinancial.lofi.data.model.entity.ProvinceEntity
-import com.loanfinancial.lofi.data.remote.api.CityResponse
-import com.loanfinancial.lofi.data.remote.api.DistrictResponse
-import com.loanfinancial.lofi.data.remote.api.ProvinceResponse
-import com.loanfinancial.lofi.data.remote.api.RegionApi
-import com.loanfinancial.lofi.data.remote.api.VillageResponse
+import com.loanfinancial.lofi.data.model.entity.RegencyEntity
+import com.loanfinancial.lofi.data.model.entity.DistrictEntity
+import com.loanfinancial.lofi.data.model.entity.VillageEntity
+import com.loanfinancial.lofi.data.remote.api.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
-import retrofit2.Response
 
 @ExperimentalCoroutinesApi
 class RegionRepositoryImplTest {
     @MockK
     private lateinit var regionApi: RegionApi
+
+    @MockK
+    private lateinit var database: AppDatabase
 
     @MockK
     private lateinit var regionDao: RegionDao
@@ -30,154 +34,51 @@ class RegionRepositoryImplTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        repository = RegionRepositoryImpl(regionApi, regionDao)
+        every { database.regionDao() } returns regionDao
+        repository = RegionRepositoryImpl(regionApi, database)
     }
 
     @Test
-    fun `getProvinces returns provinces from API`() =
+    fun `getProvinces should emit loading then local then remote`() =
         runTest {
-            val response =
-                ProvinceResponse(
-                    success = true,
-                    data =
-                        listOf(
-                            com.loanfinancial.lofi.data.remote.api.ProvinceData(
-                                id = "1",
-                                name = "DKI Jakarta",
-                            ),
-                        ),
-                )
+            // Arrange
+            val localProvinces = listOf(ProvinceEntity("1", "Local"))
+            val remoteProvinces = listOf(ProvinceResponse("1", "Remote"))
+            
+            coEvery { regionDao.getProvinces() } returns flowOf(localProvinces) andThen flowOf(remoteProvinces.map { com.loanfinancial.lofi.data.model.entity.ProvinceEntity(it.id, it.name) })
+            coEvery { regionApi.getProvinces(any()) } returns remoteProvinces
+            coEvery { regionDao.insertProvinces(any()) } just Runs
 
-            coEvery { regionApi.getProvinces() } returns Response.success(response)
-            coEvery { regionDao.insertProvinces(any()) } just runs
+            // Act
+            val results = repository.getProvinces().toList()
 
-            val result = repository.getProvinces()
-
-            assertEquals(1, result.size)
-            assertEquals("DKI Jakarta", result[0].name)
+            // Assert
+            assertTrue(results[0] is Resource.Loading)
+            assertTrue(results[1] is Resource.Success)
+            assertEquals("Local", (results[1] as Resource.Success).data[0].name)
+            assertTrue(results[2] is Resource.Success)
+            assertEquals("Remote", (results[2] as Resource.Success).data[0].name)
         }
 
     @Test
-    fun `getCities returns cities for province`() =
+    fun `getRegencies should emit loading then local then remote`() =
         runTest {
-            val response =
-                CityResponse(
-                    success = true,
-                    data =
-                        listOf(
-                            com.loanfinancial.lofi.data.remote.api.CityData(
-                                id = "1",
-                                provinceId = "1",
-                                name = "Jakarta Pusat",
-                            ),
-                        ),
-                )
+            // Arrange
+            val localRegencies = listOf(RegencyEntity("1", "1", "Local"))
+            val remoteRegencies = listOf(RegencyResponse("1", "1", "Remote"))
+            
+            coEvery { regionDao.getRegencies("1") } returns flowOf(localRegencies) andThen flowOf(remoteRegencies.map { com.loanfinancial.lofi.data.model.entity.RegencyEntity(it.id, it.province_id, it.name) })
+            coEvery { regionApi.getRegencies("1") } returns remoteRegencies
+            coEvery { regionDao.insertRegencies(any()) } just Runs
 
-            coEvery { regionApi.getCities("1") } returns Response.success(response)
-            coEvery { regionDao.insertCities(any()) } just runs
+            // Act
+            val results = repository.getRegencies("1").toList()
 
-            val result = repository.getCities("1")
-
-            assertEquals(1, result.size)
-            assertEquals("Jakarta Pusat", result[0].name)
-        }
-
-    @Test
-    fun `getDistricts returns districts for city`() =
-        runTest {
-            val response =
-                DistrictResponse(
-                    success = true,
-                    data =
-                        listOf(
-                            com.loanfinancial.lofi.data.remote.api.DistrictData(
-                                id = "1",
-                                cityId = "1",
-                                name = "Cempaka Putih",
-                            ),
-                        ),
-                )
-
-            coEvery { regionApi.getDistricts("1") } returns Response.success(response)
-            coEvery { regionDao.insertDistricts(any()) } just runs
-
-            val result = repository.getDistricts("1")
-
-            assertEquals(1, result.size)
-            assertEquals("Cempaka Putih", result[0].name)
-        }
-
-    @Test
-    fun `getVillages returns villages for district`() =
-        runTest {
-            val response =
-                VillageResponse(
-                    success = true,
-                    data =
-                        listOf(
-                            com.loanfinancial.lofi.data.remote.api.VillageData(
-                                id = "1",
-                                districtId = "1",
-                                name = "Cempaka Putih Timur",
-                            ),
-                        ),
-                )
-
-            coEvery { regionApi.getVillages("1") } returns Response.success(response)
-            coEvery { regionDao.insertVillages(any()) } just runs
-
-            val result = repository.getVillages("1")
-
-            assertEquals(1, result.size)
-            assertEquals("Cempaka Putih Timur", result[0].name)
-        }
-
-    @Test
-    fun `getCachedProvinces returns from database`() =
-        runTest {
-            val provinces =
-                listOf(
-                    ProvinceEntity(
-                        id = "1",
-                        name = "Cached Province",
-                    ),
-                )
-
-            coEvery { regionDao.getAllProvinces() } returns provinces
-
-            val result = repository.getCachedProvinces()
-
-            assertEquals(1, result.size)
-            assertEquals("Cached Province", result[0].name)
-        }
-
-    @Test
-    fun `getCachedCities returns from database`() =
-        runTest {
-            val cities =
-                listOf(
-                    CityEntity(
-                        id = "1",
-                        provinceId = "1",
-                        name = "Cached City",
-                    ),
-                )
-
-            coEvery { regionDao.getCitiesForProvince("1") } returns cities
-
-            val result = repository.getCachedCities("1")
-
-            assertEquals(1, result.size)
-            assertEquals("Cached City", result[0].name)
-        }
-
-    @Test
-    fun `clearCache removes all region data`() =
-        runTest {
-            coEvery { regionDao.clearAll() } just runs
-
-            repository.clearCache()
-
-            coVerify { regionDao.clearAll() }
+            // Assert
+            assertTrue(results[0] is Resource.Loading)
+            assertTrue(results[1] is Resource.Success)
+            assertEquals("Local", (results[1] as Resource.Success).data[0].name)
+            assertTrue(results[2] is Resource.Success)
+            assertEquals("Remote", (results[2] as Resource.Success).data[0].name)
         }
 }

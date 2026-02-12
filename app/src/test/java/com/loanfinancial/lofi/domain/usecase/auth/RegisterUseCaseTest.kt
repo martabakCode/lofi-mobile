@@ -31,16 +31,21 @@ class RegisterUseCaseTest {
             val request =
                 RegisterRequest(
                     fullName = "John Doe",
+                    username = "johndoe",
                     email = "test@example.com",
                     password = "password123",
-                    passwordConfirmation = "password123",
-                    deviceId = "device_123",
+                    phoneNumber = "08123456789",
                 )
             val expectedResponse =
                 RegisterResponse(
-                    accessToken = "token",
-                    refreshToken = "refresh",
-                    tokenType = "Bearer",
+                    success = true,
+                    message = "Success",
+                    data = com.loanfinancial.lofi.data.model.dto.AuthTokenData(
+                        accessToken = "token",
+                        refreshToken = "refresh",
+                        tokenType = "Bearer",
+                        expiresIn = 3600
+                    )
                 )
 
             coEvery { repository.register(request) } returns Result.success(expectedResponse)
@@ -61,10 +66,10 @@ class RegisterUseCaseTest {
             val request =
                 RegisterRequest(
                     fullName = "John Doe",
+                    username = "johndoe",
                     email = "test@example.com",
                     password = "password123",
-                    passwordConfirmation = "password123",
-                    deviceId = "device_123",
+                    phoneNumber = "08123456789",
                 )
             val expectedException = Exception("Email already taken")
 

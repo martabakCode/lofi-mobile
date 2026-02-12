@@ -1,21 +1,33 @@
 package com.loanfinancial.lofi.data.repository
 
+import com.loanfinancial.lofi.core.network.BaseResponse
+import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.NotificationDao
+import com.loanfinancial.lofi.data.local.database.AppDatabase
+import com.loanfinancial.lofi.data.model.dto.NotificationResponse
+import com.loanfinancial.lofi.data.model.dto.NotificationType
 import com.loanfinancial.lofi.data.model.entity.NotificationEntity
-import com.loanfinancial.lofi.data.remote.api.NotificationApi
+import com.loanfinancial.lofi.data.model.entity.toEntity
+import com.loanfinancial.lofi.data.remote.datasource.NotificationRemoteDataSource
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
+import retrofit2.Response
 
 @ExperimentalCoroutinesApi
 class NotificationRepositoryImplTest {
     @MockK
-    private lateinit var notificationApi: NotificationApi
+    private lateinit var remoteDataSource: NotificationRemoteDataSource
+
+    @MockK
+    private lateinit var database: AppDatabase
 
     @MockK
     private lateinit var notificationDao: NotificationDao
@@ -25,92 +37,112 @@ class NotificationRepositoryImplTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        repository = NotificationRepositoryImpl(notificationApi, notificationDao)
+        every { database.notificationDao() } returns notificationDao
+        repository = NotificationRepositoryImpl(remoteDataSource, database)
     }
 
     @Test
-    fun `getNotifications returns list from API`() =
+    fun `getNotifications should emit loading then local data then remote data`() =
         runTest {
-            val notifications =
-                listOf(
-                    NotificationEntity(
-                        id = "1",
-                        title = "Test Notification",
-                        body = "This is a test",
-                        type = "LOAN_STATUS",
-                        isRead = false,
-                        createdAt = System.currentTimeMillis(),
-                    ),
+            // Arrange
+            val localNotifications = listOf(
+                NotificationEntity(
+                    id = "1",
+                    userId = "user1",
+                    title = "Local",
+                    body = "Body",
+                    type = "SYSTEM",
+                    referenceId = null,
+                    isRead = false,
+                    createdAt = "2024-01-01",
+                    link = null
                 )
+            )
+            val remoteNotifications = listOf(
+                NotificationResponse(
+                    id = "1",
+                    userId = "user1",
+                    title = "Remote",
+                    body = "Body",
+                    type = NotificationType.SYSTEM,
+                    referenceId = null,
+                    isRead = true,
+                    createdAt = "2024-01-01",
+                    link = null
+                )
+            )
+            val baseResponse = BaseResponse(
+                success = true,
+                message = "Success",
+                data = remoteNotifications
+            )
 
-            coEvery { notificationDao.getAllNotifications() } returns notifications
+            coEvery { notificationDao.getNotifications() } returns flowOf(localNotifications) andThen flowOf(remoteNotifications.map { it.toEntity() })
+            coEvery { remoteDataSource.getNotifications() } returns Response.success(baseResponse)
+            coEvery { notificationDao.clearAll() } just Runs
+            coEvery { notificationDao.insertAll(any()) } just Runs
 
-            val result = repository.getNotifications()
+            // Act
+            val results = repository.getNotifications().toList()
 
-            assertEquals(1, result.size)
-            assertEquals("Test Notification", result[0].title)
+            // Assert
+            assertTrue(results[0] is Resource.Loading)
+            assertTrue(results[1] is Resource.Success)
+            assertEquals("Local", (results[1] as Resource.Success).data[0].title)
+            assertTrue(results[2] is Resource.Success)
+            assertEquals("Remote", (results[2] as Resource.Success).data[0].title)
+            
+            coVerify { notificationDao.clearAll() }
+            coVerify { notificationDao.insertAll(any()) }
         }
 
     @Test
-    fun `markAsRead updates local database`() =
+    fun `getUnreadCount should delegate to dao`() =
         runTest {
-            coEvery { notificationDao.markAsRead("1") } just runs
+            // Arrange
+            val countFlow = flowOf(5)
+            every { notificationDao.getUnreadCount() } returns countFlow
 
-            repository.markAsRead("1")
+            // Act
+            val result = repository.getUnreadCount().first()
 
-            coVerify { notificationDao.markAsRead("1") }
-        }
-
-    @Test
-    fun `markAllAsRead clears unread count`() =
-        runTest {
-            coEvery { notificationDao.markAllAsRead() } just runs
-
-            repository.markAllAsRead()
-
-            coVerify { notificationDao.markAllAsRead() }
-        }
-
-    @Test
-    fun `deleteNotification removes from database`() =
-        runTest {
-            coEvery { notificationDao.deleteNotification("1") } just runs
-
-            repository.deleteNotification("1")
-
-            coVerify { notificationDao.deleteNotification("1") }
-        }
-
-    @Test
-    fun `getUnreadCount returns correct count`() =
-        runTest {
-            coEvery { notificationDao.getUnreadCount() } returns 5
-
-            val result = repository.getUnreadCount()
-
+            // Assert
             assertEquals(5, result)
+            verify { notificationDao.getUnreadCount() }
         }
 
     @Test
-    fun `getNotificationsFlow emits updates`() =
+    fun `syncNotifications should fetch from remote and save to local`() =
         runTest {
-            val notifications =
-                listOf(
-                    NotificationEntity(
-                        id = "1",
-                        title = "Flow Test",
-                        body = "Testing flow",
-                        type = "PROMO",
-                        isRead = false,
-                        createdAt = System.currentTimeMillis(),
-                    ),
+            // Arrange
+            val remoteNotifications = listOf(
+                NotificationResponse(
+                    id = "1",
+                    userId = "user1",
+                    title = "Remote",
+                    body = "Body",
+                    type = NotificationType.SYSTEM,
+                    referenceId = null,
+                    isRead = true,
+                    createdAt = "2024-01-01",
+                    link = null
                 )
+            )
+            val baseResponse = BaseResponse(
+                success = true,
+                message = "Success",
+                data = remoteNotifications
+            )
 
-            every { notificationDao.getAllNotificationsFlow() } returns flowOf(notifications)
+            coEvery { remoteDataSource.getNotifications() } returns Response.success(baseResponse)
+            coEvery { notificationDao.clearAll() } just Runs
+            coEvery { notificationDao.insertAll(any()) } just Runs
 
-            repository.getNotificationsFlow().collect { result ->
-                assertEquals(1, result.size)
-                assertEquals("Flow Test", result[0].title)
-            }
+            // Act
+            repository.syncNotifications()
+
+            // Assert
+            coVerify { notificationDao.clearAll() }
+            coVerify { notificationDao.insertAll(any()) }
         }
 }

@@ -42,17 +42,16 @@ class DocumentRepositoryImplTest {
     @Test
     fun `requestPresignUpload success should return presign data`() =
         runTest {
-            val response =
-                PresignUploadResponse(
-                    success = true,
-                    message = "Success",
-                    data =
-                        com.loanfinancial.lofi.data.model.dto.PresignUploadData(
-                            uploadUrl = "https://presigned.url",
-                            documentId = "doc123",
-                            objectKey = "loans/loan123/doc123.jpg",
-                        ),
-                )
+            val responseData = PresignUploadResponse(
+                uploadUrl = "https://presigned.url",
+                documentId = "doc123",
+                objectKey = "loans/loan123/doc123.jpg",
+            )
+            val response = BaseResponse(
+                success = true,
+                message = "Success",
+                data = responseData
+            )
 
             coEvery { documentApi.requestPresignUpload(any()) } returns Response.success(response)
 
@@ -60,7 +59,7 @@ class DocumentRepositoryImplTest {
                 repository.requestPresignUpload(
                     loanId = "loan123",
                     fileName = "test.jpg",
-                    documentType = DocumentType.ID_CARD_FRONT,
+                    documentType = DocumentType.KTP,
                     contentType = "image/jpeg",
                 )
 
@@ -79,7 +78,7 @@ class DocumentRepositoryImplTest {
                 repository.requestPresignUpload(
                     loanId = "loan123",
                     fileName = "test.jpg",
-                    documentType = DocumentType.ID_CARD_FRONT,
+                    documentType = DocumentType.KTP,
                     contentType = "image/jpeg",
                 )
 
@@ -90,11 +89,11 @@ class DocumentRepositoryImplTest {
     fun `uploadDocument success should return upload result`() =
         runTest {
             val presignResponse =
-                PresignUploadResponse(
+                BaseResponse(
                     success = true,
                     message = "Success",
                     data =
-                        PresignUploadData(
+                        PresignUploadResponse(
                             uploadUrl = "https://presigned.url",
                             documentId = "doc123",
                             objectKey = "loans/loan123/doc123.jpg",
@@ -108,7 +107,7 @@ class DocumentRepositoryImplTest {
                 repository.uploadDocument(
                     loanId = "loan123",
                     filePath = "/test/file.jpg",
-                    documentType = DocumentType.ID_CARD_FRONT,
+                    documentType = DocumentType.KTP,
                 )
 
             assertTrue(result is BaseResult.Success)
@@ -122,7 +121,7 @@ class DocumentRepositoryImplTest {
                     id = "queue123",
                     loanDraftId = "loan123",
                     userId = "user123",
-                    documentType = DocumentType.ID_CARD_FRONT.name,
+                    documentType = DocumentType.KTP.name,
                     localFilePath = "/test/file.jpg",
                     fileName = "test.jpg",
                     contentType = "image/jpeg",
@@ -132,14 +131,14 @@ class DocumentRepositoryImplTest {
                     status = DocumentUploadStatus.PENDING.name,
                 )
 
-            every { dataStoreManager.getUserId() } returns "user123"
+            coEvery { dataStoreManager.getUserId() } returns "user123"
             coEvery { pendingUploadDao.insertPendingUpload(any()) } just Runs
 
             val result =
                 repository.queueDocumentUpload(
                     loanDraftId = "loan123",
                     filePath = "/test/file.jpg",
-                    documentType = DocumentType.ID_CARD_FRONT,
+                    documentType = DocumentType.KTP,
                     shouldCompress = false,
                 )
 
@@ -155,7 +154,7 @@ class DocumentRepositoryImplTest {
                     id = "queue123",
                     loanDraftId = "loan123",
                     userId = "user123",
-                    documentType = DocumentType.ID_CARD_FRONT.name,
+                    documentType = DocumentType.KTP.name,
                     localFilePath = "/test/file.jpg",
                     compressedFilePath = "/test/compressed.jpg",
                     fileName = "test.jpg",
@@ -166,15 +165,15 @@ class DocumentRepositoryImplTest {
                     status = DocumentUploadStatus.PENDING.name,
                 )
 
-            every { dataStoreManager.getUserId() } returns "user123"
-            every { cameraManager.compressImage("/test/file.jpg", 1024) } returns "/test/compressed.jpg"
+            coEvery { dataStoreManager.getUserId() } returns "user123"
+            coEvery { cameraManager.compressImage("/test/file.jpg", 1024) } returns "/test/compressed.jpg"
             coEvery { pendingUploadDao.insertPendingUpload(any()) } just Runs
 
             val result =
                 repository.queueDocumentUpload(
                     loanDraftId = "loan123",
                     filePath = "/test/file.jpg",
-                    documentType = DocumentType.ID_CARD_FRONT,
+                    documentType = DocumentType.KTP,
                     shouldCompress = true,
                 )
 
@@ -190,7 +189,7 @@ class DocumentRepositoryImplTest {
                         id = "1",
                         loanDraftId = "loan123",
                         userId = "user123",
-                        documentType = "ID_CARD_FRONT",
+                        documentType = "KTP",
                         localFilePath = "/test/file1.jpg",
                         fileName = "test1.jpg",
                         contentType = "image/jpeg",

@@ -56,9 +56,12 @@ class NotificationViewModelTest {
                     id = "1",
                     title = "Test Notification",
                     body = "This is a test",
-                    type = "LOAN_STATUS",
+                    userId = "user1",
+                    type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
+                    referenceId = null,
                     isRead = false,
-                    createdAt = System.currentTimeMillis(),
+                    createdAt = "2024-01-01",
+                    link = null
                 ),
             )
 
@@ -92,9 +95,12 @@ class NotificationViewModelTest {
                     id = "1",
                     title = "Test Notification",
                     body = "This is a test",
-                    type = "LOAN_STATUS",
+                    userId = "user1",
+                    type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
+                    referenceId = null,
                     isRead = false,
-                    createdAt = System.currentTimeMillis(),
+                    createdAt = "2024-01-01",
+                    link = null
                 ),
             )
 
@@ -117,9 +123,12 @@ class NotificationViewModelTest {
                     id = "1",
                     title = "Test Notification",
                     body = "This is a test",
-                    type = "LOAN_STATUS",
+                    userId = "user1",
+                    type = com.loanfinancial.lofi.data.model.dto.NotificationType.SYSTEM,
+                    referenceId = null,
                     isRead = false,
-                    createdAt = System.currentTimeMillis(),
+                    createdAt = "2024-01-01",
+                    link = null
                 ),
             )
 

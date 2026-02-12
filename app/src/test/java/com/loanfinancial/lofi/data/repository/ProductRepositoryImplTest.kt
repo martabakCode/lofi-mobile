@@ -1,13 +1,22 @@
 package com.loanfinancial.lofi.data.repository
 
+import com.loanfinancial.lofi.core.network.BaseResponse
+import com.loanfinancial.lofi.core.network.PagingResponse
+import com.loanfinancial.lofi.core.network.Meta
+import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.ProductDao
+import com.loanfinancial.lofi.data.local.database.AppDatabase
 import com.loanfinancial.lofi.data.model.dto.AvailableProductDto
 import com.loanfinancial.lofi.data.model.dto.ProductDto
 import com.loanfinancial.lofi.data.model.entity.ProductEntity
+import com.loanfinancial.lofi.data.model.entity.toEntity
 import com.loanfinancial.lofi.data.remote.api.LoanProductApi
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Before
@@ -17,7 +26,10 @@ import retrofit2.Response
 @ExperimentalCoroutinesApi
 class ProductRepositoryImplTest {
     @MockK
-    private lateinit var productApi: LoanProductApi
+    private lateinit var api: LoanProductApi
+
+    @MockK
+    private lateinit var database: AppDatabase
 
     @MockK
     private lateinit var productDao: ProductDao
@@ -27,117 +39,99 @@ class ProductRepositoryImplTest {
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        repository = ProductRepositoryImpl(productApi, productDao)
+        every { database.productDao() } returns productDao
+        repository = ProductRepositoryImpl(api, database)
     }
 
     @Test
-    fun `getProducts returns products from API`() =
+    fun `getProducts should emit loading then local data then remote data`() =
         runTest {
-            val products =
-                listOf(
-                    ProductDto(
-                        id = "prod1",
-                        name = "Personal Loan",
-                        description = "Personal loan description",
-                        minAmount = 1000000.0,
-                        maxAmount = 50000000.0,
-                        minTenure = 6,
-                        maxTenure = 48,
-                        interestRate = 0.12,
-                    ),
+            // Arrange
+            val localProducts = listOf(
+                ProductEntity(
+                    id = "1",
+                    productCode = "CODE1",
+                    productName = "Local",
+                    description = "Desc",
+                    interestRate = 0.1,
+                    adminFee = 1000.0,
+                    minTenor = 1,
+                    maxTenor = 12,
+                    minLoanAmount = 1000000.0,
+                    maxLoanAmount = 5000000.0,
+                    isActive = true
                 )
+            )
+            val remoteProducts = listOf(
+                ProductDto(
+                    id = "1",
+                    productCode = "CODE1",
+                    productName = "Remote",
+                    description = "Desc",
+                    interestRate = 0.1,
+                    adminFee = 1000.0,
+                    minTenor = 1,
+                    maxTenor = 12,
+                    minLoanAmount = 1000000.0,
+                    maxLoanAmount = 5000000.0,
+                    isActive = true
+                )
+            )
+            val pagingResponse = PagingResponse(
+                items = remoteProducts,
+                meta = Meta(1, 1, 1, 1)
+            )
+            val baseResponse = BaseResponse(
+                success = true,
+                message = "Success",
+                data = pagingResponse
+            )
 
-            coEvery { productApi.getProducts() } returns Response.success(products)
-            coEvery { productDao.insertProducts(any()) } just runs
+            coEvery { productDao.getProducts() } returns flowOf(localProducts) andThen flowOf(remoteProducts.map { it.toEntity() })
+            coEvery { api.getProducts(any(), any()) } returns Response.success(baseResponse)
+            coEvery { productDao.clearAll() } just Runs
+            coEvery { productDao.insertAll(any()) } just Runs
 
-            val result = repository.getProducts()
+            // Act
+            val results = repository.getProducts().toList()
 
-            assertEquals(1, result.size)
-            assertEquals("Personal Loan", result[0].name)
+            // Assert
+            assertTrue(results[0] is Resource.Loading)
+            assertTrue(results[1] is Resource.Success)
+            assertEquals("Local", (results[1] as Resource.Success).data[0].productName)
+            assertTrue(results[2] is Resource.Success)
+            assertEquals("Remote", (results[2] as Resource.Success).data[0].productName)
         }
 
     @Test
-    fun `getProducts caches to local database`() =
+    fun `getAvailableProduct should emit loading then remote data`() =
         runTest {
-            val products =
-                listOf(
-                    ProductDto(
-                        id = "prod1",
-                        name = "Personal Loan",
-                        description = "Description",
-                        minAmount = 1000000.0,
-                        maxAmount = 50000000.0,
-                        minTenure = 6,
-                        maxTenure = 48,
-                        interestRate = 0.12,
-                    ),
-                )
+            // Arrange
+            val availableProduct = AvailableProductDto(
+                productId = "1",
+                productCode = "CODE1",
+                productName = "Available",
+                productLimit = 5000000.0,
+                approvedLoanAmount = 0.0,
+                availableAmount = 5000000.0,
+                hasSubmittedLoan = false,
+                lastLoanStatus = null,
+                lastLoanSubmittedAt = null
+            )
+            val baseResponse = BaseResponse(
+                success = true,
+                message = "Success",
+                data = availableProduct
+            )
 
-            coEvery { productApi.getProducts() } returns Response.success(products)
-            coEvery { productDao.insertProducts(any()) } just runs
+            coEvery { api.getAvailableProduct() } returns Response.success(baseResponse)
 
-            repository.getProducts()
+            // Act
+            val results = repository.getAvailableProduct().toList()
 
-            coVerify { productDao.insertProducts(any()) }
-        }
-
-    @Test
-    fun `getAvailableProducts returns eligible products`() =
-        runTest {
-            val availableProducts =
-                listOf(
-                    AvailableProductDto(
-                        productId = "prod1",
-                        productName = "Personal Loan",
-                        maxLoanAmount = 25000000.0,
-                        maxTenure = 36,
-                        interestRate = 0.10,
-                        eligibleAmount = 15000000.0,
-                    ),
-                )
-
-            coEvery { productApi.getAvailableProducts("user123") } returns Response.success(availableProducts)
-
-            val result = repository.getAvailableProducts("user123")
-
-            assertEquals(1, result.size)
-            assertEquals("Personal Loan", result[0].productName)
-        }
-
-    @Test
-    fun `getCachedProducts returns from database`() =
-        runTest {
-            val entities =
-                listOf(
-                    ProductEntity(
-                        id = "prod1",
-                        name = "Cached Loan",
-                        description = "Cached description",
-                        minAmount = 1000000.0,
-                        maxAmount = 50000000.0,
-                        minTenure = 6,
-                        maxTenure = 48,
-                        interestRate = 0.12,
-                        iconUrl = null,
-                        color = "#FF0000",
-                    ),
-                )
-
-            coEvery { productDao.getAllProducts() } returns entities
-
-            val result = repository.getCachedProducts()
-
-            assertEquals(1, result.size)
-            assertEquals("Cached Loan", result[0].name)
-        }
-
-    @Test
-    fun `clearCache removes all products`() =
-        runTest {
-            coEvery { productDao.clearAll() } just runs
-
-            repository.clearCache()
-
-            coVerify { productDao.clearAll() }
+            // Assert
+            assertTrue(results[0] is Resource.Loading)
+            assertTrue(results[1] is Resource.Success)
+            assertEquals("Available", (results[1] as Resource.Success).data.productName)
         }
 }

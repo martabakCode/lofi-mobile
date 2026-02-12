@@ -30,11 +30,10 @@ class ChangePasswordUseCaseTest {
             // Arrange
             val request =
                 ChangePasswordRequest(
-                    currentPassword = "oldPassword",
+                    oldPassword = "oldPassword",
                     newPassword = "newPassword",
-                    newPasswordConfirmation = "newPassword",
                 )
-            val expectedResponse = ChangePasswordResponse(message = "Password changed successfully")
+            val expectedResponse = ChangePasswordResponse(success = true, message = "Password changed successfully")
 
             coEvery { repository.changePassword(request) } returns Result.success(expectedResponse)
 
@@ -53,9 +52,8 @@ class ChangePasswordUseCaseTest {
             // Arrange
             val request =
                 ChangePasswordRequest(
-                    currentPassword = "oldPassword",
+                    oldPassword = "oldPassword",
                     newPassword = "newPassword",
-                    newPasswordConfirmation = "newPassword",
                 )
             val expectedException = Exception("Password mismatch")
 
