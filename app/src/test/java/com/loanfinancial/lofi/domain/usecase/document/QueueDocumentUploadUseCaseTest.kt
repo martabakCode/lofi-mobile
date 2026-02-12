@@ -68,7 +68,11 @@ class QueueDocumentUploadUseCaseTest {
             val filePath = "/path/file.jpg"
             val documentType = DocumentType.KTP
 
-            coEvery { repository.queueDocumentUpload(loanDraftId, filePath, documentType) } returns BaseResult.Error(com.loanfinancial.lofi.core.common.result.ErrorType.UnknownError("Failed"))
+            coEvery { repository.queueDocumentUpload(loanDraftId, filePath, documentType) } returns
+                BaseResult.Error(
+                    com.loanfinancial.lofi.core.common.result.ErrorType
+                        .UnknownError("Failed"),
+                )
 
             // Act
             val result = useCase(loanDraftId, filePath, documentType)

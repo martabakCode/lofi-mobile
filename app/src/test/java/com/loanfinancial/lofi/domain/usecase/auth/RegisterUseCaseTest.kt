@@ -40,12 +40,13 @@ class RegisterUseCaseTest {
                 RegisterResponse(
                     success = true,
                     message = "Success",
-                    data = com.loanfinancial.lofi.data.model.dto.AuthTokenData(
-                        accessToken = "token",
-                        refreshToken = "refresh",
-                        tokenType = "Bearer",
-                        expiresIn = 3600
-                    )
+                    data =
+                        com.loanfinancial.lofi.data.model.dto.AuthTokenData(
+                            accessToken = "token",
+                            refreshToken = "refresh",
+                            tokenType = "Bearer",
+                            expiresIn = 3600,
+                        ),
                 )
 
             coEvery { repository.register(request) } returns Result.success(expectedResponse)

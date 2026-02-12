@@ -61,7 +61,7 @@ class NotificationViewModelTest {
                     referenceId = null,
                     isRead = false,
                     createdAt = "2024-01-01",
-                    link = null
+                    link = null,
                 ),
             )
 
@@ -100,7 +100,7 @@ class NotificationViewModelTest {
                     referenceId = null,
                     isRead = false,
                     createdAt = "2024-01-01",
-                    link = null
+                    link = null,
                 ),
             )
 
@@ -128,7 +128,7 @@ class NotificationViewModelTest {
                     referenceId = null,
                     isRead = false,
                     createdAt = "2024-01-01",
-                    link = null
+                    link = null,
                 ),
             )
 

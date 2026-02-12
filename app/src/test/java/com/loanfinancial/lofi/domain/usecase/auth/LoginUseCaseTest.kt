@@ -32,18 +32,19 @@ class LoginUseCaseTest {
                 LoginRequest(
                     email = "test@example.com",
                     password = "password123",
-                    fcmToken = "token"
+                    fcmToken = "token",
                 )
             val expectedResponse =
                 LoginResponse(
                     success = true,
                     message = "Success",
-                    data = com.loanfinancial.lofi.data.model.dto.AuthTokenData(
-                        accessToken = "token",
-                        refreshToken = "refresh",
-                        tokenType = "Bearer",
-                        expiresIn = 3600
-                    )
+                    data =
+                        com.loanfinancial.lofi.data.model.dto.AuthTokenData(
+                            accessToken = "token",
+                            refreshToken = "refresh",
+                            tokenType = "Bearer",
+                            expiresIn = 3600,
+                        ),
                 )
 
             coEvery { repository.login(request) } returns Result.success(expectedResponse)
@@ -65,7 +66,7 @@ class LoginUseCaseTest {
                 LoginRequest(
                     email = "test@example.com",
                     password = "password123",
-                    fcmToken = "token"
+                    fcmToken = "token",
                 )
             val expectedException = Exception("Network error")
 

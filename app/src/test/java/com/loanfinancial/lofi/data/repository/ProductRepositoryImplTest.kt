@@ -1,8 +1,8 @@
 package com.loanfinancial.lofi.data.repository
 
 import com.loanfinancial.lofi.core.network.BaseResponse
-import com.loanfinancial.lofi.core.network.PagingResponse
 import com.loanfinancial.lofi.core.network.Meta
+import com.loanfinancial.lofi.core.network.PagingResponse
 import com.loanfinancial.lofi.core.util.Resource
 import com.loanfinancial.lofi.data.local.dao.ProductDao
 import com.loanfinancial.lofi.data.local.database.AppDatabase
@@ -14,7 +14,6 @@ import com.loanfinancial.lofi.data.remote.api.LoanProductApi
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
@@ -47,45 +46,49 @@ class ProductRepositoryImplTest {
     fun `getProducts should emit loading then local data then remote data`() =
         runTest {
             // Arrange
-            val localProducts = listOf(
-                ProductEntity(
-                    id = "1",
-                    productCode = "CODE1",
-                    productName = "Local",
-                    description = "Desc",
-                    interestRate = 0.1,
-                    adminFee = 1000.0,
-                    minTenor = 1,
-                    maxTenor = 12,
-                    minLoanAmount = 1000000.0,
-                    maxLoanAmount = 5000000.0,
-                    isActive = true
+            val localProducts =
+                listOf(
+                    ProductEntity(
+                        id = "1",
+                        productCode = "CODE1",
+                        productName = "Local",
+                        description = "Desc",
+                        interestRate = 0.1,
+                        adminFee = 1000.0,
+                        minTenor = 1,
+                        maxTenor = 12,
+                        minLoanAmount = 1000000.0,
+                        maxLoanAmount = 5000000.0,
+                        isActive = true,
+                    ),
                 )
-            )
-            val remoteProducts = listOf(
-                ProductDto(
-                    id = "1",
-                    productCode = "CODE1",
-                    productName = "Remote",
-                    description = "Desc",
-                    interestRate = 0.1,
-                    adminFee = 1000.0,
-                    minTenor = 1,
-                    maxTenor = 12,
-                    minLoanAmount = 1000000.0,
-                    maxLoanAmount = 5000000.0,
-                    isActive = true
+            val remoteProducts =
+                listOf(
+                    ProductDto(
+                        id = "1",
+                        productCode = "CODE1",
+                        productName = "Remote",
+                        description = "Desc",
+                        interestRate = 0.1,
+                        adminFee = 1000.0,
+                        minTenor = 1,
+                        maxTenor = 12,
+                        minLoanAmount = 1000000.0,
+                        maxLoanAmount = 5000000.0,
+                        isActive = true,
+                    ),
                 )
-            )
-            val pagingResponse = PagingResponse(
-                items = remoteProducts,
-                meta = Meta(1, 1, 1, 1)
-            )
-            val baseResponse = BaseResponse(
-                success = true,
-                message = "Success",
-                data = pagingResponse
-            )
+            val pagingResponse =
+                PagingResponse(
+                    items = remoteProducts,
+                    meta = Meta(1, 1, 1, 1),
+                )
+            val baseResponse =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = pagingResponse,
+                )
 
             coEvery { productDao.getProducts() } returns flowOf(localProducts) andThen flowOf(remoteProducts.map { it.toEntity() })
             coEvery { api.getProducts(any(), any()) } returns Response.success(baseResponse)
@@ -107,22 +110,24 @@ class ProductRepositoryImplTest {
     fun `getAvailableProduct should emit loading then remote data`() =
         runTest {
             // Arrange
-            val availableProduct = AvailableProductDto(
-                productId = "1",
-                productCode = "CODE1",
-                productName = "Available",
-                productLimit = 5000000.0,
-                approvedLoanAmount = 0.0,
-                availableAmount = 5000000.0,
-                hasSubmittedLoan = false,
-                lastLoanStatus = null,
-                lastLoanSubmittedAt = null
-            )
-            val baseResponse = BaseResponse(
-                success = true,
-                message = "Success",
-                data = availableProduct
-            )
+            val availableProduct =
+                AvailableProductDto(
+                    productId = "1",
+                    productCode = "CODE1",
+                    productName = "Available",
+                    productLimit = 5000000.0,
+                    approvedLoanAmount = 0.0,
+                    availableAmount = 5000000.0,
+                    hasSubmittedLoan = false,
+                    lastLoanStatus = null,
+                    lastLoanSubmittedAt = null,
+                )
+            val baseResponse =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = availableProduct,
+                )
 
             coEvery { api.getAvailableProduct() } returns Response.success(baseResponse)
 

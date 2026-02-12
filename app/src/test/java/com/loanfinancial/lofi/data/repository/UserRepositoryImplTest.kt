@@ -6,7 +6,6 @@ import com.loanfinancial.lofi.data.local.dao.ProfileDraftDao
 import com.loanfinancial.lofi.data.local.dao.UserDao
 import com.loanfinancial.lofi.data.model.dto.UserUpdateData
 import com.loanfinancial.lofi.data.model.dto.UserUpdateRequest
-import com.loanfinancial.lofi.data.model.entity.ProfileDraftEntity
 import com.loanfinancial.lofi.data.model.entity.UserProfileEntity
 import com.loanfinancial.lofi.data.remote.api.UserApi
 import io.mockk.*
@@ -43,42 +42,45 @@ class UserRepositoryImplTest {
     fun `updateProfile should emit loading then success`() =
         runTest {
             // Arrange
-            val request = UserUpdateRequest(
-                fullName = "Test User",
-                phoneNumber = "08123456789",
-                incomeSource = "WAGES",
-                incomeType = "MONTHLY",
-                monthlyIncome = 5000000.0,
-                nik = "1234567890123456",
-                dateOfBirth = "1990-01-01",
-                placeOfBirth = "Jakarta",
-                city = "Jakarta",
-                address = "Jl. Test No. 1",
-                province = "DKI Jakarta",
-                district = "Test District",
-                subDistrict = "Test SubDistrict",
-                postalCode = "12345",
-                gender = "MALE",
-                maritalStatus = "SINGLE",
-                occupation = "Software Engineer"
-            )
-            val updateData = UserUpdateData(
-                id = "user123",
-                fullName = "Test User",
-                email = "test@example.com",
-                phoneNumber = "08123456789",
-                profilePictureUrl = null,
-                branch = null,
-                biodata = null,
-                product = null,
-                pinSet = true,
-                profileCompleted = true
-            )
-            val baseResponse = BaseResponse(
-                success = true,
-                message = "Success",
-                data = updateData
-            )
+            val request =
+                UserUpdateRequest(
+                    fullName = "Test User",
+                    phoneNumber = "08123456789",
+                    incomeSource = "WAGES",
+                    incomeType = "MONTHLY",
+                    monthlyIncome = 5000000.0,
+                    nik = "1234567890123456",
+                    dateOfBirth = "1990-01-01",
+                    placeOfBirth = "Jakarta",
+                    city = "Jakarta",
+                    address = "Jl. Test No. 1",
+                    province = "DKI Jakarta",
+                    district = "Test District",
+                    subDistrict = "Test SubDistrict",
+                    postalCode = "12345",
+                    gender = "MALE",
+                    maritalStatus = "SINGLE",
+                    occupation = "Software Engineer",
+                )
+            val updateData =
+                UserUpdateData(
+                    id = "user123",
+                    fullName = "Test User",
+                    email = "test@example.com",
+                    phoneNumber = "08123456789",
+                    profilePictureUrl = null,
+                    branch = null,
+                    biodata = null,
+                    product = null,
+                    pinSet = true,
+                    profileCompleted = true,
+                )
+            val baseResponse =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = updateData,
+                )
 
             coEvery { userApi.updateProfile(request) } returns Response.success(baseResponse)
 
@@ -96,23 +98,25 @@ class UserRepositoryImplTest {
         runTest {
             // Arrange
             val localProfile = UserProfileEntity("user123", "{\"id\":\"user123\",\"fullName\":\"Local\"}")
-            val updateData = UserUpdateData(
-                id = "user123",
-                fullName = "Remote",
-                email = "remote@example.com",
-                phoneNumber = "08123456789",
-                profilePictureUrl = null,
-                branch = null,
-                biodata = null,
-                product = null,
-                pinSet = true,
-                profileCompleted = true
-            )
-            val baseResponse = BaseResponse(
-                success = true,
-                message = "Success",
-                data = updateData
-            )
+            val updateData =
+                UserUpdateData(
+                    id = "user123",
+                    fullName = "Remote",
+                    email = "remote@example.com",
+                    phoneNumber = "08123456789",
+                    profilePictureUrl = null,
+                    branch = null,
+                    biodata = null,
+                    product = null,
+                    pinSet = true,
+                    profileCompleted = true,
+                )
+            val baseResponse =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = updateData,
+                )
 
             coEvery { userDao.getUserProfile() } returns flowOf(localProfile)
             coEvery { userApi.getUserProfile() } returns Response.success(baseResponse)

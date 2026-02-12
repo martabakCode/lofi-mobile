@@ -5,8 +5,6 @@ import com.loanfinancial.lofi.data.local.dao.RegionDao
 import com.loanfinancial.lofi.data.local.database.AppDatabase
 import com.loanfinancial.lofi.data.model.entity.ProvinceEntity
 import com.loanfinancial.lofi.data.model.entity.RegencyEntity
-import com.loanfinancial.lofi.data.model.entity.DistrictEntity
-import com.loanfinancial.lofi.data.model.entity.VillageEntity
 import com.loanfinancial.lofi.data.remote.api.*
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
@@ -44,8 +42,14 @@ class RegionRepositoryImplTest {
             // Arrange
             val localProvinces = listOf(ProvinceEntity("1", "Local"))
             val remoteProvinces = listOf(ProvinceResponse("1", "Remote"))
-            
-            coEvery { regionDao.getProvinces() } returns flowOf(localProvinces) andThen flowOf(remoteProvinces.map { com.loanfinancial.lofi.data.model.entity.ProvinceEntity(it.id, it.name) })
+
+            coEvery { regionDao.getProvinces() } returns flowOf(localProvinces) andThen
+                flowOf(
+                    remoteProvinces.map {
+                        com.loanfinancial.lofi.data.model.entity
+                            .ProvinceEntity(it.id, it.name)
+                    },
+                )
             coEvery { regionApi.getProvinces(any()) } returns remoteProvinces
             coEvery { regionDao.insertProvinces(any()) } just Runs
 
@@ -66,8 +70,14 @@ class RegionRepositoryImplTest {
             // Arrange
             val localRegencies = listOf(RegencyEntity("1", "1", "Local"))
             val remoteRegencies = listOf(RegencyResponse("1", "1", "Remote"))
-            
-            coEvery { regionDao.getRegencies("1") } returns flowOf(localRegencies) andThen flowOf(remoteRegencies.map { com.loanfinancial.lofi.data.model.entity.RegencyEntity(it.id, it.province_id, it.name) })
+
+            coEvery { regionDao.getRegencies("1") } returns flowOf(localRegencies) andThen
+                flowOf(
+                    remoteRegencies.map {
+                        com.loanfinancial.lofi.data.model.entity
+                            .RegencyEntity(it.id, it.province_id, it.name)
+                    },
+                )
             coEvery { regionApi.getRegencies("1") } returns remoteRegencies
             coEvery { regionDao.insertRegencies(any()) } just Runs
 

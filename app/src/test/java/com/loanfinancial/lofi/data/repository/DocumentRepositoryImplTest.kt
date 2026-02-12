@@ -42,16 +42,18 @@ class DocumentRepositoryImplTest {
     @Test
     fun `requestPresignUpload success should return presign data`() =
         runTest {
-            val responseData = PresignUploadResponse(
-                uploadUrl = "https://presigned.url",
-                documentId = "doc123",
-                objectKey = "loans/loan123/doc123.jpg",
-            )
-            val response = BaseResponse(
-                success = true,
-                message = "Success",
-                data = responseData
-            )
+            val responseData =
+                PresignUploadResponse(
+                    uploadUrl = "https://presigned.url",
+                    documentId = "doc123",
+                    objectKey = "loans/loan123/doc123.jpg",
+                )
+            val response =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = responseData,
+                )
 
             coEvery { documentApi.requestPresignUpload(any()) } returns Response.success(response)
 

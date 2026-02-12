@@ -45,37 +45,40 @@ class NotificationRepositoryImplTest {
     fun `getNotifications should emit loading then local data then remote data`() =
         runTest {
             // Arrange
-            val localNotifications = listOf(
-                NotificationEntity(
-                    id = "1",
-                    userId = "user1",
-                    title = "Local",
-                    body = "Body",
-                    type = "SYSTEM",
-                    referenceId = null,
-                    isRead = false,
-                    createdAt = "2024-01-01",
-                    link = null
+            val localNotifications =
+                listOf(
+                    NotificationEntity(
+                        id = "1",
+                        userId = "user1",
+                        title = "Local",
+                        body = "Body",
+                        type = "SYSTEM",
+                        referenceId = null,
+                        isRead = false,
+                        createdAt = "2024-01-01",
+                        link = null,
+                    ),
                 )
-            )
-            val remoteNotifications = listOf(
-                NotificationResponse(
-                    id = "1",
-                    userId = "user1",
-                    title = "Remote",
-                    body = "Body",
-                    type = NotificationType.SYSTEM,
-                    referenceId = null,
-                    isRead = true,
-                    createdAt = "2024-01-01",
-                    link = null
+            val remoteNotifications =
+                listOf(
+                    NotificationResponse(
+                        id = "1",
+                        userId = "user1",
+                        title = "Remote",
+                        body = "Body",
+                        type = NotificationType.SYSTEM,
+                        referenceId = null,
+                        isRead = true,
+                        createdAt = "2024-01-01",
+                        link = null,
+                    ),
                 )
-            )
-            val baseResponse = BaseResponse(
-                success = true,
-                message = "Success",
-                data = remoteNotifications
-            )
+            val baseResponse =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = remoteNotifications,
+                )
 
             coEvery { notificationDao.getNotifications() } returns flowOf(localNotifications) andThen flowOf(remoteNotifications.map { it.toEntity() })
             coEvery { remoteDataSource.getNotifications() } returns Response.success(baseResponse)
@@ -91,7 +94,7 @@ class NotificationRepositoryImplTest {
             assertEquals("Local", (results[1] as Resource.Success).data[0].title)
             assertTrue(results[2] is Resource.Success)
             assertEquals("Remote", (results[2] as Resource.Success).data[0].title)
-            
+
             coVerify { notificationDao.clearAll() }
             coVerify { notificationDao.insertAll(any()) }
         }
@@ -115,24 +118,26 @@ class NotificationRepositoryImplTest {
     fun `syncNotifications should fetch from remote and save to local`() =
         runTest {
             // Arrange
-            val remoteNotifications = listOf(
-                NotificationResponse(
-                    id = "1",
-                    userId = "user1",
-                    title = "Remote",
-                    body = "Body",
-                    type = NotificationType.SYSTEM,
-                    referenceId = null,
-                    isRead = true,
-                    createdAt = "2024-01-01",
-                    link = null
+            val remoteNotifications =
+                listOf(
+                    NotificationResponse(
+                        id = "1",
+                        userId = "user1",
+                        title = "Remote",
+                        body = "Body",
+                        type = NotificationType.SYSTEM,
+                        referenceId = null,
+                        isRead = true,
+                        createdAt = "2024-01-01",
+                        link = null,
+                    ),
                 )
-            )
-            val baseResponse = BaseResponse(
-                success = true,
-                message = "Success",
-                data = remoteNotifications
-            )
+            val baseResponse =
+                BaseResponse(
+                    success = true,
+                    message = "Success",
+                    data = remoteNotifications,
+                )
 
             coEvery { remoteDataSource.getNotifications() } returns Response.success(baseResponse)
             coEvery { notificationDao.clearAll() } just Runs
