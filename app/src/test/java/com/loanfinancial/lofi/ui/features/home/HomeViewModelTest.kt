@@ -11,6 +11,7 @@ import com.loanfinancial.lofi.domain.usecase.user.GetAvailableProductUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetProductsUseCase
 import com.loanfinancial.lofi.domain.usecase.user.GetUserProfileUseCase
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
-import org.junit.Assert.*
+import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -63,7 +64,7 @@ class HomeViewModelTest {
         every { loanSubmissionManager.getPendingSubmissions() } returns flowOf(emptyList())
         every { dataStoreManager.hasCompletedFirstSessionFlow } returns flowOf(false)
         every { dataStoreManager.isProfileCompletedFlow } returns flowOf(false)
-        every { dataStoreManager.setHasCompletedFirstSession(any()) } returns Unit
+        coEvery { dataStoreManager.setHasCompletedFirstSession(any()) } returns Unit
         every { getMyLoansUseCase() } returns flowOf(Resource.Loading)
     }
 
