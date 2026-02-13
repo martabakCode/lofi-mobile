@@ -103,16 +103,20 @@ class DocumentRepositoryImplTest {
                         ),
                 )
 
+            val tempFile = java.io.File.createTempFile("test", ".jpg")
+            val filePath = tempFile.absolutePath
+
             coEvery { documentApi.requestPresignUpload(any()) } returns Response.success(presignResponse)
             coEvery { documentApi.uploadToPresignedUrl(any(), any()) } returns Response.success(Unit)
 
             val result =
                 repository.uploadDocument(
                     loanId = "loan123",
-                    filePath = "/test/file.jpg",
+                    filePath = filePath,
                     documentType = DocumentType.KTP,
                 )
 
+            tempFile.delete()
             assertTrue(result is BaseResult.Success)
         }
 
@@ -134,17 +138,21 @@ class DocumentRepositoryImplTest {
                     status = DocumentUploadStatus.PENDING.name,
                 )
 
+            val tempFile = java.io.File.createTempFile("test", ".jpg")
+            val filePath = tempFile.absolutePath
+
             coEvery { dataStoreManager.getUserId() } returns "user123"
             coEvery { pendingUploadDao.insertPendingUpload(any()) } just Runs
 
             val result =
                 repository.queueDocumentUpload(
                     loanDraftId = "loan123",
-                    filePath = "/test/file.jpg",
+                    filePath = filePath,
                     documentType = DocumentType.KTP,
                     shouldCompress = false,
                 )
 
+            tempFile.delete()
             assertTrue(result is BaseResult.Success)
             coVerify { pendingUploadDao.insertPendingUpload(any()) }
         }
@@ -168,18 +176,38 @@ class DocumentRepositoryImplTest {
                     status = DocumentUploadStatus.PENDING.name,
                 )
 
+            val tempFile = java.io.File.createTempFile("test", ".jpg")
+            val filePath = tempFile.absolutePath
+            // Write some data to enforce size > 1MB condition used in impl: if (shouldCompress && file.length() > 1024 * 1024)
+            // Implementation checks file.length(). If I want to test compression logic trigger, I must make file big.
+            // BUT, the test mocks logic? No, the test mocks compressImage.
+            // Impl: if (shouldCompress && file.length() > 1024 * 1024).
+            // Default temp file is 0 bytes. So it won't trigger compression unless I make it big.
+            // OR I can just accept that it won't trigger compression logic BLOCK inside repository, but the test *asserts* what?
+            // The test sets: coEvery { cameraManager.compressImage(...) }
+            // The IMPL calls compressImage ONLY if file > 1MB.
+            // So if I use empty temp file, compressImage won't be called.
+            // I need to write 1MB+ dummy data to tempFile.
+            val dummyData = ByteArray(1024 * 1025) // slightly > 1MB
+            tempFile.writeBytes(dummyData)
+
+            val compressedTempFile = java.io.File.createTempFile("compressed", ".jpg")
+            val compressedFilePath = compressedTempFile.absolutePath
+
             coEvery { dataStoreManager.getUserId() } returns "user123"
-            coEvery { cameraManager.compressImage("/test/file.jpg", 1024) } returns "/test/compressed.jpg"
+            coEvery { cameraManager.compressImage(filePath, 1024) } returns compressedFilePath
             coEvery { pendingUploadDao.insertPendingUpload(any()) } just Runs
 
             val result =
                 repository.queueDocumentUpload(
                     loanDraftId = "loan123",
-                    filePath = "/test/file.jpg",
+                    filePath = filePath,
                     documentType = DocumentType.KTP,
                     shouldCompress = true,
                 )
 
+            tempFile.delete()
+            compressedTempFile.delete()
             assertTrue(result is BaseResult.Success)
         }
 

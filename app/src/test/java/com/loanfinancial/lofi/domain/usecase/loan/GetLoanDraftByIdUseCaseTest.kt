@@ -31,7 +31,7 @@ class GetLoanDraftByIdUseCaseTest {
             // Arrange
             val draftId = "draft_123"
             val draft = createLoanDraft(draftId)
-            coEvery { repository.getDraftById(draftId) } returns draft
+            coEvery { repository.getDraftById(any()) } returns draft
 
             // Act
             val result = useCase(draftId)

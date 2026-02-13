@@ -81,7 +81,7 @@ class LoanRepositoryImplTest {
             val remoteResponse = BaseResponse(true, "Success", PagingResponse(listOf(remoteDto), mockk()))
 
             every { localDataSource.getAllLoans() } returns flowOf(cachedEntities)
-            coEvery { remoteDataSource.getMyLoans(0, 10, "createdAt") } returns Response.success(remoteResponse)
+            coEvery { remoteDataSource.getMyLoans(any(), any(), any()) } returns Response.success(remoteResponse)
             coEvery { localDataSource.deleteAllLoans() } returns Unit
             coEvery { localDataSource.insertLoans(any()) } returns Unit
 

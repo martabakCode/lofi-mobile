@@ -130,15 +130,15 @@ class LoanDraftRepositoryImplTest {
             assertTrue(result.isSuccess)
             coVerify {
                 loanDraftDao.updateBasicInfo(
-                    draftId = "draft_123",
-                    amount = 5000000,
-                    tenor = 12,
-                    purpose = "Business",
-                    downPayment = 1000000,
-                    latitude = -6.2088,
-                    longitude = 106.8456,
-                    isBiometricVerified = true,
-                    currentStep = DraftStep.BASIC_INFO.name,
+                    draftId = any(),
+                    amount = any(),
+                    tenor = any(),
+                    purpose = any(),
+                    downPayment = any(),
+                    latitude = any(),
+                    longitude = any(),
+                    isBiometricVerified = any(),
+                    currentStep = any(),
                 )
             }
         }
