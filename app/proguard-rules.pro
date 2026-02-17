@@ -52,6 +52,7 @@
 
 # Models
 -keep class com.loanfinancial.lofi.data.remote.model.** { *; }
+-keep class com.loanfinancial.lofi.data.model.dto.** { *; }
 -keep class com.loanfinancial.lofi.domain.model.** { *; }
 
 # Android Components

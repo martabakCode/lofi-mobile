@@ -31,31 +31,6 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideChuckerCollector(
-        @ApplicationContext context: Context,
-    ): ChuckerCollector =
-        ChuckerCollector(
-            context = context,
-            showNotification = true,
-            retentionPeriod = RetentionManager.Period.ONE_HOUR,
-        )
-
-    @Provides
-    @Singleton
-    fun provideChuckerInterceptor(
-        @ApplicationContext context: Context,
-        chuckerCollector: ChuckerCollector,
-    ): ChuckerInterceptor =
-        ChuckerInterceptor
-            .Builder(context)
-            .collector(chuckerCollector)
-            .maxContentLength(250_000L)
-            .redactHeaders("Auth-Token", "Bearer")
-            .alwaysReadResponseBody(true)
-            .build()
-
-    @Provides
-    @Singleton
     fun provideLoggingInterceptor(): HttpLoggingInterceptor =
         HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -64,8 +39,8 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
+        @ApplicationContext context: Context,
         authInterceptor: AuthInterceptor,
-        chuckerInterceptor: ChuckerInterceptor,
         loggingInterceptor: HttpLoggingInterceptor,
     ): OkHttpClient {
         val certificatePinner =
@@ -80,6 +55,19 @@ object NetworkModule {
             .addInterceptor(loggingInterceptor)
             .apply {
                 if (BuildConfig.DEBUG) {
+                    val chuckerCollector = ChuckerCollector(
+                        context = context,
+                        showNotification = true,
+                        retentionPeriod = RetentionManager.Period.ONE_HOUR,
+                    )
+                    
+                    val chuckerInterceptor = ChuckerInterceptor.Builder(context)
+                        .collector(chuckerCollector)
+                        .maxContentLength(250_000L)
+                        .redactHeaders("Auth-Token", "Bearer")
+                        .alwaysReadResponseBody(true)
+                        .build()
+                        
                     addInterceptor(chuckerInterceptor)
                 }
             }.certificatePinner(certificatePinner)

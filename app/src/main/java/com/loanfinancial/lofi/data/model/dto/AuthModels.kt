@@ -1,115 +1,117 @@
 package com.loanfinancial.lofi.data.model.dto
 
+import com.google.gson.annotations.SerializedName
+
 data class LoginRequest(
-    val email: String,
-    val password: String,
-    val fcmToken: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("password") val password: String,
+    @SerializedName("fcmToken") val fcmToken: String,
 )
 
 /**
  * Common auth token response data used by login, register, and Google auth endpoints
  */
 data class AuthTokenData(
-    val accessToken: String,
-    val refreshToken: String,
-    val expiresIn: Long,
-    val tokenType: String,
-    val pinSet: Boolean = false,
-    val profileCompleted: Boolean = false,
+    @SerializedName("accessToken") val accessToken: String,
+    @SerializedName("refreshToken") val refreshToken: String,
+    @SerializedName("expiresIn") val expiresIn: Long,
+    @SerializedName("tokenType") val tokenType: String,
+    @SerializedName("pinSet") val pinSet: Boolean = false,
+    @SerializedName("profileCompleted") val profileCompleted: Boolean = false,
 )
 
 data class LoginResponse(
-    val success: Boolean,
-    val message: String,
-    val code: String? = null,
-    val data: AuthTokenData? = null,
-    val errors: Any? = null,
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String,
+    @SerializedName("code") val code: String? = null,
+    @SerializedName("data") val data: AuthTokenData? = null,
+    @SerializedName("errors") val errors: Any? = null,
 )
 
 /**
  * Request body for Google Sign-In authentication
  */
 data class GoogleAuthRequest(
-    val idToken: String,
-    val fcmToken: String? = null,
-    val latitude: Double? = null,
-    val longitude: Double? = null,
+    @SerializedName("idToken") val idToken: String,
+    @SerializedName("fcmToken") val fcmToken: String? = null,
+    @SerializedName("latitude") val latitude: Double? = null,
+    @SerializedName("longitude") val longitude: Double? = null,
 )
 
 /**
  * Response for Google authentication - same structure as login/register
  */
 data class GoogleAuthResponse(
-    val success: Boolean,
-    val message: String,
-    val code: String? = null,
-    val data: AuthTokenData? = null,
-    val errors: Any? = null,
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String,
+    @SerializedName("code") val code: String? = null,
+    @SerializedName("data") val data: AuthTokenData? = null,
+    @SerializedName("errors") val errors: Any? = null,
 )
 
 data class UserResponse(
-    val success: Boolean,
-    val message: String,
-    val data: UserData? = null,
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String,
+    @SerializedName("data") val data: UserData? = null,
 )
 
 data class UserData(
-    val id: String,
-    val email: String,
-    val username: String,
-    val branchId: String?,
+    @SerializedName("id") val id: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("username") val username: String,
+    @SerializedName("branchId") val branchId: String?,
     // Nullable because branchName wasn't in LoginData, best to be safe
-    val branchName: String?,
-    val roles: List<String>,
-    val permissions: List<String>,
+    @SerializedName("branchName") val branchName: String?,
+    @SerializedName("roles") val roles: List<String>,
+    @SerializedName("permissions") val permissions: List<String>,
 )
 
 data class RegisterRequest(
-    val fullName: String,
-    val username: String,
-    val email: String,
-    val password: String,
-    val phoneNumber: String,
+    @SerializedName("fullName") val fullName: String,
+    @SerializedName("username") val username: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("password") val password: String,
+    @SerializedName("phoneNumber") val phoneNumber: String,
 )
 
 data class RegisterResponse(
-    val success: Boolean,
-    val message: String,
-    val code: String? = null,
-    val data: AuthTokenData? = null,
-    val errors: Any? = null,
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String,
+    @SerializedName("code") val code: String? = null,
+    @SerializedName("data") val data: AuthTokenData? = null,
+    @SerializedName("errors") val errors: Any? = null,
 )
 
 data class LogoutResponse(
-    val success: Boolean,
-    val message: String,
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String,
 )
 
 data class ChangePasswordRequest(
-    val oldPassword: String,
-    val newPassword: String,
+    @SerializedName("oldPassword") val oldPassword: String,
+    @SerializedName("newPassword") val newPassword: String,
 )
 
 data class ChangePasswordResponse(
-    val success: Boolean,
-    val message: String,
-    val code: String? = null,
-    val data: Any? = null,
-    val errors: Any? = null,
+    @SerializedName("success") val success: Boolean,
+    @SerializedName("message") val message: String,
+    @SerializedName("code") val code: String? = null,
+    @SerializedName("data") val data: Any? = null,
+    @SerializedName("errors") val errors: Any? = null,
 )
 
 data class SetPinRequest(
-    val pin: String,
-    val password: String? = null,
+    @SerializedName("pin") val pin: String,
+    @SerializedName("password") val password: String? = null,
 )
 
 data class ChangePinRequest(
-    val oldPin: String,
-    val newPin: String,
+    @SerializedName("oldPin") val oldPin: String,
+    @SerializedName("newPin") val newPin: String,
 )
 
 data class RefreshTokenRequest(
-    val refreshToken: String,
+    @SerializedName("refreshToken") val refreshToken: String,
 )
 
 typealias RefreshTokenResponse = LoginResponse
