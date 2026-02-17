@@ -78,8 +78,11 @@ object NetworkModule {
             .Builder()
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
-            .addInterceptor(chuckerInterceptor)
-            .certificatePinner(certificatePinner)
+            .apply {
+                if (BuildConfig.DEBUG) {
+                    addInterceptor(chuckerInterceptor)
+                }
+            }.certificatePinner(certificatePinner)
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .build()
